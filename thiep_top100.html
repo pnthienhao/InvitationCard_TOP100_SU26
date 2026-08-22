@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thiệp mời - Thiện Hảo</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Great+Vibes&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap"
+        rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        wine: {
+                            950: '#140205',
+                            900: '#26040A',
+                            800: '#3D080F', // Red Wine Royal Base
+                            700: '#5A0C16',
+                            600: '#7A111E',
+                            500: '#9B1627'
+                        },
+                        gold: {
+                            100: '#FFF9E6',
+                            200: '#FDECB2',
+                            300: '#F3D675',
+                            400: '#E5BF43',
+                            500: '#D4AF37', // Royal Gold
+                            600: '#AA7C11',
+                            700: '#7F5B05'
+                        },
+                        fpt: {
+                            orange: '#F26F21',
+                            orangeDark: '#C7510A',
+                            orangeLight: '#FF9453'
+                        }
+                    },
+                    fontFamily: {
+                        cinzel: ['"Cinzel"', 'serif'],
+                        serif: ['"Cormorant Garamond"', 'serif'],
+                        script: ['"Great Vibes"', 'cursive'],
+                        sans: ['"Montserrat"', 'sans-serif']
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 5s ease-in-out infinite',
+                        'shimmer': 'shimmer 2.5s linear infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-8px)' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #140205;
+            color: #FDECB2;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* Gold Gradient Text */
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #FFF9E6 0%, #F3D675 30%, #D4AF37 50%, #AA7C11 75%, #FFF9E6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shimmer 4s linear infinite;
+        }
+
+        .fpt-gradient-text {
+            background: linear-gradient(135deg, #FF9453 0%, #F26F21 50%, #D4AF37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Royal Pattern Overlay */
+        .bg-royal-pattern {
+            background-image:
+                radial-gradient(rgba(212, 175, 55, 0.12) 1px, transparent 1px),
+                radial-gradient(rgba(242, 111, 33, 0.08) 1px, transparent 1px);
+            background-size: 32px 32px, 64px 64px;
+            background-position: 0 0, 16px 16px;
+        }
+
+        /* Envelope 3D Visual Styling */
+        .envelope-wrapper {
+            perspective: 1000px;
+        }
+
+        .envelope {
+            position: relative;
+            width: 320px;
+            height: 220px;
+            background-color: #5A0C16;
+            border-radius: 12px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(242, 111, 33, 0.25);
+            cursor: pointer;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        @media (min-width: 640px) {
+            .envelope {
+                width: 480px;
+                height: 320px;
+            }
+        }
+
+        .envelope:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.95), 0 0 45px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Envelope Flaps */
+        .envelope .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 0;
+            border-left: 160px solid transparent;
+            border-right: 160px solid transparent;
+            border-top: 135px solid #7A111E;
+            transform-origin: top;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s, z-index 0.2s 0.4s;
+            z-index: 4;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+        }
+
+        @media (min-width: 640px) {
+            .envelope .flap {
+                border-left-width: 240px;
+                border-right-width: 240px;
+                border-top-width: 185px;
+            }
+        }
+
+        .envelope .pocket {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 0;
+            border-left: 160px solid #3D080F;
+            border-right: 160px solid #3D080F;
+            border-bottom: 125px solid #5A0C16;
+            border-radius: 0 0 12px 12px;
+            z-index: 3;
+        }
+
+        @media (min-width: 640px) {
+            .envelope .pocket {
+                border-left-width: 240px;
+                border-right-width: 240px;
+                border-bottom-width: 175px;
+            }
+        }
+
+        /* Wax Seal Stamp */
+        .envelope .wax-seal {
+            position: absolute;
+            top: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 62px;
+            height: 62px;
+            background: radial-gradient(circle, #FFF9E6 0%, #D4AF37 40%, #7F5B05 100%);
+            border-radius: 50%;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.9);
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+            border: 2px solid #AA7C11;
+        }
+
+        @media (min-width: 640px) {
+            .envelope .wax-seal {
+                top: 150px;
+                width: 74px;
+                height: 74px;
+            }
+        }
+
+        /* Envelope Open States */
+        .envelope-container.open .flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.1s 0.3s;
+        }
+
+        .envelope-container.open .wax-seal {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.2);
+        }
+
+        .envelope-container.open .letter-preview {
+            transform: translateY(-135px) scale(1);
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.4s;
+        }
+
+        /* Smooth Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #140205;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #7A111E;
+            border-radius: 4px;
+            border: 1px solid #D4AF37;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #F26F21;
+        }
+
+        /* Soundwave animation */
+        .bar {
+            width: 3px;
+            background-color: #F3D675;
+            border-radius: 3px;
+            animation: soundwave 1.2s ease-in-out infinite alternate;
+        }
+
+        .bar:nth-child(1) {
+            height: 8px;
+            animation-delay: 0.1s;
+        }
+
+        .bar:nth-child(2) {
+            height: 16px;
+            animation-delay: 0.3s;
+        }
+
+        .bar:nth-child(3) {
+            height: 12px;
+            animation-delay: 0.2s;
+        }
+
+        .bar:nth-child(4) {
+            height: 18px;
+            animation-delay: 0.4s;
+        }
+
+        @keyframes soundwave {
+            0% {
+                height: 4px;
+            }
+
+            100% {
+                height: 20px;
+            }
+        }
+
+        .paused .bar {
+            animation-play-state: paused;
+            height: 4px !important;
+        }
+
+        /* ====================================================================================
+           KHU VỰC STYLE CHỮ (FONT & KÍCH THƯỚC) - CHỈNH Ở ĐÂY
+           Toàn bộ font-size / font-family của thiệp được gom về các class bên dưới.
+           M muốn tăng/giảm chữ chỗ nào thì tìm đúng class đó rồi sửa font-size là xong,
+           không cần đụng vào phần class Tailwind ở trong HTML nữa.
+           ==================================================================================== */
+
+        /* Font chữ Việt an toàn - dùng cho các dòng tiêu đề có dấu tiếng Việt
+           (Cinzel là font La Mã, không có đủ dấu tiếng Việt nên bị lỗi/xấu font
+           ở phần "Thời Gian" / "Địa điểm" trước đây) */
+        .font-vn-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 700;
+            /* Ép số hiển thị kiểu "lining" (cao đều, thẳng hàng chữ hoa) thay vì
+               kiểu số cổ điển mặc định của Cormorant Garamond (số bị nhỏ/lệch dòng,
+               ví dụ "100" trong "TOP 100" nhìn lọt thỏm so với chữ xung quanh) */
+            font-variant-numeric: lining-nums;
+            font-feature-settings: "lnum" 1;
+        }
+
+        /* --- Header trang bìa & banner thiệp --- */
+        .txt-eyebrow {
+            /* "THIỆP MỜI", "Trân Trọng Kính Mời", "ABOUT ME"... */
+            font-size: 0.75rem;
+            /* 12px */
+            letter-spacing: 0.3em;
+        }
+
+        .txt-title-main {
+            /* "LỄ TÔN VINH TOP 100 SINH VIÊN XUẤT SẮC" */
+            font-size: 1.5rem;
+            /* 24px */
+            line-height: 1.3;
+        }
+
+        @media (min-width: 640px) {
+            .txt-title-main {
+                font-size: 2rem;
+                /* 32px */
+            }
+        }
+
+        .txt-subtitle {
+            /* "HỌC KỲ SUMMER 2026" */
+            font-size: 0.8rem;
+            /* 13px */
+        }
+
+        /* --- Tên khách mời (chữ script lớn) --- */
+        .txt-guest-name {
+            font-size: clamp(2rem, 4vw + 1rem, 3.4rem);
+        }
+
+        .txt-guest-sub {
+            /* "Đến tham dự buổi lễ..." */
+            font-size: 18px;
+            /* 16px, tăng nhẹ vì đổi qua font serif nét mảnh hơn Montserrat */
+            font-weight: 600;
+        }
+
+        /* --- Khối "Thời Gian" / "Địa điểm" --- */
+        .txt-section-label {
+            /* Tiêu đề nhỏ "Thời Gian", "Địa điểm", "Đếm Ngược Tới Lễ Tôn Vinh" */
+            font-size: 0.85rem;
+            /* 14px, tăng số này lên nếu m thấy chữ còn nhỏ */
+        }
+
+        .txt-photo-label {
+            /* Tiêu đề "Khoảnh Khắc Đáng Nhớ" (tách riêng khỏi txt-section-label
+               để chỉnh size mà không ảnh hưởng "Thời Gian" / "Địa điểm") */
+            font-size: 1.05rem;
+            /* 16.8px, tăng số này lên nếu m thấy chữ còn nhỏ */
+        }
+
+        @media (min-width: 640px) {
+            .txt-photo-label {
+                font-size: 1.2rem;
+                /* 19.2px */
+            }
+        }
+
+        .txt-detail-strong {
+            /* Dòng chính: "08:00 AM • Thứ Bảy", "Hội Trường Đại Học FPT" */
+            font-size: 0.95rem;
+            /* 15px */
+            font-weight: 600;
+        }
+
+        .txt-detail-sub {
+            /* Dòng phụ: ngày tháng, địa chỉ chi tiết */
+            font-size: 0.8rem;
+            /* 13px */
+        }
+
+        /* ============================================= */
+        /* SCROLL REVEAL EFFECTS (hiệu ứng kiểu PowerPoint) */
+        /* ============================================= */
+
+        /* Khối bất kỳ (card, hình...) mờ dần + trượt lên khi cuộn tới */
+        .reveal-item {
+            opacity: 0;
+            transform: translateY(55px) scale(0.94);
+            transition: opacity 0.9s cubic-bezier(0.16, 0.84, 0.44, 1),
+                transform 0.9s cubic-bezier(0.16, 0.84, 0.44, 1);
+            transition-delay: var(--reveal-delay, 0s);
+            will-change: opacity, transform;
+        }
+
+        .reveal-item.in-view {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Chữ "bay vào" theo từng từ, giống hiệu ứng Entrance của PowerPoint */
+        .reveal-text {
+            display: block;
+        }
+
+        .reveal-word {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(28px) rotateX(-55deg);
+            transform-origin: top;
+            transition: opacity 0.6s ease, transform 0.65s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .reveal-text.in-view .reveal-word {
+            opacity: 1;
+            transform: translateY(0) rotateX(0deg);
+        }
+
+        /* --- Khung ảnh dọc 9:16 --- */
+        .photo-frame {
+            position: relative;
+            aspect-ratio: 9 / 16;
+            border-radius: 18px;
+            padding: 5px;
+            background: linear-gradient(145deg, #FFF9E6 0%, #D4AF37 35%, #F26F21 65%, #D4AF37 100%);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65), 0 0 25px rgba(212, 175, 55, 0.25);
+        }
+
+        .photo-frame-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 14px;
+            overflow: hidden;
+            background: linear-gradient(160deg, #3D080F 0%, #140205 100%);
+        }
+
+        .photo-frame-inner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .photo-frame-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: rgba(253, 236, 178, 0.45);
+            background-image: repeating-linear-gradient(45deg, rgba(212, 175, 55, 0.06) 0 10px, transparent 10px 20px);
+            text-align: center;
+            padding: 10px;
+        }
+
+        .photo-frame-placeholder span {
+            font-size: 0.65rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .photo-frame-corner {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-color: #FFF9E6;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0.85;
+        }
+
+        .photo-frame-corner.tl {
+            top: 10px;
+            left: 10px;
+            border-top: 2px solid;
+            border-left: 2px solid;
+            border-radius: 4px 0 0 0;
+        }
+
+        .photo-frame-corner.br {
+            bottom: 10px;
+            right: 10px;
+            border-bottom: 2px solid;
+            border-right: 2px solid;
+            border-radius: 0 0 4px 0;
+        }
+
+        .photo-frame-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 8px 10px;
+            background: linear-gradient(to top, rgba(20, 2, 5, 0.92), transparent);
+            text-align: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 700;
+            font-style: italic;
+            color: #FDECB2;
+            font-size: 0.85rem;
+            letter-spacing: 0.03em;
+            z-index: 2;
+            /* Ép số hiển thị kiểu "lining" (cao đều bằng chữ), tránh số
+               "1" / "2" bị nhỏ/lệch dòng so với chữ "Khoảnh Khắc" xung quanh */
+            font-variant-numeric: lining-nums;
+            font-feature-settings: "lnum" 1;
+        }
+
+        /* --- Khối đếm ngược --- */
+        .txt-countdown-num {
+            font-size: 1.5rem;
+            /* 24px */
+        }
+
+        @media (min-width: 640px) {
+            .txt-countdown-num {
+                font-size: 2rem;
+                /* 32px */
+            }
+        }
+
+        .txt-countdown-unit {
+            font-size: 0.65rem;
+            /* 10.5px */
+        }
+
+        /* --- Khối "ABOUT ME" / học sinh --- */
+        .txt-student-name {
+            font-size: 1.25rem;
+            /* 20px */
+        }
+
+        @media (min-width: 640px) {
+            .txt-student-name {
+                font-size: 1.5rem;
+                /* 24px */
+            }
+        }
+
+        .txt-student-major {
+            font-size: 0.8rem;
+            /* 13px */
+        }
+
+        .txt-badge {
+            font-size: 0.75rem;
+            /* 12px */
+        }
+
+        /* --- Nút xem bản đồ & footer --- */
+        .txt-cta {
+            font-size: 0.75rem;
+            /* 12px */
+        }
+
+        .txt-footer-script {
+            font-size: 1.9rem;
+            /* 30px */
+        }
+
+        @media (min-width: 640px) {
+            .txt-footer-script {
+                font-size: 2.2rem;
+                /* 35px */
+            }
+        }
+
+        /* ====================================================================================
+           KHUNG THIỆP TRÊN MÁY TÍNH (PC) - CHỈNH BỀ RỘNG Ở ĐÂY
+           Trước đây thiệp dùng max-w-2xl (672px) nên trên PC bị kéo ngang quá to,
+           không giống tỉ lệ 1 tấm thiệp mời. Giờ set 1 class riêng, m chỉ cần đổi
+           số max-width bên dưới nếu muốn thiệp rộng/hẹp hơn.
+           ==================================================================================== */
+        .invite-card-frame {
+            width: 100%;
+            max-width: 480px;
+            /* độ rộng thiệp trên điện thoại/màn nhỏ */
+        }
+
+        @media (min-width: 640px) {
+            .invite-card-frame {
+                max-width: 560px;
+                /* độ rộng thiệp trên PC/tablet - chỉnh số này để đổi ngang */
+            }
+        }
+    </style>
+</head>
+
+<body
+    class="min-h-screen bg-royal-pattern flex flex-col justify-between items-center relative selection:bg-gold-500 selection:text-wine-950">
+
+    <canvas id="star-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+    <!-- Custom MP3 Audio Tag (Instructions on how to change music are provided in the Help Modal) -->
+    <!-- BẠN CÓ THỂ THAY LINK MP3 CỦA BẠN VÀO DÒNG DƯỚI: -->
+    <audio id="custom-bg-audio" loop preload="auto">
+        <source src="GoldenHour.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- SECTION 1: 3D ENVELOPE COVER -->
+    <div id="envelope-section"
+        class="relative z-10 w-full min-h-screen flex flex-col justify-center items-center px-4 py-8 transition-all duration-700">
+
+        <!-- FPT University Header Emblem -->
+        <div class="text-center mb-6 sm:mb-8 animate-float">
+            <!-- LOGO: thay src="..." dưới đây bằng ảnh logo PNG nền trong suốt của bạn.
+                 Class "h-16 sm:h-20 w-auto object-contain" giữ chiều cao cố định, không méo hình, không hộp/không viền. -->
+            <div class="inline-flex flex-col items-center mb-5">
+                <img src="Logo_FPT_Education.png" alt="FPT Education" class="h-16 sm:h-20 w-auto object-contain">
+            </div>
+            <p class="font-script text-3xl sm:text-5xl text-gold-300 mb-1">Thiệp Mời</p>
+            <h1 class="font-vn-heading txt-title-main text-gold-100 tracking-[0.15em] uppercase gold-gradient-text">
+                LỄ TÔN VINH TOP 100 SINH VIÊN XUẤT SẮC
+            </h1>
+            <p class="font-sans txt-eyebrow text-fpt-orange font-semibold uppercase mt-1">HỌC KỲ
+                SUMMER 2026</p>
+            <div
+                class="w-24 sm:w-32 h-[1px] bg-gradient-to-r from-transparent via-gold-400 to-transparent mx-auto mt-3">
+            </div>
+        </div>
+
+        <!-- 3D Envelope Wrapper -->
+        <div class="envelope-wrapper my-2 sm:my-4">
+            <div id="envelope-container" class="envelope-container relative" onclick="openEnvelope()">
+                <div class="envelope mx-auto">
+                    <!-- Flap Cover -->
+                    <div class="flap"></div>
+
+                    <!-- Wax Seal Stamp -->
+                    <div class="wax-seal animate-pulse-slow" title="Chạm để mở thiệp">
+                        <div class="text-center flex flex-col items-center justify-center leading-none gap-0.5">
+                            <span
+                                class="font-cinzel text-[9px] sm:text-[11px] font-black text-wine-950 uppercase tracking-widest">FPTU</span>
+                            <span
+                                class="font-cinzel text-[11px] sm:text-sm font-black text-wine-950 uppercase tracking-wider">TOP100</span>
+                        </div>
+                    </div>
+
+                    <!-- Inner Letter Preview Peek -->
+                    <div
+                        class="letter-preview absolute top-3 left-4 right-4 bottom-3 bg-wine-900 rounded-lg p-3 sm:p-4 text-center z-2 shadow-inner pointer-events-none transform translate-y-0 transition-transform duration-500 border border-gold-500/40 flex flex-col justify-center items-center">
+                        <div
+                            class="border border-gold-500/30 h-full w-full flex flex-col justify-center items-center p-2 bg-wine-950/80 rounded">
+                            <span
+                                class="font-vn-heading text-gold-400 text-[10px] sm:text-xs tracking-widest uppercase">THIỆP
+                                MỜI</span>
+                            <span class="text-[11px] sm:text-xs text-gold-200/90 italic my-1">Kính mời: <strong
+                                    class="guest-name-text font-script text-xl sm:text-2xl text-fpt-orange not-italic">Quý
+                                    Khách Mời</strong></span>
+                            <span class="text-[9px] sm:text-[10px] text-gold-300/70 tracking-wider uppercase">Lễ Tôn
+                                Vinh TOP 100</span>
+                        </div>
+                    </div>
+
+                    <!-- Pocket Front Cover -->
+                    <div class="pocket"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Touch Instruction Badge -->
+        <div class="mt-8 text-center animate-bounce">
+            <p
+                class="text-xs tracking-widest uppercase text-gold-300/90 font-medium flex items-center justify-center gap-2 bg-wine-950/80 border border-gold-500/30 px-5 py-2.5 rounded-full shadow-lg">
+                <i class="fa-solid fa-hand-pointer text-fpt-orange"></i>
+                <span>Chạm vào con dấu sáp để mở thiệp</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- SECTION 2: INVITATION CARD MODAL (AUTO-SCROLLING & TOUCH INTERACTIVE) -->
+    <div id="invitation-card"
+        class="fixed inset-0 z-40 hidden opacity-0 transition-opacity duration-700 bg-wine-950 bg-royal-pattern backdrop-blur-md flex justify-center items-center py-2 sm:py-6 px-2 sm:px-4">
+
+        <!-- Scrollable Modal Window Container -->
+        <div id="card-scroll-container"
+            class="relative invite-card-frame max-h-[92vh] bg-wine-900 rounded-2xl shadow-2xl overflow-y-auto border-2 border-gold-500/70 transform scale-95 transition-transform duration-500"
+            id="card-content">
+
+            <!-- Top Close Button -->
+            <button onclick="closeCard()" title="Gấp thiệp lại"
+                class="absolute top-3 right-3 z-40 w-9 h-9 rounded-full bg-wine-950/90 hover:bg-gold-500 text-gold-300 hover:text-wine-950 border border-gold-500/60 flex items-center justify-center transition-all shadow-lg active:scale-95">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <!-- CARD HEADER BANNER -->
+            <div
+                class="bg-gradient-to-r from-wine-950 via-wine-900 to-wine-950 text-gold-300 py-8 px-4 sm:px-8 text-center relative border-b border-gold-500/40">
+
+                <!-- FPT University Emblem -->
+                <div class="flex flex-col items-center mb-4">
+                    <!-- LOGO: thay src="..." dưới đây bằng ảnh logo PNG nền trong suốt của bạn. -->
+                    <img src="Logo_FPT_Education.png" alt="FPT Education" class="h-14 sm:h-16 w-auto object-contain">
+                </div>
+
+                <p class="font-sans txt-eyebrow uppercase text-gold-400 mb-1 font-semibold">THIỆP MỜI</p>
+                <h2 class="font-vn-heading txt-title-main tracking-wider gold-gradient-text uppercase">
+                    LỄ TÔN VINH TOP 100<br>SINH
+                    VIÊN XUẤT SẮC
+                </h2>
+                <p class="font-sans txt-subtitle font-bold text-fpt-orange uppercase tracking-widest mt-1">
+                    HỌC KỲ SUMMER 2026</p>
+                <div class="w-32 h-[1px] bg-gradient-to-r from-transparent via-gold-400 to-transparent mx-auto mt-3">
+                </div>
+            </div>
+
+            <!-- CARD BODY CONTENT -->
+            <div
+                class="p-4 sm:p-8 relative bg-gradient-to-b from-wine-900 via-wine-950 to-wine-900 text-gold-100 space-y-8">
+
+                <!-- GUEST INVITATION HIGHLIGHT -->
+                <div class="reveal-item text-center max-w-xl mx-auto" style="--reveal-delay:0s;">
+
+                    <p class="reveal-text txt-eyebrow uppercase text-gold-300/90 font-medium mb-4">Trân Trọng Kính Mời
+                    </p>
+
+                    <div
+                        class="inline-block max-w-full px-6 py-5 sm:px-10 sm:py-6 rounded-2xl border border-gold-500/40 bg-gradient-to-br from-gold-500/10 via-white/[0.02] to-transparent shadow-[0_0_35px_rgba(212,175,55,0.15)]">
+                        <h3 id="guest-name-display"
+                            class="font-script txt-guest-name text-gold-200 guest-name-text leading-tight break-words"
+                            style="text-shadow: 0 0 22px rgba(212,175,55,.45);">
+                            Quý Khách Mời</h3>
+                    </div>
+
+                    <p class="font-serif txt-guest-sub text-gold-300/70 italic mt-5 leading-relaxed">Đến tham dự buổi Lễ
+                        tôn
+                        vinh của<br>Trường Đại học FPT TP.HCM</p>
+                </div>
+
+                <!-- STUDENT PROFILE / AVATAR HIGHLIGHT SECTION (CÓ HƯỚNG DẪN IMPORT HÌNH) -->
+                <div
+                    class="reveal-item bg-wine-950/80 rounded-2xl p-6 border border-gold-500/40 text-center shadow-2xl relative">
+                    <p class="reveal-text txt-eyebrow uppercase text-fpt-orange font-bold mb-3">ABOUT ME</p>
+
+                    <!-- Avatar Image Container -->
+                    <div
+                        class="relative w-28 h-28 sm:w-36 sm:h-36 mx-auto mb-4 rounded-full p-1 bg-gradient-to-tr from-fpt-orange via-gold-500 to-gold-200 shadow-2xl">
+                        <!-- BAN CÓ THỂ THAY LINK HÌNH ẢNH DƯỚI ĐÂY (thay src="..."): -->
+                        <img id="student-avatar" src="hao.jpg" alt="Student Avatar"
+                            class="w-full h-full object-cover rounded-full border-2 border-wine-950 shadow-inner">
+                        <div class="absolute bottom-0 right-1 bg-gold-500 text-wine-950 rounded-full w-8 h-8 flex items-center justify-center border-2 border-wine-950 shadow-lg"
+                            title="Top 100">
+                            <i class="fa-solid fa-star text-xs"></i>
+                        </div>
+                    </div>
+
+                    <h4 id="student-name" class="font-vn-heading txt-student-name gold-gradient-text uppercase">PHẠM
+                        NGUYỄN THIỆN
+                        HẢO</h4>
+                    <p class="txt-student-major text-gold-300/90 font-medium mt-1">Major: Software Engineering</p>
+                    <p
+                        class="inline-block mt-3 px-4 py-1.5 rounded-full bg-fpt-orange/20 border border-fpt-orange/50 text-fpt-orange txt-badge font-semibold">
+                        <i class="fa-solid fa-trophy mr-1"></i> Top 100 Outstanding Student Summer 2026
+                    </p>
+                </div>
+
+                <!-- PHOTO GALLERY SECTION - 2 KHUNG HÌNH DỌC 9:16 -->
+                <!-- BẠN CÓ THỂ THAY LINK HÌNH ẢNH: đổi src="anh-1.jpg" và src="anh-2.jpg" bên dưới bằng ảnh của bạn. -->
+                <!-- Nếu chưa có ảnh, khung sẽ tự hiện khung giữ chỗ (placeholder) màu vàng-rượu vang. -->
+                <div class="text-center">
+                    <p
+                        class="reveal-text font-vn-heading txt-photo-label font-bold uppercase tracking-widest text-gold-400 mb-4">
+                        Khoảnh Khắc Đáng Nhớ</p>
+                    <div class="grid grid-cols-2 gap-4 sm:gap-5 max-w-md mx-auto">
+                        <!-- Khung hình 1 -->
+                        <div class="reveal-item photo-frame" style="--reveal-delay:0s;">
+                            <div class="photo-frame-inner">
+                                <img src="SP26.jpg" alt="Khoảnh khắc 1"
+                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+                                <div class="photo-frame-caption">Top 100 Spring 2026</div>
+                            </div>
+                            <div class="photo-frame-corner tl"></div>
+                            <div class="photo-frame-corner br"></div>
+                        </div>
+                        <!-- Khung hình 2 -->
+                        <div class="reveal-item photo-frame" style="--reveal-delay:0.18s;">
+                            <div class="photo-frame-inner">
+                                <img src="FA25.jpg" alt="Khoảnh khắc 2"
+                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+                                <div class="photo-frame-caption">Sinh viên xuất sắc Fall 2025</div>
+                            </div>
+                            <div class="photo-frame-corner tl"></div>
+                            <div class="photo-frame-corner br"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Countdown Clock -->
+                <div class="reveal-item p-5 rounded-2xl bg-wine-950/90 border border-gold-500/40 text-center shadow-xl"
+                    style="--reveal-delay:0.1s;">
+                    <p class="font-vn-heading txt-section-label font-bold uppercase tracking-widest text-gold-400 mb-3">
+                        Đếm Ngược Tới
+                        Lễ Tôn Vinh</p>
+                    <div class="grid grid-cols-4 gap-2.5 max-w-xs sm:max-w-sm mx-auto">
+                        <div class="bg-wine-900/90 p-3 rounded-xl border border-gold-500/30">
+                            <span id="cd-days"
+                                class="font-cinzel font-bold txt-countdown-num block text-fpt-orange">00</span>
+                            <span class="font-vn-heading txt-countdown-unit text-gold-300 uppercase">Ngày</span>
+                        </div>
+                        <div class="bg-wine-900/90 p-3 rounded-xl border border-gold-500/30">
+                            <span id="cd-hours"
+                                class="font-cinzel font-bold txt-countdown-num block text-gold-200">00</span>
+                            <span class="font-vn-heading txt-countdown-unit text-gold-300 uppercase">Giờ</span>
+                        </div>
+                        <div class="bg-wine-900/90 p-3 rounded-xl border border-gold-500/30">
+                            <span id="cd-mins"
+                                class="font-cinzel font-bold txt-countdown-num block text-gold-200">00</span>
+                            <span class="font-vn-heading txt-countdown-unit text-gold-300 uppercase">Phút</span>
+                        </div>
+                        <div class="bg-wine-900/90 p-3 rounded-xl border border-gold-500/30">
+                            <span id="cd-secs"
+                                class="font-cinzel font-bold txt-countdown-num block text-gold-200">00</span>
+                            <span class="font-vn-heading txt-countdown-unit text-gold-300 uppercase">Giây</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Details Grid (Time & Venue) -->
+                <div class="grid grid-cols-1 gap-4">
+                    <!-- Time Card -->
+                    <div class="reveal-item p-5 rounded-2xl bg-wine-950/80 border border-gold-500/30 flex items-start gap-4"
+                        style="--reveal-delay:0s;">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-gold-500/20 border border-gold-500/50 text-gold-300 flex items-center justify-center text-xl shrink-0">
+                            <i class="fa-regular fa-calendar-check"></i>
+                        </div>
+                        <div>
+                            <h5 class="font-vn-heading txt-section-label text-gold-300 uppercase">Thời Gian</h5>
+                            <p class="font-sans txt-detail-strong text-gold-300 mt-1">17:00 • Thứ Hai</p>
+                            <p class="font-sans txt-detail-sub text-gold-300/80">Ngày 05 Tháng 10 Năm 2026</p>
+                        </div>
+                    </div>
+
+                    <!-- Location Card -->
+                    <div class="reveal-item p-5 rounded-2xl bg-wine-950/80 border border-gold-500/30 flex items-start gap-4"
+                        style="--reveal-delay:0.15s;">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-gold-500/20 border border-gold-500/50 text-gold-300 flex items-center justify-center text-xl shrink-0">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div>
+                            <h5 class="font-vn-heading txt-section-label text-gold-300 uppercase">Địa điểm</h5>
+                            <p class="font-sans txt-detail-strong text-gold-300 mt-1">Hội Trường Đại Học FPT</p>
+                            <p class="font-sans txt-detail-sub text-gold-300/80">Khu Công Nghệ Cao, P. Long Thạnh Mỹ,
+                                TP. Thủ Đức, TP.HCM
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Map Button -->
+                <div class="reveal-item text-center pt-2 pb-4 sm:pb-2" style="--reveal-delay:0.1s;">
+                    <a href="https://maps.app.goo.gl/i3FCMzSxcHq2g7sS7" target="_blank"
+                        class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-fpt-orange via-gold-500 to-fpt-orange text-wine-950 font-bold txt-cta uppercase tracking-wider shadow-2xl hover:brightness-110 transition transform active:scale-95">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                        <span>Xem Bản Đồ Chỉ Đường</span>
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- CARD FOOTER -->
+            <div class="bg-wine-950 py-6 px-6 text-center border-t border-gold-500/30">
+                <p class="font-script txt-footer-script text-gold-300">Thiện Hảo rất hân hạnh được đón tiếp!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast"
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gold-500 text-wine-950 font-bold px-6 py-2.5 rounded-full shadow-2xl transition-all duration-300 opacity-0 pointer-events-none z-50 text-xs flex items-center gap-2">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toast-message">Thông báo</span>
+    </div>
+
+    <script>
+        /* 
+            ====================================================================================
+            JAVASCRIPT APPLICATION LOGIC
+            Includes: Envelope opening animation, Confetti explosion, Auto-Scroll logic with
+            hold-to-pause touch listeners, Synth + MP3 audio engine, URL query reader.
+            ====================================================================================
+        */
+
+        // Countdown Target Date: October 5, 2026 17:00:00
+        const targetDate = new Date('October 5, 2026 17:00:00').getTime();
+
+        // Auto-Scroll State Engine variables
+        let autoScrollInterval = null;
+        let isUserTouching = false;
+        const scrollContainer = document.getElementById('card-scroll-container');
+        const scrollStatusText = document.getElementById('scroll-status-text');
+        const scrollPing = document.getElementById('scroll-ping');
+        const scrollDot = document.getElementById('scroll-dot');
+
+        // Function: Open Envelope
+        function openEnvelope() {
+            const container = document.getElementById('envelope-container');
+            const envelopeSection = document.getElementById('envelope-section');
+            const cardModal = document.getElementById('invitation-card');
+
+            if (container.classList.contains('open')) return;
+
+            // Step 1: Open envelope flap
+            container.classList.add('open');
+
+            // Step 2: Trigger audio and chime
+            playGraduationChime();
+            startAudio();
+
+            // Step 3: Trigger gold confetti explosion
+            setTimeout(triggerGoldConfetti, 500);
+
+            // Step 4: Show Modal Card
+            setTimeout(() => {
+                envelopeSection.classList.add('opacity-0');
+
+                setTimeout(() => {
+                    envelopeSection.classList.add('hidden');
+                    cardModal.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        cardModal.classList.remove('opacity-0');
+                        startAutoScroll();
+
+                        // Khởi tạo hiệu ứng chữ "bay vào" + hình mờ dần khi
+                        // cuộn — phải đợi thiệp thật sự hiển thị (có kích
+                        // thước) thì Intersection Observer mới đo được.
+                        requestAnimationFrame(() => {
+                            splitRevealTexts();
+                            initScrollReveal();
+                        });
+                    }, 50);
+                }, 500);
+            }, 1200);
+        }
+
+        // Function: Close Card
+        function closeCard() {
+            const envelopeSection = document.getElementById('envelope-section');
+            const cardModal = document.getElementById('invitation-card');
+            const container = document.getElementById('envelope-container');
+
+            stopAutoScroll();
+            resetRevealEffects();
+
+            cardModal.classList.add('opacity-0');
+            setTimeout(() => {
+                cardModal.classList.add('hidden');
+                envelopeSection.classList.remove('hidden');
+                setTimeout(() => {
+                    envelopeSection.classList.remove('opacity-0');
+                    container.classList.remove('open');
+                }, 50);
+            }, 500);
+        }
+
+        /*
+            ====================================================================================
+            AUTO SCROLL ENGINE & TOUCH/HOLD-TO-PAUSE CONTROLLER
+            ====================================================================================
+        */
+        function startAutoScroll() {
+            stopAutoScroll();
+            if (!scrollContainer) return;
+
+            autoScrollInterval = setInterval(() => {
+                if (!isUserTouching) {
+                    // Scroll down slowly by 1px
+                    scrollContainer.scrollTop += 1;
+
+                    // Reset to top if reached bottom
+                    if (scrollContainer.scrollTop + scrollContainer.clientHeight >= scrollContainer.scrollHeight - 5) {
+                        setTimeout(() => {
+                            if (!isUserTouching) scrollContainer.scrollTop = 0;
+                        }, 1500);
+                    }
+                }
+            }, 30); // 30ms interval for silky smooth animation
+
+            updateScrollBadgeStatus(true);
+        }
+
+        function stopAutoScroll() {
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
+            updateScrollBadgeStatus(false);
+        }
+
+        function pauseScroll() {
+            isUserTouching = true;
+            updateScrollBadgeStatus(false);
+        }
+
+        function resumeScroll() {
+            isUserTouching = false;
+            updateScrollBadgeStatus(true);
+        }
+
+        function updateScrollBadgeStatus(isScrolling) {
+            if (!scrollStatusText) return;
+            if (isScrolling && !isUserTouching) {
+                scrollStatusText.innerHTML = 'Tự động cuộn... <strong>(Chạm & giữ để dừng)</strong>';
+                if (scrollPing) scrollPing.classList.remove('hidden');
+                if (scrollDot) scrollDot.className = "relative inline-flex rounded-full h-2 w-2 bg-fpt-orange";
+            } else {
+                scrollStatusText.innerHTML = 'Đã tạm dừng <strong>(Thả tay để chạy tiếp)</strong>';
+                if (scrollPing) scrollPing.classList.add('hidden');
+                if (scrollDot) scrollDot.className = "relative inline-flex rounded-full h-2 w-2 bg-gold-400";
+            }
+        }
+
+        // Attach Touch & Mouse Events to Card Container for Pause on Hold / Resume on Release
+        function initTouchControlListeners() {
+            if (!scrollContainer) return;
+
+            // Touch events for mobile/tablets
+            scrollContainer.addEventListener('touchstart', pauseScroll, { passive: true });
+            scrollContainer.addEventListener('touchend', resumeScroll, { passive: true });
+
+            // Mouse events for desktop
+            scrollContainer.addEventListener('mousedown', pauseScroll);
+            scrollContainer.addEventListener('mouseup', resumeScroll);
+            scrollContainer.addEventListener('mouseenter', pauseScroll);
+            scrollContainer.addEventListener('mouseleave', resumeScroll);
+        }
+
+        /*
+            ====================================================================================
+            AUDIO & SYNTHESIZER ENGINE
+            ====================================================================================
+        */
+        let isAudioPlaying = false;
+        let synthContext = null;
+
+        function startAudio() {
+            const bgAudio = document.getElementById('custom-bg-audio');
+            const musicBtnText = document.getElementById('music-status-text');
+            const soundwave = document.getElementById('soundwave');
+
+            // Try playing custom MP3 audio first
+            if (bgAudio) {
+                bgAudio.play().then(() => {
+                    isAudioPlaying = true;
+                    if (musicBtnText) musicBtnText.innerText = "Tắt Nhạc";
+                    if (soundwave) soundwave.classList.remove('paused');
+                }).catch(() => {
+                    // Fallback to Web Audio Synthesizer if custom file is blocked or missing
+                    startSynthAudio();
+                });
+            } else {
+                startSynthAudio();
+            }
+        }
+
+        function toggleAudio() {
+            const bgAudio = document.getElementById('custom-bg-audio');
+            const musicBtnText = document.getElementById('music-status-text');
+            const soundwave = document.getElementById('soundwave');
+
+            if (isAudioPlaying) {
+                if (bgAudio) bgAudio.pause();
+                isAudioPlaying = false;
+                if (musicBtnText) musicBtnText.innerText = "Bật Nhạc";
+                if (soundwave) soundwave.classList.add('paused');
+                showToast("Đã tắt nhạc nền");
+            } else {
+                startAudio();
+                showToast("Đã bật nhạc nền lễ tôn vinh");
+            }
+        }
+
+        function startSynthAudio() {
+            try {
+                synthContext = new (window.AudioContext || window.webkitAudioContext)();
+                playSynthLoop();
+                isAudioPlaying = true;
+                const musicBtnText = document.getElementById('music-status-text');
+                const soundwave = document.getElementById('soundwave');
+                if (musicBtnText) musicBtnText.innerText = "Tắt Nhạc";
+                if (soundwave) soundwave.classList.remove('paused');
+            } catch (e) { }
+        }
+
+        function playSynthLoop() {
+            const notes = [261.63, 329.63, 392.00, 523.25, 440.00, 349.23];
+            let noteIdx = 0;
+            setInterval(() => {
+                if (!synthContext || !isAudioPlaying) return;
+                const osc = synthContext.createOscillator();
+                const gain = synthContext.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(notes[noteIdx], synthContext.currentTime);
+                gain.gain.setValueAtTime(0.01, synthContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.08, synthContext.currentTime + 0.4);
+                gain.gain.exponentialRampToValueAtTime(0.001, synthContext.currentTime + 2.2);
+                osc.connect(gain);
+                gain.connect(synthContext.destination);
+                osc.start();
+                osc.stop(synthContext.currentTime + 2.2);
+                noteIdx = (noteIdx + 1) % notes.length;
+            }, 1200);
+        }
+
+        function playGraduationChime() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
+                    gain.gain.setValueAtTime(0.12, ctx.currentTime + i * 0.12);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 1.2);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + i * 0.12);
+                    osc.stop(ctx.currentTime + i * 0.12 + 1.2);
+                });
+            } catch (e) { }
+        }
+
+        // Confetti Burst Effect
+        function triggerGoldConfetti() {
+            if (typeof confetti !== 'function') return;
+            const end = Date.now() + (2.5 * 1000);
+            (function frame() {
+                confetti({
+                    particleCount: 4,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#F26F21', '#D4AF37', '#FFF9E6', '#9B1627']
+                });
+                confetti({
+                    particleCount: 4,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#F26F21', '#D4AF37', '#FFF9E6', '#9B1627']
+                });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        }
+
+        // Countdown Timer
+        function updateCountdown() {
+            const cdDays = document.getElementById('cd-days');
+            const cdHours = document.getElementById('cd-hours');
+            const cdMins = document.getElementById('cd-mins');
+            const cdSecs = document.getElementById('cd-secs');
+
+            if (!cdDays || !cdHours || !cdMins || !cdSecs) return;
+
+            const now = new Date().getTime();
+            const diff = targetDate - now;
+
+            if (diff <= 0) {
+                cdDays.innerText = '00';
+                cdHours.innerText = '00';
+                cdMins.innerText = '00';
+                cdSecs.innerText = '00';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            cdDays.innerText = String(days).padStart(2, '0');
+            cdHours.innerText = String(hours).padStart(2, '0');
+            cdMins.innerText = String(minutes).padStart(2, '0');
+            cdSecs.innerText = String(seconds).padStart(2, '0');
+        }
+
+        // DANH SÁCH KHÁCH MỜI - Thêm/sửa tên khách ở đây.
+        // Link mời từng khách sẽ có dạng: ...ten-file.html?id=01 (theo mã bên dưới)
+        const GUEST_LIST = {
+            "01": "Anh Nguyễn Văn A",
+            "02": "Chị Trần Thị B",
+            "03": "Anh Lê Văn C"
+        };
+
+        // URL Guest Parameter Handling (?id=01)
+        function initGuestNameFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const guestId = urlParams.get('id');
+            if (guestId && GUEST_LIST[guestId]) {
+                document.querySelectorAll('.guest-name-text').forEach(el => el.innerText = GUEST_LIST[guestId]);
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            if (!toast || !toastMsg) return;
+            toastMsg.innerText = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => toast.classList.add('opacity-0', 'pointer-events-none'), 3000);
+        }
+
+        // Starfield Particles Animation
+        function initStarfield() {
+            const canvas = document.getElementById('star-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let w = canvas.width = window.innerWidth;
+            let h = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            });
+
+            const stars = Array.from({ length: 50 }, () => ({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                size: Math.random() * 2 + 0.5,
+                alpha: Math.random() * 0.8 + 0.2,
+                speed: Math.random() * 0.3 + 0.1
+            }));
+
+            function draw() {
+                ctx.clearRect(0, 0, w, h);
+                stars.forEach(s => {
+                    s.y -= s.speed;
+                    if (s.y < 0) s.y = h;
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(242, 111, 33, ${s.alpha})`;
+                    ctx.shadowBlur = 6;
+                    ctx.shadowColor = '#D4AF37';
+                    ctx.fill();
+                });
+                requestAnimationFrame(draw);
+            }
+            draw();
+        }
+
+        // ===================================================
+        // SCROLL REVEAL EFFECTS (hiệu ứng chữ + hình "bay vào"
+        // khi kéo xuống, giống hiệu ứng Entrance của PowerPoint)
+        // ===================================================
+
+        // Tách từng chữ ".reveal-text" thành các từ riêng để có thể
+        // cho từng từ "bay vào" lần lượt (staggered), giống PowerPoint.
+        function splitRevealTexts() {
+            document.querySelectorAll('.reveal-text').forEach((el) => {
+                if (el.dataset.split === '1') return; // tránh tách 2 lần
+                // Bỏ qua nếu bên trong có thẻ khác (vd <br>) để không làm mất
+                // định dạng xuống dòng — chỉ tách khi nội dung là chữ thuần.
+                if (el.children.length > 0) return;
+                const words = el.textContent.trim().split(/\s+/);
+                el.textContent = '';
+                words.forEach((word, i) => {
+                    const span = document.createElement('span');
+                    span.className = 'reveal-word';
+                    span.style.transitionDelay = (i * 0.07) + 's';
+                    span.textContent = word;
+                    el.appendChild(span);
+                    el.appendChild(document.createTextNode(' '));
+                });
+                el.dataset.split = '1';
+            });
+        }
+
+        // Theo dõi khối .reveal-item / .reveal-text, khi cuộn tới thì
+        // thêm class "in-view" để CSS transition kích hoạt hiệu ứng.
+        function initScrollReveal() {
+            const scrollRoot = document.getElementById('card-scroll-container') || null;
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in-view');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                root: scrollRoot,
+                threshold: 0.15,
+                rootMargin: '0px 0px -8% 0px'
+            });
+
+            document.querySelectorAll('.reveal-item, .reveal-text').forEach((el) => {
+                observer.observe(el);
+            });
+        }
+
+        // Reset lại trạng thái ẩn của hiệu ứng chữ/hình, để lần sau mở thiệp
+        // lại thì hiệu ứng "bay vào" chạy lại từ đầu như lúc đầu tiên.
+        function resetRevealEffects() {
+            document.querySelectorAll('.reveal-item, .reveal-text').forEach((el) => {
+                el.classList.remove('in-view');
+            });
+        }
+
+        // Initialize Page
+        document.addEventListener('DOMContentLoaded', () => {
+            initGuestNameFromURL();
+            initStarfield();
+            initTouchControlListeners();
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        });
+    </script>
+</body>
+
+</html>
