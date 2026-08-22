@@ -63,12 +63,12 @@
                     },
                     keyframes: {
                         float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-8px)' },
+                            '0%, 100%': {transform: 'translateY(0px)'},
+                            '50%': {transform: 'translateY(-8px)'},
                         },
                         shimmer: {
-                            '0%': { backgroundPosition: '-200% 0' },
-                            '100%': { backgroundPosition: '200% 0' },
+                            '0%': {backgroundPosition: '-200% 0'},
+                            '100%': {backgroundPosition: '200% 0'},
                         }
                     }
                 }
@@ -1025,8 +1025,8 @@
             if (!scrollContainer) return;
 
             // Touch events for mobile/tablets
-            scrollContainer.addEventListener('touchstart', pauseScroll, { passive: true });
-            scrollContainer.addEventListener('touchend', resumeScroll, { passive: true });
+            scrollContainer.addEventListener('touchstart', pauseScroll, {passive: true});
+            scrollContainer.addEventListener('touchend', resumeScroll, {passive: true});
 
             // Mouse events for desktop
             scrollContainer.addEventListener('mousedown', pauseScroll);
@@ -1139,14 +1139,14 @@
                     particleCount: 4,
                     angle: 60,
                     spread: 55,
-                    origin: { x: 0 },
+                    origin: {x: 0},
                     colors: ['#F26F21', '#D4AF37', '#FFF9E6', '#9B1627']
                 });
                 confetti({
                     particleCount: 4,
                     angle: 120,
                     spread: 55,
-                    origin: { x: 1 },
+                    origin: {x: 1},
                     colors: ['#F26F21', '#D4AF37', '#FFF9E6', '#9B1627']
                 });
                 if (Date.now() < end) requestAnimationFrame(frame);
@@ -1187,7 +1187,7 @@
         // DANH SÁCH KHÁCH MỜI - Thêm/sửa tên khách ở đây.
         // Link mời từng khách sẽ có dạng: ...ten-file.html?id=01 (theo mã bên dưới)
         const GUEST_LIST = {
-            "01": "Anh Nguyễn Văn A",
+            "01": "Bạn Duy Phong",
             "02": "Chị Trần Thị B",
             "03": "Anh Lê Văn C"
         };
@@ -1223,7 +1223,7 @@
                 h = canvas.height = window.innerHeight;
             });
 
-            const stars = Array.from({ length: 50 }, () => ({
+            const stars = Array.from({length: 50}, () => ({
                 x: Math.random() * w,
                 y: Math.random() * h,
                 size: Math.random() * 2 + 0.5,
