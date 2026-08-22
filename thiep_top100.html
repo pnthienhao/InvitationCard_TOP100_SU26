@@ -63,12 +63,12 @@
                     },
                     keyframes: {
                         float: {
-                            '0%, 100%': {transform: 'translateY(0px)'},
-                            '50%': {transform: 'translateY(-8px)'},
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-8px)' },
                         },
                         shimmer: {
-                            '0%': {backgroundPosition: '-200% 0'},
-                            '100%': {backgroundPosition: '200% 0'},
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' },
                         }
                     }
                 }
@@ -869,7 +869,7 @@
 
             <!-- CARD FOOTER -->
             <div class="bg-wine-950 py-6 px-6 text-center border-t border-gold-500/30">
-                <p class="font-script txt-footer-script text-gold-300">Thiện Hảo rất hân hạnh được đón tiếp!</p>
+                <p class="font-script txt-footer-script text-gold-300">Hân hạnh được đón tiếp!</p>
             </div>
         </div>
     </div>
@@ -1025,8 +1025,8 @@
             if (!scrollContainer) return;
 
             // Touch events for mobile/tablets
-            scrollContainer.addEventListener('touchstart', pauseScroll, {passive: true});
-            scrollContainer.addEventListener('touchend', resumeScroll, {passive: true});
+            scrollContainer.addEventListener('touchstart', pauseScroll, { passive: true });
+            scrollContainer.addEventListener('touchend', resumeScroll, { passive: true });
 
             // Mouse events for desktop
             scrollContainer.addEventListener('mousedown', pauseScroll);
@@ -1139,14 +1139,14 @@
                     particleCount: 4,
                     angle: 60,
                     spread: 55,
-                    origin: {x: 0},
+                    origin: { x: 0 },
                     colors: ['#F26F21', '#D4AF37', '#FFF9E6', '#9B1627']
                 });
                 confetti({
                     particleCount: 4,
                     angle: 120,
                     spread: 55,
-                    origin: {x: 1},
+                    origin: { x: 1 },
                     colors: ['#F26F21', '#D4AF37', '#FFF9E6', '#9B1627']
                 });
                 if (Date.now() < end) requestAnimationFrame(frame);
@@ -1223,7 +1223,7 @@
                 h = canvas.height = window.innerHeight;
             });
 
-            const stars = Array.from({length: 50}, () => ({
+            const stars = Array.from({ length: 50 }, () => ({
                 x: Math.random() * w,
                 y: Math.random() * h,
                 size: Math.random() * 2 + 0.5,
