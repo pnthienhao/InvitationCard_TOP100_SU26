@@ -678,199 +678,208 @@
     <div id="invitation-card"
         class="fixed inset-0 z-40 hidden opacity-0 transition-opacity duration-700 bg-wine-950 bg-royal-pattern backdrop-blur-md flex justify-center items-center py-2 sm:py-6 px-2 sm:px-4">
 
-        <!-- Scrollable Modal Window Container -->
-        <div id="card-scroll-container"
-            class="relative invite-card-frame max-h-[92vh] bg-wine-900 rounded-2xl shadow-2xl overflow-y-auto border-2 border-gold-500/70 transform scale-95 transition-transform duration-500"
-            id="card-content">
+        <!-- Outer wrapper (does NOT scroll) - holds the fixed close button -->
+        <div class="relative invite-card-frame max-h-[92vh]">
 
-            <!-- Top Close Button -->
+            <!-- Top Close Button: sibling of the scroll container, so it stays fixed while content scrolls -->
             <button onclick="closeCard()" title="Gấp thiệp lại"
-                class="absolute top-3 right-3 z-40 w-9 h-9 rounded-full bg-wine-950/90 hover:bg-gold-500 text-gold-300 hover:text-wine-950 border border-gold-500/60 flex items-center justify-center transition-all shadow-lg active:scale-95">
+                class="absolute top-3 right-3 z-50 w-9 h-9 rounded-full bg-wine-950/90 hover:bg-gold-500 text-gold-300 hover:text-wine-950 border border-gold-500/60 flex items-center justify-center transition-all shadow-lg active:scale-95">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
 
-            <!-- CARD HEADER BANNER -->
-            <div
-                class="bg-gradient-to-r from-wine-950 via-wine-900 to-wine-950 text-gold-300 py-8 px-4 sm:px-8 text-center relative border-b border-gold-500/40">
+            <!-- Scrollable Modal Window Container -->
+            <div id="card-scroll-container"
+                class="relative w-full h-full max-h-[92vh] bg-wine-900 rounded-2xl shadow-2xl overflow-y-auto border-2 border-gold-500/70 transform scale-95 transition-transform duration-500">
 
-                <!-- FPT University Emblem -->
-                <div class="flex flex-col items-center mb-4">
-                    <!-- LOGO: thay src="..." dưới đây bằng ảnh logo PNG nền trong suốt của bạn. -->
-                    <img src="Logo_FPT_Education.png" alt="FPT Education" class="h-14 sm:h-16 w-auto object-contain">
-                </div>
-
-                <p class="font-sans txt-eyebrow uppercase text-gold-400 mb-1 font-semibold">THIỆP MỜI</p>
-                <h2 class="font-vn-heading txt-title-main tracking-wider gold-gradient-text uppercase">
-                    LỄ TÔN VINH TOP 100<br>SINH
-                    VIÊN XUẤT SẮC
-                </h2>
-                <p class="font-sans txt-subtitle font-bold text-fpt-orange uppercase tracking-widest mt-1">
-                    HỌC KỲ SUMMER 2026</p>
-                <div class="w-32 h-[1px] bg-gradient-to-r from-transparent via-gold-400 to-transparent mx-auto mt-3">
-                </div>
-            </div>
-
-            <!-- CARD BODY CONTENT -->
-            <div
-                class="p-4 sm:p-8 relative bg-gradient-to-b from-wine-900 via-wine-950 to-wine-900 text-gold-100 space-y-8">
-
-                <!-- GUEST INVITATION HIGHLIGHT -->
-                <div class="reveal-item text-center max-w-xl mx-auto" style="--reveal-delay:0s;">
-
-                    <p class="reveal-text txt-eyebrow uppercase text-gold-300/90 font-medium mb-4">Trân Trọng Kính Mời
-                    </p>
-
-                    <div
-                        class="inline-block max-w-full px-6 py-5 sm:px-10 sm:py-6 rounded-2xl border border-gold-500/40 bg-gradient-to-br from-gold-500/10 via-white/[0.02] to-transparent shadow-[0_0_35px_rgba(212,175,55,0.15)]">
-                        <h3 id="guest-name-display"
-                            class="font-script txt-guest-name text-gold-200 guest-name-text leading-tight break-words"
-                            style="text-shadow: 0 0 22px rgba(212,175,55,.45);">
-                            Quý Khách Mời</h3>
-                    </div>
-
-                    <p class="font-serif txt-guest-sub text-gold-300/70 italic mt-5 leading-relaxed">Đến tham dự buổi Lễ
-                        tôn
-                        vinh của<br>Trường Đại học FPT TP.HCM</p>
-                </div>
-
-                <!-- STUDENT PROFILE / AVATAR HIGHLIGHT SECTION (CÓ HƯỚNG DẪN IMPORT HÌNH) -->
+                <!-- CARD HEADER BANNER -->
                 <div
-                    class="reveal-item bg-wine-950/80 rounded-2xl p-6 border border-gold-500/40 text-center shadow-2xl relative">
-                    <p class="reveal-text txt-eyebrow uppercase text-fpt-orange font-bold mb-3">ABOUT ME</p>
+                    class="bg-gradient-to-r from-wine-950 via-wine-900 to-wine-950 text-gold-300 py-8 px-4 sm:px-8 text-center relative border-b border-gold-500/40">
 
-                    <!-- Avatar Image Container -->
+                    <!-- FPT University Emblem -->
+                    <div class="flex flex-col items-center mb-4">
+                        <!-- LOGO: thay src="..." dưới đây bằng ảnh logo PNG nền trong suốt của bạn. -->
+                        <img src="Logo_FPT_Education.png" alt="FPT Education"
+                            class="h-14 sm:h-16 w-auto object-contain">
+                    </div>
+
+                    <p class="font-sans txt-eyebrow uppercase text-gold-400 mb-1 font-semibold">THIỆP MỜI</p>
+                    <h2 class="font-vn-heading txt-title-main tracking-wider gold-gradient-text uppercase">
+                        LỄ TÔN VINH TOP 100<br>SINH
+                        VIÊN XUẤT SẮC
+                    </h2>
+                    <p class="font-sans txt-subtitle font-bold text-fpt-orange uppercase tracking-widest mt-1">
+                        HỌC KỲ SUMMER 2026</p>
                     <div
-                        class="relative w-28 h-28 sm:w-36 sm:h-36 mx-auto mb-4 rounded-full p-1 bg-gradient-to-tr from-fpt-orange via-gold-500 to-gold-200 shadow-2xl">
-                        <!-- BAN CÓ THỂ THAY LINK HÌNH ẢNH DƯỚI ĐÂY (thay src="..."): -->
-                        <img id="student-avatar" src="hao.jpg" alt="Student Avatar"
-                            class="w-full h-full object-cover rounded-full border-2 border-wine-950 shadow-inner">
-                        <div class="absolute bottom-0 right-1 bg-gold-500 text-wine-950 rounded-full w-8 h-8 flex items-center justify-center border-2 border-wine-950 shadow-lg"
-                            title="Top 100">
-                            <i class="fa-solid fa-star text-xs"></i>
-                        </div>
-                    </div>
-
-                    <h4 id="student-name" class="font-vn-heading txt-student-name gold-gradient-text uppercase">PHẠM
-                        NGUYỄN THIỆN
-                        HẢO</h4>
-                    <p class="txt-student-major text-gold-300/90 font-medium mt-1">Major: Software Engineering</p>
-                    <p
-                        class="inline-block mt-3 px-4 py-1.5 rounded-full bg-fpt-orange/20 border border-fpt-orange/50 text-fpt-orange txt-badge font-semibold">
-                        <i class="fa-solid fa-trophy mr-1"></i> Top 100 Students With Outstanding <br> Academic
-                        Achievememt Summer 2026
-                    </p>
-                </div>
-
-                <!-- PHOTO GALLERY SECTION - 2 KHUNG HÌNH DỌC 9:16 -->
-                <!-- BẠN CÓ THỂ THAY LINK HÌNH ẢNH: đổi src="anh-1.jpg" và src="anh-2.jpg" bên dưới bằng ảnh của bạn. -->
-                <!-- Nếu chưa có ảnh, khung sẽ tự hiện khung giữ chỗ (placeholder) màu vàng-rượu vang. -->
-                <div class="text-center">
-                    <p
-                        class="reveal-text font-vn-heading txt-photo-label font-bold uppercase tracking-widest text-gold-400 mb-4">
-                        Khoảnh Khắc Đáng Nhớ</p>
-                    <div class="grid grid-cols-2 gap-4 sm:gap-5 max-w-md mx-auto">
-                        <!-- Khung hình 1 -->
-                        <div class="reveal-item photo-frame" style="--reveal-delay:0s;">
-                            <div class="photo-frame-inner">
-                                <img src="SP26.jpg" alt="Khoảnh khắc 1"
-                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-
-                                <div class="photo-frame-caption">Top 100 Spring 2026</div>
-                            </div>
-                            <div class="photo-frame-corner tl"></div>
-                            <div class="photo-frame-corner br"></div>
-                        </div>
-                        <!-- Khung hình 2 -->
-                        <div class="reveal-item photo-frame" style="--reveal-delay:0.18s;">
-                            <div class="photo-frame-inner">
-                                <img src="FA25.jpg" alt="Khoảnh khắc 2"
-                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-
-                                <div class="photo-frame-caption">Sinh viên xuất sắc Fall 2025</div>
-                            </div>
-                            <div class="photo-frame-corner tl"></div>
-                            <div class="photo-frame-corner br"></div>
-                        </div>
+                        class="w-32 h-[1px] bg-gradient-to-r from-transparent via-gold-400 to-transparent mx-auto mt-3">
                     </div>
                 </div>
 
-                <!-- Countdown Clock -->
-                <div class="reveal-item p-5 rounded-2xl bg-wine-950/90 border border-gold-500/40 text-center shadow-xl"
-                    style="--reveal-delay:0.1s;">
-                    <p class="font-vn-heading txt-section-label font-bold uppercase tracking-widest text-gold-400 mb-3">
-                        Đếm Ngược Tới
-                        Lễ Tôn Vinh</p>
-                    <div class="grid grid-cols-4 gap-2.5 max-w-xs sm:max-w-sm mx-auto">
-                        <div class="bg-wine-900/90 p-3 rounded-xl border border-gold-500/30">
-                            <span id="cd-days"
-                                class="font-cinzel font-bold txt-countdown-num block text-fpt-orange">00</span>
-                            <span class="font-vn-heading txt-countdown-unit text-gold-300 uppercase">Ngày</span>
-                        </div>
-                        <div class="bg-wine-900/90 p-3 rounded-xl border border-gold-500/30">
-                            <span id="cd-hours"
-                                class="font-cinzel font-bold txt-countdown-num block text-gold-200">00</span>
-                            <span class="font-vn-heading txt-countdown-unit text-gold-300 uppercase">Giờ</span>
-                        </div>
-                        <div class="bg-wine-900/90 p-3 rounded-xl border border-gold-500/30">
-                            <span id="cd-mins"
-                                class="font-cinzel font-bold txt-countdown-num block text-gold-200">00</span>
-                            <span class="font-vn-heading txt-countdown-unit text-gold-300 uppercase">Phút</span>
-                        </div>
-                        <div class="bg-wine-900/90 p-3 rounded-xl border border-gold-500/30">
-                            <span id="cd-secs"
-                                class="font-cinzel font-bold txt-countdown-num block text-gold-200">00</span>
-                            <span class="font-vn-heading txt-countdown-unit text-gold-300 uppercase">Giây</span>
-                        </div>
-                    </div>
-                </div>
+                <!-- CARD BODY CONTENT -->
+                <div
+                    class="p-4 sm:p-8 relative bg-gradient-to-b from-wine-900 via-wine-950 to-wine-900 text-gold-100 space-y-8">
 
-                <!-- Event Details Grid (Time & Venue) -->
-                <div class="grid grid-cols-1 gap-4">
-                    <!-- Time Card -->
-                    <div class="reveal-item p-5 rounded-2xl bg-wine-950/80 border border-gold-500/30 flex items-start gap-4"
-                        style="--reveal-delay:0s;">
+                    <!-- GUEST INVITATION HIGHLIGHT -->
+                    <div class="reveal-item text-center max-w-xl mx-auto" style="--reveal-delay:0s;">
+
+                        <p class="reveal-text txt-eyebrow uppercase text-gold-300/90 font-medium mb-4">Trân Trọng Kính
+                            Mời
+                        </p>
+
                         <div
-                            class="w-12 h-12 rounded-xl bg-gold-500/20 border border-gold-500/50 text-gold-300 flex items-center justify-center text-xl shrink-0">
-                            <i class="fa-regular fa-calendar-check"></i>
+                            class="inline-block max-w-full px-6 py-5 sm:px-10 sm:py-6 rounded-2xl border border-gold-500/40 bg-gradient-to-br from-gold-500/10 via-white/[0.02] to-transparent shadow-[0_0_35px_rgba(212,175,55,0.15)]">
+                            <h3 id="guest-name-display"
+                                class="font-script txt-guest-name text-gold-200 guest-name-text leading-tight break-words"
+                                style="text-shadow: 0 0 22px rgba(212,175,55,.45);">
+                                Quý Khách Mời</h3>
                         </div>
-                        <div>
-                            <h5 class="font-vn-heading txt-section-label text-gold-300 uppercase">Thời Gian</h5>
-                            <p class="font-sans txt-detail-strong text-gold-300 mt-1">17:00 • Thứ Hai</p>
-                            <p class="font-sans txt-detail-sub text-gold-300/80">Ngày 05 Tháng 10 Năm 2026</p>
-                        </div>
+
+                        <p class="font-serif txt-guest-sub text-gold-300/70 italic mt-5 leading-relaxed">Đến tham dự
+                            buổi Lễ
+                            tôn
+                            vinh của<br>Trường Đại học FPT TP.HCM</p>
                     </div>
 
-                    <!-- Location Card -->
-                    <div class="reveal-item p-5 rounded-2xl bg-wine-950/80 border border-gold-500/30 flex items-start gap-4"
-                        style="--reveal-delay:0.15s;">
+                    <!-- STUDENT PROFILE / AVATAR HIGHLIGHT SECTION (CÓ HƯỚNG DẪN IMPORT HÌNH) -->
+                    <div
+                        class="reveal-item bg-wine-950/80 rounded-2xl p-6 border border-gold-500/40 text-center shadow-2xl relative">
+                        <p class="reveal-text txt-eyebrow uppercase text-fpt-orange font-bold mb-3">ABOUT ME</p>
+
+                        <!-- Avatar Image Container -->
                         <div
-                            class="w-12 h-12 rounded-xl bg-gold-500/20 border border-gold-500/50 text-gold-300 flex items-center justify-center text-xl shrink-0">
-                            <i class="fa-solid fa-location-dot"></i>
+                            class="relative w-28 h-28 sm:w-36 sm:h-36 mx-auto mb-4 rounded-full p-1 bg-gradient-to-tr from-fpt-orange via-gold-500 to-gold-200 shadow-2xl">
+                            <!-- BAN CÓ THỂ THAY LINK HÌNH ẢNH DƯỚI ĐÂY (thay src="..."): -->
+                            <img id="student-avatar" src="hao.jpg" alt="Student Avatar"
+                                class="w-full h-full object-cover rounded-full border-2 border-wine-950 shadow-inner">
+                            <div class="absolute bottom-0 right-1 bg-gold-500 text-wine-950 rounded-full w-8 h-8 flex items-center justify-center border-2 border-wine-950 shadow-lg"
+                                title="Top 100">
+                                <i class="fa-solid fa-star text-xs"></i>
+                            </div>
                         </div>
-                        <div>
-                            <h5 class="font-vn-heading txt-section-label text-gold-300 uppercase">Địa điểm</h5>
-                            <p class="font-sans txt-detail-strong text-gold-300 mt-1">Hội Trường Đại Học FPT</p>
-                            <p class="font-sans txt-detail-sub text-gold-300/80">Khu Công Nghệ Cao, P. Long Thạnh Mỹ,
-                                TP. Thủ Đức, TP.HCM
-                            </p>
+
+                        <h4 id="student-name" class="font-vn-heading txt-student-name gold-gradient-text uppercase">PHẠM
+                            NGUYỄN THIỆN
+                            HẢO</h4>
+                        <p class="txt-student-major text-gold-300/90 font-medium mt-1">Major: Software Engineering</p>
+                        <p
+                            class="inline-block mt-3 px-4 py-1.5 rounded-full bg-fpt-orange/20 border border-fpt-orange/50 text-fpt-orange txt-badge font-semibold">
+                            <i class="fa-solid fa-trophy mr-1"></i> Top 100 Students With Outstanding <br> Academic
+                            Achievememt Summer 2026
+                        </p>
+                    </div>
+
+                    <!-- PHOTO GALLERY SECTION - 2 KHUNG HÌNH DỌC 9:16 -->
+                    <!-- BẠN CÓ THỂ THAY LINK HÌNH ẢNH: đổi src="anh-1.jpg" và src="anh-2.jpg" bên dưới bằng ảnh của bạn. -->
+                    <!-- Nếu chưa có ảnh, khung sẽ tự hiện khung giữ chỗ (placeholder) màu vàng-rượu vang. -->
+                    <div class="text-center">
+                        <p
+                            class="reveal-text font-vn-heading txt-photo-label font-bold uppercase tracking-widest text-gold-400 mb-4">
+                            Khoảnh Khắc Đáng Nhớ</p>
+                        <div class="grid grid-cols-2 gap-4 sm:gap-5 max-w-md mx-auto">
+                            <!-- Khung hình 1 -->
+                            <div class="reveal-item photo-frame" style="--reveal-delay:0s;">
+                                <div class="photo-frame-inner">
+                                    <img src="SP26.jpg" alt="Khoảnh khắc 1"
+                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+                                    <div class="photo-frame-caption">Top 100 Spring 2026</div>
+                                </div>
+                                <div class="photo-frame-corner tl"></div>
+                                <div class="photo-frame-corner br"></div>
+                            </div>
+                            <!-- Khung hình 2 -->
+                            <div class="reveal-item photo-frame" style="--reveal-delay:0.18s;">
+                                <div class="photo-frame-inner">
+                                    <img src="FA25.jpg" alt="Khoảnh khắc 2"
+                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+                                    <div class="photo-frame-caption">Sinh viên xuất sắc Fall 2025</div>
+                                </div>
+                                <div class="photo-frame-corner tl"></div>
+                                <div class="photo-frame-corner br"></div>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Countdown Clock -->
+                    <div class="reveal-item p-5 rounded-2xl bg-wine-950/90 border border-gold-500/40 text-center shadow-xl"
+                        style="--reveal-delay:0.1s;">
+                        <p
+                            class="font-vn-heading txt-section-label font-bold uppercase tracking-widest text-gold-400 mb-3">
+                            Đếm Ngược Tới
+                            Lễ Tôn Vinh</p>
+                        <div class="grid grid-cols-4 gap-2.5 max-w-xs sm:max-w-sm mx-auto">
+                            <div class="bg-wine-900/90 p-3 rounded-xl border border-gold-500/30">
+                                <span id="cd-days"
+                                    class="font-cinzel font-bold txt-countdown-num block text-fpt-orange">00</span>
+                                <span class="font-vn-heading txt-countdown-unit text-gold-300 uppercase">Ngày</span>
+                            </div>
+                            <div class="bg-wine-900/90 p-3 rounded-xl border border-gold-500/30">
+                                <span id="cd-hours"
+                                    class="font-cinzel font-bold txt-countdown-num block text-gold-200">00</span>
+                                <span class="font-vn-heading txt-countdown-unit text-gold-300 uppercase">Giờ</span>
+                            </div>
+                            <div class="bg-wine-900/90 p-3 rounded-xl border border-gold-500/30">
+                                <span id="cd-mins"
+                                    class="font-cinzel font-bold txt-countdown-num block text-gold-200">00</span>
+                                <span class="font-vn-heading txt-countdown-unit text-gold-300 uppercase">Phút</span>
+                            </div>
+                            <div class="bg-wine-900/90 p-3 rounded-xl border border-gold-500/30">
+                                <span id="cd-secs"
+                                    class="font-cinzel font-bold txt-countdown-num block text-gold-200">00</span>
+                                <span class="font-vn-heading txt-countdown-unit text-gold-300 uppercase">Giây</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event Details Grid (Time & Venue) -->
+                    <div class="grid grid-cols-1 gap-4">
+                        <!-- Time Card -->
+                        <div class="reveal-item p-5 rounded-2xl bg-wine-950/80 border border-gold-500/30 flex items-start gap-4"
+                            style="--reveal-delay:0s;">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-gold-500/20 border border-gold-500/50 text-gold-300 flex items-center justify-center text-xl shrink-0">
+                                <i class="fa-regular fa-calendar-check"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-vn-heading txt-section-label text-gold-300 uppercase">Thời Gian</h5>
+                                <p class="font-sans txt-detail-strong text-gold-300 mt-1">17:00 • Thứ Hai</p>
+                                <p class="font-sans txt-detail-sub text-gold-300/80">Ngày 05 Tháng 10 Năm 2026</p>
+                            </div>
+                        </div>
+
+                        <!-- Location Card -->
+                        <div class="reveal-item p-5 rounded-2xl bg-wine-950/80 border border-gold-500/30 flex items-start gap-4"
+                            style="--reveal-delay:0.15s;">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-gold-500/20 border border-gold-500/50 text-gold-300 flex items-center justify-center text-xl shrink-0">
+                                <i class="fa-solid fa-location-dot"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-vn-heading txt-section-label text-gold-300 uppercase">Địa điểm</h5>
+                                <p class="font-sans txt-detail-strong text-gold-300 mt-1">Hội Trường Đại Học FPT</p>
+                                <p class="font-sans txt-detail-sub text-gold-300/80">Khu Công Nghệ Cao, P. Long Thạnh
+                                    Mỹ,
+                                    TP. Thủ Đức, TP.HCM
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Map Button -->
+                    <div class="reveal-item text-center pt-2 pb-4 sm:pb-2" style="--reveal-delay:0.1s;">
+                        <a href="https://maps.app.goo.gl/i3FCMzSxcHq2g7sS7" target="_blank"
+                            class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-fpt-orange via-gold-500 to-fpt-orange text-wine-950 font-bold txt-cta uppercase tracking-wider shadow-2xl hover:brightness-110 transition transform active:scale-95">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                            <span>Xem Bản Đồ Chỉ Đường</span>
+                        </a>
+                    </div>
+
                 </div>
 
-                <!-- Navigation Map Button -->
-                <div class="reveal-item text-center pt-2 pb-4 sm:pb-2" style="--reveal-delay:0.1s;">
-                    <a href="https://maps.app.goo.gl/i3FCMzSxcHq2g7sS7" target="_blank"
-                        class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-fpt-orange via-gold-500 to-fpt-orange text-wine-950 font-bold txt-cta uppercase tracking-wider shadow-2xl hover:brightness-110 transition transform active:scale-95">
-                        <i class="fa-solid fa-map-location-dot"></i>
-                        <span>Xem Bản Đồ Chỉ Đường</span>
-                    </a>
+                <!-- CARD FOOTER -->
+                <div class="bg-wine-950 py-6 px-6 text-center border-t border-gold-500/30">
+                    <p class="font-script txt-footer-script text-gold-300">Hân hạnh được đón tiếp!</p>
                 </div>
-
-            </div>
-
-            <!-- CARD FOOTER -->
-            <div class="bg-wine-950 py-6 px-6 text-center border-t border-gold-500/30">
-                <p class="font-script txt-footer-script text-gold-300">Hân hạnh được đón tiếp!</p>
             </div>
         </div>
     </div>
@@ -1189,7 +1198,7 @@
         // Link mời từng khách sẽ có dạng: ...ten-file.html?id=01 (theo mã bên dưới)
         const GUEST_LIST = {
             "01": "Bạn Duy Phong",
-            "02": "Chị Trần Thị B",
+            "02": "Hà Thanh Trọng",
             "03": "Anh Lê Văn C"
         };
 
