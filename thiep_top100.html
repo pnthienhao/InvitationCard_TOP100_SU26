@@ -114,15 +114,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Royal Pattern Overlay */
-        .bg-royal-pattern {
-            background-image:
-                radial-gradient(rgba(212, 175, 55, 0.12) 1px, transparent 1px),
-                radial-gradient(rgba(242, 111, 33, 0.08) 1px, transparent 1px);
-            background-size: 32px 32px, 64px 64px;
-            background-position: 0 0, 16px 16px;
-        }
-
         /* Envelope 3D Visual Styling */
         .envelope-wrapper {
             perspective: 1000px;
@@ -387,20 +378,19 @@
         .reveal-word {
             display: inline-block;
             opacity: 0;
-            transform: translateY(38px) scale(0.7) rotateX(-70deg) rotateZ(-4deg);
-            transform-origin: bottom center;
-            filter: blur(5px);
+            transform: translateY(18px);
+            filter: blur(4px);
             text-shadow: 0 0 0 rgba(212, 175, 55, 0);
-            transition: opacity 0.55s ease,
-                transform 0.75s cubic-bezier(0.34, 1.56, 0.64, 1),
-                filter 0.55s ease,
+            transition: opacity 0.5s ease,
+                transform 0.5s ease,
+                filter 0.5s ease,
                 text-shadow 0.7s ease 0.1s;
             will-change: opacity, transform, filter;
         }
 
         .reveal-text.in-view .reveal-word {
             opacity: 1;
-            transform: translateY(0) scale(1) rotateX(0deg) rotateZ(0deg);
+            transform: translateY(0);
             filter: blur(0);
             text-shadow: 0 0 16px rgba(212, 175, 55, 0.55);
         }
@@ -413,6 +403,13 @@
             padding: 5px;
             background: linear-gradient(145deg, #FFF9E6 0%, #D4AF37 35%, #F26F21 65%, #D4AF37 100%);
             box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65), 0 0 25px rgba(212, 175, 55, 0.25);
+        }
+
+        /* Biến thể khung ảnh NGANG 16:9 (dùng cho ảnh sự kiện/trao giải, đặt
+           bên dưới 2 khung ảnh dọc 9:16 ở trên) - kế thừa toàn bộ style viền,
+           góc trang trí, caption từ .photo-frame, chỉ đổi tỉ lệ khung. */
+        .photo-frame-wide {
+            aspect-ratio: 16 / 9;
         }
 
         .photo-frame-inner {
@@ -560,7 +557,7 @@
 </head>
 
 <body
-    class="min-h-screen bg-royal-pattern flex flex-col justify-between items-center relative selection:bg-gold-500 selection:text-wine-950">
+    class="min-h-screen bg-wine-950 flex flex-col justify-between items-center relative selection:bg-gold-500 selection:text-wine-950">
 
     <canvas id="star-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
@@ -643,7 +640,7 @@
 
     <!-- SECTION 2: INVITATION CARD MODAL (AUTO-SCROLLING & TOUCH INTERACTIVE) -->
     <div id="invitation-card"
-        class="fixed inset-0 z-40 hidden opacity-0 transition-opacity duration-700 bg-wine-950 bg-royal-pattern backdrop-blur-md flex justify-center items-center py-2 sm:py-6 px-2 sm:px-4">
+        class="fixed inset-0 z-40 hidden opacity-0 transition-opacity duration-700 bg-wine-950 backdrop-blur-md flex justify-center items-center py-2 sm:py-6 px-2 sm:px-4">
 
         <!-- Outer wrapper (does NOT scroll) - holds the fixed close button -->
         <div class="relative invite-card-frame max-h-[92vh]">
@@ -785,6 +782,20 @@
                                 <div class="photo-frame-corner tl"></div>
                                 <div class="photo-frame-corner br"></div>
                             </div>
+                        </div>
+
+                        <!-- Khung hình 3 - ngang 16:9, nằm dưới 2 khung dọc ở trên -->
+                        <!-- BẠN CÓ THỂ THAY LINK HÌNH ẢNH: đổi src="anh-3.jpg" bằng ảnh của bạn. -->
+                        <div class="reveal-item photo-frame photo-frame-wide max-w-md mx-auto mt-4 sm:mt-5"
+                            style="--reveal-delay:0.3s;">
+                            <div class="photo-frame-inner">
+                                <img src="traogiaitop100.jpg" alt="Trao giải Top 100 Spring 2026"
+                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+                                <div class="photo-frame-caption">Trao giải Top 100 Spring 2026</div>
+                            </div>
+                            <div class="photo-frame-corner tl"></div>
+                            <div class="photo-frame-corner br"></div>
                         </div>
                     </div>
 
@@ -996,11 +1007,10 @@
                     // Scroll down slowly by 1px
                     scrollContainer.scrollTop += 1;
 
-                    // Reset to top if reached bottom
+                    // Chạm đáy thì dừng tự cuộn luôn, không tự quay lại đầu trang nữa.
+                    // Muốn xem lại từ đầu thì người dùng tự lướt tay lên.
                     if (scrollContainer.scrollTop + scrollContainer.clientHeight >= scrollContainer.scrollHeight - 5) {
-                        setTimeout(() => {
-                            if (!isUserTouching) scrollContainer.scrollTop = 0;
-                        }, 1500);
+                        stopAutoScroll();
                     }
                 }
             }, 30); // 30ms interval for silky smooth animation
@@ -1023,7 +1033,13 @@
 
         function resumeScroll() {
             isUserTouching = false;
-            updateScrollBadgeStatus(true);
+            // Nếu auto-scroll đã dừng hẳn trước đó (vd do chạm đáy trang), thì khi
+            // người dùng thả tay ra, cho nó chạy tự động lại từ vị trí hiện tại.
+            if (!autoScrollInterval) {
+                startAutoScroll();
+            } else {
+                updateScrollBadgeStatus(true);
+            }
         }
 
         function updateScrollBadgeStatus(isScrolling) {
@@ -1047,11 +1063,21 @@
             scrollContainer.addEventListener('touchstart', pauseScroll, { passive: true });
             scrollContainer.addEventListener('touchend', resumeScroll, { passive: true });
 
-            // Mouse events for desktop
+            // Mouse events for desktop: chỉ dừng khi thật sự bấm/kéo (mousedown),
+            // KHÔNG dừng chỉ vì rê chuột vào (không còn mouseenter/mouseleave nữa) —
+            // để trên máy tính, nếu chuột không thao tác gì thì thiệp vẫn tự cuộn bình thường.
             scrollContainer.addEventListener('mousedown', pauseScroll);
             scrollContainer.addEventListener('mouseup', resumeScroll);
-            scrollContainer.addEventListener('mouseenter', pauseScroll);
-            scrollContainer.addEventListener('mouseleave', resumeScroll);
+
+            // Lăn chuột (wheel) trên desktop: tạm dừng lúc đang lăn, rồi tự chạy
+            // lại sau một chút khi ngừng lăn (debounce), để không bị dằng co với
+            // auto-scroll khi người dùng chủ động cuộn tay.
+            let wheelResumeTimer = null;
+            scrollContainer.addEventListener('wheel', () => {
+                pauseScroll();
+                clearTimeout(wheelResumeTimer);
+                wheelResumeTimer = setTimeout(resumeScroll, 800);
+            }, { passive: true });
         }
 
         /*
