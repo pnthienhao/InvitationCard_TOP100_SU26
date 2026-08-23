@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Great+Vibes&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Great+Vibes&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=Playfair+Display:wght@600;700;800;900&display=swap"
         rel="stylesheet">
 
     <!-- FontAwesome Icons -->
@@ -54,7 +54,8 @@
                         cinzel: ['"Cinzel"', 'serif'],
                         serif: ['"Cormorant Garamond"', 'serif'],
                         script: ['"Great Vibes"', 'cursive'],
-                        sans: ['"Montserrat"', 'sans-serif']
+                        sans: ['"Montserrat"', 'sans-serif'],
+                        playfair: ['"Playfair Display"', 'serif']
                     },
                     animation: {
                         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -258,49 +259,6 @@
             background: #F26F21;
         }
 
-        /* Soundwave animation */
-        .bar {
-            width: 3px;
-            background-color: #F3D675;
-            border-radius: 3px;
-            animation: soundwave 1.2s ease-in-out infinite alternate;
-        }
-
-        .bar:nth-child(1) {
-            height: 8px;
-            animation-delay: 0.1s;
-        }
-
-        .bar:nth-child(2) {
-            height: 16px;
-            animation-delay: 0.3s;
-        }
-
-        .bar:nth-child(3) {
-            height: 12px;
-            animation-delay: 0.2s;
-        }
-
-        .bar:nth-child(4) {
-            height: 18px;
-            animation-delay: 0.4s;
-        }
-
-        @keyframes soundwave {
-            0% {
-                height: 4px;
-            }
-
-            100% {
-                height: 20px;
-            }
-        }
-
-        .paused .bar {
-            animation-play-state: paused;
-            height: 4px !important;
-        }
-
         /* ====================================================================================
            KHU VỰC STYLE CHỮ (FONT & KÍCH THƯỚC) - CHỈNH Ở ĐÂY
            Toàn bộ font-size / font-family của thiệp được gom về các class bên dưới.
@@ -473,26 +431,6 @@
             display: block;
         }
 
-        .photo-frame-placeholder {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            color: rgba(253, 236, 178, 0.45);
-            background-image: repeating-linear-gradient(45deg, rgba(212, 175, 55, 0.06) 0 10px, transparent 10px 20px);
-            text-align: center;
-            padding: 10px;
-        }
-
-        .photo-frame-placeholder span {
-            font-size: 0.65rem;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-
         .photo-frame-corner {
             position: absolute;
             width: 18px;
@@ -580,12 +518,6 @@
             font-size: 0.75rem;
             /* 12px */
             text-wrap: balance;
-        }
-
-        /* Danh sách thành tích phụ (Top 100 Spring 2026, Sinh viên xuất sắc Fall 2025) */
-        .txt-badge-sub {
-            font-size: 0.68rem;
-            /* 11px */
         }
 
         /* --- Nút xem bản đồ & footer --- */
@@ -760,8 +692,7 @@
                             Mời
                         </p>
 
-                        <div
-                            class="reveal-item inline-block max-w-full px-6 py-5 sm:px-10 sm:py-6 rounded-2xl border border-gold-500/40 bg-gradient-to-br from-gold-500/10 via-white/[0.02] to-transparent shadow-[0_0_35px_rgba(212,175,55,0.15)]"
+                        <div class="reveal-item inline-block max-w-full px-6 py-5 sm:px-10 sm:py-6 rounded-2xl border border-gold-500/40 bg-gradient-to-br from-gold-500/10 via-white/[0.02] to-transparent shadow-[0_0_35px_rgba(212,175,55,0.15)]"
                             style="--reveal-delay:0.15s;">
                             <h3 id="guest-name-display"
                                 class="font-script txt-guest-name text-gold-200 guest-name-text leading-tight break-words"
@@ -774,42 +705,47 @@
                     </div>
 
                     <!-- STUDENT PROFILE / AVATAR HIGHLIGHT SECTION (CÓ HƯỚNG DẪN IMPORT HÌNH) -->
-                    <div
-                        class="reveal-item bg-wine-950/80 rounded-2xl p-6 border border-gold-500/40 text-center shadow-2xl relative">
-                        <p class="reveal-text txt-eyebrow uppercase text-fpt-orange font-bold mb-3">ABOUT ME</p>
-
-                        <!-- Avatar Image Container -->
-                        <div
-                            class="relative w-28 h-28 sm:w-36 sm:h-36 mx-auto mb-4 rounded-full p-1 bg-gradient-to-tr from-fpt-orange via-gold-500 to-gold-200 shadow-2xl">
-                            <!-- BAN CÓ THỂ THAY LINK HÌNH ẢNH DƯỚI ĐÂY (thay src="..."): -->
-                            <img id="student-avatar" src="hao.jpg" alt="Student Avatar"
-                                class="w-full h-full object-cover rounded-full border-2 border-wine-950 shadow-inner">
-                            <div class="absolute bottom-0 right-1 bg-gold-500 text-wine-950 rounded-full w-8 h-8 flex items-center justify-center border-2 border-wine-950 shadow-lg"
-                                title="Top 100">
-                                <i class="fa-solid fa-star text-xs"></i>
-                            </div>
+                    <div class="text-center relative">
+                        <!-- data-reveal-gap: chờ cho dòng "Đến tham dự..." ở trên hiện xong
+                             hẳn (chữ khá dài) rồi mới từ từ hiện "ABOUT ME", không hiện gấp. -->
+                        <div data-reveal-gap="2.2" class="reveal-item" style="--reveal-delay:0s;">
+                            <p class="txt-eyebrow uppercase fpt-gradient-text font-bold mb-3">ABOUT ME</p>
                         </div>
 
-                        <h4 id="student-name"
-                            class="reveal-text font-vn-heading txt-student-name gold-gradient-text uppercase">PHẠM
-                            NGUYỄN THIỆN
-                            HẢO</h4>
+                        <!-- data-reveal-gap nhỏ: đợi chữ "ABOUT ME" ở trên bay vào một
+                             chút rồi mới tới ảnh đại diện + tên, tránh hiện đè lên nhau. -->
+                        <div data-reveal-gap="1.2" class="reveal-item" style="--reveal-delay:0.15s;">
+                            <!-- Avatar Image Container -->
+                            <div
+                                class="relative w-28 h-28 sm:w-36 sm:h-36 mx-auto mb-4 rounded-full p-1 bg-gradient-to-tr from-fpt-orange via-gold-500 to-gold-200 shadow-2xl">
+                                <!-- BAN CÓ THỂ THAY LINK HÌNH ẢNH DƯỚI ĐÂY (thay src="..."): -->
+                                <img id="student-avatar" src="hao.jpg" alt="Student Avatar"
+                                    class="w-full h-full object-cover rounded-full border-2 border-wine-950 shadow-inner">
+                                <div class="absolute bottom-0 right-1 bg-gold-500 text-wine-950 rounded-full w-8 h-8 flex items-center justify-center border-2 border-wine-950 shadow-lg"
+                                    title="Top 100">
+                                    <i class="fa-solid fa-star text-xs"></i>
+                                </div>
+                            </div>
+
+                            <h4 id="student-name" class="font-vn-heading txt-student-name gold-gradient-text uppercase">
+                                PHẠM
+                                NGUYỄN THIỆN
+                                HẢO</h4>
+                        </div>
+
                         <p class="reveal-text txt-student-major text-gold-300/90 font-medium mt-1">Major: Software
                             Engineering</p>
                         <div class="mt-3 text-center space-y-1.5">
-                            <p class="reveal-item text-fpt-orange" style="--reveal-delay:0s;">
-                                <i class="fa-solid fa-trophy mr-1.5"></i><span
-                                    class="reveal-text inline txt-badge font-semibold">Top 100 Students With
+                            <p class="text-fpt-orange">
+                                <span class="reveal-text inline txt-badge font-semibold">Top 100 Students With
                                     Outstanding Academic Achievement Summer 2026</span>
                             </p>
-                            <p class="reveal-item text-fpt-orange" style="--reveal-delay:0.15s;">
-                                <i class="fa-solid fa-medal mr-1.5"></i><span
-                                    class="reveal-text inline txt-badge font-semibold">Top 100 Students With
+                            <p class="text-fpt-orange">
+                                <span class="reveal-text inline txt-badge font-semibold">Top 100 Students With
                                     Outstanding Academic Achievement Spring 2026</span>
                             </p>
-                            <p class="reveal-item text-fpt-orange" style="--reveal-delay:0.3s;">
-                                <i class="fa-solid fa-award mr-1.5"></i><span
-                                    class="reveal-text inline txt-badge font-semibold">Outstanding Student Fall
+                            <p class="text-fpt-orange">
+                                <span class="reveal-text inline txt-badge font-semibold">Outstanding Student Fall
                                     2025</span>
                             </p>
                         </div>
@@ -819,7 +755,11 @@
                     <!-- BẠN CÓ THỂ THAY LINK HÌNH ẢNH: đổi src="anh-1.jpg" và src="anh-2.jpg" bên dưới bằng ảnh của bạn. -->
                     <!-- Nếu chưa có ảnh, khung sẽ tự hiện khung giữ chỗ (placeholder) màu vàng-rượu vang. -->
                     <div class="text-center">
-                        <p
+                        <!-- data-reveal-gap-auto: chỉ chờ lâu hơn khi thiệp đang TỰ CUỘN,
+                             để 3 dòng "Outstanding..." phía trên hiện xong hẳn rồi mới tới
+                             lượt "Khoảnh Khắc Đáng Nhớ" bay vào. Khi người dùng tự lướt tay
+                             thì hiện ngay lập tức như bình thường, không chờ gì cả. -->
+                        <p data-reveal-gap-auto="3.5"
                             class="reveal-text font-vn-heading txt-photo-label font-bold uppercase tracking-widest text-gold-400 mb-4">
                             Khoảnh Khắc Đáng Nhớ</p>
                         <div class="grid grid-cols-2 gap-4 sm:gap-5 max-w-md mx-auto">
@@ -849,8 +789,7 @@
                     </div>
 
                     <!-- Countdown Clock -->
-                    <div class="reveal-item p-5 rounded-2xl bg-wine-950/90 border border-gold-500/40 text-center shadow-xl"
-                        style="--reveal-delay:0.1s;">
+                    <div class="reveal-item text-center" style="--reveal-delay:0.1s;">
                         <p
                             class="font-vn-heading txt-section-label font-bold uppercase tracking-widest text-gold-400 mb-3">
                             Đếm Ngược Tới
@@ -880,42 +819,58 @@
                     </div>
 
                     <!-- Event Details Grid (Time & Venue) -->
-                    <div class="grid grid-cols-1 gap-4">
-                        <!-- Time Card -->
-                        <div class="reveal-item p-5 rounded-2xl bg-wine-950/80 border border-gold-500/30 flex items-start gap-4"
-                            style="--reveal-delay:0s;">
+                    <div class="grid grid-cols-1 gap-6">
+                        <!-- Time Card - Calendar Style -->
+                        <div class="reveal-item flex items-center justify-center gap-5" style="--reveal-delay:0s;">
                             <div
-                                class="w-12 h-12 rounded-xl bg-gold-500/20 border border-gold-500/50 text-gold-300 flex items-center justify-center text-xl shrink-0">
-                                <i class="fa-regular fa-calendar-check"></i>
+                                class="shrink-0 w-20 sm:w-24 rounded-xl overflow-hidden border border-gold-500/50 shadow-xl bg-wine-950/70">
+                                <div
+                                    class="bg-gradient-to-r from-fpt-orange via-gold-500 to-fpt-orange text-wine-950 text-center text-[10px] sm:text-xs font-bold uppercase tracking-widest py-1">
+                                    Tháng 10</div>
+                                <div class="text-center py-2.5 sm:py-3">
+                                    <span
+                                        class="font-cinzel font-black text-4xl sm:text-5xl gold-gradient-text leading-none block">05</span>
+                                    <span
+                                        class="font-vn-heading text-[10px] sm:text-[11px] tracking-widest text-gold-300 uppercase mt-1 block">Thứ
+                                        Hai</span>
+                                </div>
                             </div>
-                            <div>
-                                <h5 class="font-vn-heading txt-section-label text-gold-300 uppercase">Thời Gian</h5>
-                                <p class="font-sans txt-detail-strong text-gold-300 mt-1">17:00 • Thứ Hai</p>
-                                <p class="font-sans txt-detail-sub text-gold-300/80">Ngày 05 Tháng 10 Năm 2026</p>
+                            <div class="text-left">
+                                <h5 class="font-vn-heading txt-section-label text-gold-300 uppercase tracking-wide">
+                                    Thời Gian</h5>
+                                <p class="font-playfair font-bold txt-detail-strong text-gold-300 mt-1.5 tracking-wide">
+                                    17:00 <span class="font-serif italic text-gold-200 text-[0.9em] font-normal">Đón
+                                        khách</span>
+                                </p>
+                                <p class="font-playfair font-bold txt-detail-strong text-gold-300 mt-1 tracking-wide">
+                                    17:30 <span class="font-serif italic text-gold-200 text-[0.9em] font-normal">Chương
+                                        trình chính</span>
+                                </p>
                             </div>
                         </div>
 
-                        <!-- Location Card -->
-                        <div class="reveal-item p-5 rounded-2xl bg-wine-950/80 border border-gold-500/30 flex items-start gap-4"
+                        <!-- Location -->
+                        <!-- data-reveal-group: gắn cùng nhóm với nút "Xem Bản Đồ" bên dưới,
+                             để khi khối này hiện thì nút bản đồ cũng hiện NGAY THEO cùng lúc,
+                             không cần đợi bản thân nút lọt vào khung nhìn riêng. -->
+                        <div data-reveal-group="location-map" class="reveal-item text-center"
                             style="--reveal-delay:0.15s;">
-                            <div
-                                class="w-12 h-12 rounded-xl bg-gold-500/20 border border-gold-500/50 text-gold-300 flex items-center justify-center text-xl shrink-0">
-                                <i class="fa-solid fa-location-dot"></i>
-                            </div>
-                            <div>
-                                <h5 class="font-vn-heading txt-section-label text-gold-300 uppercase">Địa điểm</h5>
-                                <p class="font-sans txt-detail-strong text-gold-300 mt-1">Hội Trường Đại Học FPT</p>
-                                <p class="font-sans txt-detail-sub text-gold-300/80">Khu Công Nghệ Cao, P. Long Thạnh
-                                    Mỹ,
-                                    TP. Thủ Đức, TP.HCM
-                                </p>
-                            </div>
+                            <h5 class="font-vn-heading txt-section-label text-gold-400/90 uppercase tracking-[0.2em]">
+                                Địa Điểm Tổ Chức</h5>
+                            <p
+                                class="font-playfair font-bold text-lg sm:text-xl fpt-gradient-text mt-2.5 tracking-wide">
+                                NHÀ VĂN HÓA SINH VIÊN</p>
+                            <p class="font-sans txt-detail-sub text-gold-300/75 mt-2">01 Lưu Hữu Phước, Khu phố Tân Lập,
+                                Phường Đông Hòa, TP.HCM</p>
                         </div>
                     </div>
 
                     <!-- Navigation Map Button -->
-                    <div class="reveal-item text-center pt-2 pb-4 sm:pb-2" style="--reveal-delay:0.1s;">
-                        <a href="https://maps.app.goo.gl/i3FCMzSxcHq2g7sS7" target="_blank"
+                    <!-- Cùng nhóm "location-map" với khối Địa Điểm ở trên -> luôn hiện cùng lúc. -->
+                    <div data-reveal-group="location-map" data-reveal-gap="0"
+                        class="reveal-item text-center pt-2 pb-4 sm:pb-2" style="--reveal-delay:0.1s;">
+                        <a href="https://www.google.com/maps/place/Nh%C3%A0+V%C4%83n+h%C3%B3a+Sinh+vi%C3%AAn+TP.HCM/@10.8751365,106.7981484,17z/data=!3m1!4b1!4m6!3m5!1s0x3174d8a6b19d6763:0x143c54525028b2e!8m2!3d10.8751312!4d106.8007233!16s%2Fg%2F11hd1pf9gj?entry=tts&g_ep=EgoyMDI2MDUyNS4wIPu8ASoASAFQAw%3D%3D&skid=4e160dd3-009e-4d0b-ba79-20910c43cca9"
+                            target="_blank"
                             class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-fpt-orange via-gold-500 to-fpt-orange text-wine-950 font-bold txt-cta uppercase tracking-wider shadow-2xl hover:brightness-110 transition transform active:scale-95">
                             <i class="fa-solid fa-map-location-dot"></i>
                             <span>Xem Bản Đồ Chỉ Đường</span>
@@ -925,7 +880,8 @@
                 </div>
 
                 <!-- CARD FOOTER -->
-                <div class="bg-gradient-to-r from-wine-950 via-wine-900 to-wine-950 py-6 px-6 text-center border-t border-gold-500/40">
+                <div
+                    class="bg-gradient-to-r from-wine-950 via-wine-900 to-wine-950 py-6 px-6 text-center border-t border-gold-500/40">
                     <p class="font-script txt-footer-script text-gold-300">Hân hạnh được đón tiếp!</p>
                 </div>
             </div>
@@ -1138,7 +1094,7 @@
             }
 
             if (synthContext) {
-                synthContext.close().catch(() => {});
+                synthContext.close().catch(() => { });
                 synthContext = null;
             }
 
@@ -1361,15 +1317,100 @@
 
         // Theo dõi khối .reveal-item / .reveal-text, khi cuộn tới thì
         // thêm class "in-view" để CSS transition kích hoạt hiệu ứng.
+        //
+        // Lưu ý: nếu 2 khối (vd đoạn "Đến tham dự..." và khối "ABOUT ME"
+        // ngay bên dưới) cùng lọt vào khung nhìn trong 1 lần cuộn (hay lúc
+        // vừa mở thiệp trên màn hình cao), IntersectionObserver sẽ báo cả 2
+        // "in-view" gần như cùng lúc. Vì mỗi khối tự chạy hiệu ứng tách chữ
+        // riêng (độ dài khác nhau) nên khối chữ NGẮN hơn (vd "ABOUT ME") có
+        // thể hiện xong TRƯỚC khối chữ DÀI hơn ở phía trên (vd "Đến tham dự
+        // buổi Lễ tôn vinh..."), nhìn như bị "đảo thứ tự".
+        // => Ta xếp hàng (queue) các khối theo ĐÚNG thứ tự xuất hiện trong
+        // HTML (trên trước, dưới sau) và chỉ cho khối sau bắt đầu bay vào
+        // sau khi khối trước đã bắt đầu được một khoảng thời gian tối thiểu,
+        // đảm bảo luôn hiện lần lượt đúng thứ tự từ trên xuống dưới.
+        let revealLastStartTime = 0;
+        const REVEAL_MIN_GAP = 0.18; // giây, khoảng cách tối thiểu giữa 2 lần bắt đầu bay vào
+
         function initScrollReveal() {
             const scrollRoot = document.getElementById('card-scroll-container') || null;
 
+            // Đánh số thứ tự từng khối theo đúng vị trí của nó trong HTML
+            // (từ trên xuống dưới) để dùng làm căn cứ sắp xếp lại thứ tự.
+            const revealEls = Array.from(document.querySelectorAll('.reveal-item, .reveal-text'));
+            revealEls.forEach((el, index) => {
+                el.dataset.revealOrder = index;
+            });
+
             const observer = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('in-view');
-                        observer.unobserve(entry.target);
+                // Lấy các khối vừa lọt vào khung nhìn trong lần này, sắp xếp
+                // lại đúng theo thứ tự trên-dưới trong HTML (không phải theo
+                // thứ tự trình duyệt trả về, vốn có thể lộn xộn).
+                const justVisible = entries
+                    .filter((entry) => entry.isIntersecting)
+                    .map((entry) => entry.target)
+                    .sort((a, b) => Number(a.dataset.revealOrder) - Number(b.dataset.revealOrder));
+
+                justVisible.forEach((el) => {
+                    observer.unobserve(el);
+
+                    // Nếu khối đã được hiện rồi (do một khối cùng nhóm
+                    // data-reveal-group khác kích hoạt trước đó) thì bỏ qua,
+                    // không xử lý/chờ lại nữa.
+                    if (el.classList.contains('in-view')) return;
+
+                    // Có 2 loại khoảng nghỉ riêng có thể gắn cho từng khối:
+                    // - data-reveal-gap: LUÔN áp dụng, dù tự cuộn hay người
+                    //   dùng tự lướt tay (dùng cho chỗ bắt buộc phải chờ,
+                    //   như "ABOUT ME" chờ "Đến tham dự..." hiện xong).
+                    // - data-reveal-gap-auto: CHỈ áp dụng khi thiệp đang tự
+                    //   cuộn; nếu người dùng đang tự lướt tay thì bỏ qua,
+                    //   hiện ngay như các khối bình thường khác (dùng cho
+                    //   chỗ chỉ cần từ từ lúc tự chạy, như "Khoảnh Khắc
+                    //   Đáng Nhớ").
+                    const forcedGap = parseFloat(el.dataset.revealGap);
+                    const autoOnlyGap = parseFloat(el.dataset.revealGapAuto);
+                    const manualScrolling = typeof isUserTouching !== 'undefined' && isUserTouching;
+
+                    let gap;
+                    if (Number.isFinite(forcedGap)) {
+                        gap = forcedGap;
+                    } else if (!manualScrolling && Number.isFinite(autoOnlyGap)) {
+                        gap = autoOnlyGap;
+                    } else {
+                        gap = manualScrolling ? 0 : REVEAL_MIN_GAP;
                     }
+
+                    // Hiện khối này, và nếu nó có gắn data-reveal-group thì
+                    // hiện LUÔN NGAY LẬP TỨC các khối khác cùng nhóm — kể cả
+                    // khi bản thân các khối đó CHƯA thật sự lọt vào khung
+                    // nhìn riêng (vd nút "Xem Bản Đồ" nằm ngay dưới khối
+                    // "Địa Điểm Tổ Chức", muốn hiện chung một lượt luôn,
+                    // không phải đợi cuộn xuống thêm mới thấy nút).
+                    const revealNow = (target) => {
+                        target.classList.add('in-view');
+                        const group = target.dataset.revealGroup;
+                        if (!group) return;
+                        document.querySelectorAll(`[data-reveal-group="${group}"]`).forEach((peer) => {
+                            if (peer !== target && !peer.classList.contains('in-view')) {
+                                observer.unobserve(peer);
+                                peer.classList.add('in-view');
+                            }
+                        });
+                    };
+
+                    if (gap <= 0) {
+                        revealLastStartTime = performance.now() / 1000;
+                        revealNow(el);
+                        return;
+                    }
+
+                    const now = performance.now() / 1000;
+                    const startAt = Math.max(now, revealLastStartTime + gap);
+                    revealLastStartTime = startAt;
+                    const waitMs = Math.max(0, (startAt - now) * 1000);
+
+                    setTimeout(() => revealNow(el), waitMs);
                 });
             }, {
                 root: scrollRoot,
@@ -1377,7 +1418,7 @@
                 rootMargin: '0px 0px -8% 0px'
             });
 
-            document.querySelectorAll('.reveal-item, .reveal-text').forEach((el) => {
+            revealEls.forEach((el) => {
                 observer.observe(el);
             });
         }
@@ -1385,6 +1426,7 @@
         // Reset lại trạng thái ẩn của hiệu ứng chữ/hình, để lần sau mở thiệp
         // lại thì hiệu ứng "bay vào" chạy lại từ đầu như lúc đầu tiên.
         function resetRevealEffects() {
+            revealLastStartTime = 0;
             document.querySelectorAll('.reveal-item, .reveal-text').forEach((el) => {
                 el.classList.remove('in-view');
             });
