@@ -564,7 +564,7 @@
     <!-- Custom MP3 Audio Tag (Instructions on how to change music are provided in the Help Modal) -->
     <!-- BẠN CÓ THỂ THAY LINK MP3 CỦA BẠN VÀO DÒNG DƯỚI: -->
     <audio id="custom-bg-audio" loop preload="auto">
-        <source src="GoldenHour.mp3" type="audio/mpeg">
+        <source src="thanhxuan.mp3" type="audio/mpeg">
     </audio>
 
     <!-- SECTION 1: 3D ENVELOPE COVER -->
@@ -937,8 +937,7 @@
             // Step 1: Open envelope flap
             container.classList.add('open');
 
-            // Step 2: Trigger audio and chime
-            playGraduationChime();
+            // Step 2: Trigger audio
             startAudio();
 
             // Step 3: Trigger gold confetti explosion
@@ -1176,24 +1175,6 @@
                 osc.stop(synthContext.currentTime + 2.2);
                 noteIdx = (noteIdx + 1) % notes.length;
             }, 1200);
-        }
-
-        function playGraduationChime() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const notes = [523.25, 659.25, 783.99, 1046.50];
-                notes.forEach((freq, i) => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
-                    gain.gain.setValueAtTime(0.12, ctx.currentTime + i * 0.12);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 1.2);
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start(ctx.currentTime + i * 0.12);
-                    osc.stop(ctx.currentTime + i * 0.12 + 1.2);
-                });
-            } catch (e) { }
         }
 
         // Confetti Burst Effect
