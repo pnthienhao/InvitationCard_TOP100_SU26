@@ -94,6 +94,19 @@
             animation: shimmer 4s linear infinite;
         }
 
+        /* Khi chữ vàng gradient bị tách thành từng .reveal-word để bay vào,
+           màu "trong suốt" bị các span con kế thừa nhưng nền gradient thì
+           không tự kế thừa xuống được -> chữ bị mất/mờ hẳn. Set lại nền
+           gradient trực tiếp trên từng span con để chữ luôn hiện đúng màu vàng. */
+        .gold-gradient-text .reveal-word {
+            background: linear-gradient(135deg, #FFF9E6 0%, #F3D675 30%, #D4AF37 50%, #AA7C11 75%, #FFF9E6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shimmer 4s linear infinite;
+        }
+
         .fpt-gradient-text {
             background: linear-gradient(135deg, #FF9453 0%, #F26F21 50%, #D4AF37 100%);
             -webkit-background-clip: text;
@@ -346,6 +359,10 @@
             font-size: 18px;
             /* 16px, tăng nhẹ vì đổi qua font serif nét mảnh hơn Montserrat */
             font-weight: 600;
+            /* Tự chia đều chữ trên các dòng khi xuống dòng, tránh dòng cuối
+               bị lẻ loi 1-2 chữ (mồ côi) nhìn mất cân đối trên màn hình nhỏ.
+               Trình duyệt chưa hỗ trợ thì tự bỏ qua, không ảnh hưởng gì. */
+            text-wrap: balance;
         }
 
         /* --- Khối "Thời Gian" / "Địa điểm" --- */
@@ -389,16 +406,19 @@
         /* Khối bất kỳ (card, hình...) mờ dần + trượt lên khi cuộn tới */
         .reveal-item {
             opacity: 0;
-            transform: translateY(55px) scale(0.94);
-            transition: opacity 0.9s cubic-bezier(0.16, 0.84, 0.44, 1),
-                transform 0.9s cubic-bezier(0.16, 0.84, 0.44, 1);
+            transform: translateY(60px) scale(0.9) rotateX(10deg);
+            filter: blur(4px);
+            transition: opacity 0.95s cubic-bezier(0.16, 0.84, 0.44, 1),
+                transform 0.95s cubic-bezier(0.16, 0.84, 0.44, 1),
+                filter 0.8s ease;
             transition-delay: var(--reveal-delay, 0s);
-            will-change: opacity, transform;
+            will-change: opacity, transform, filter;
         }
 
         .reveal-item.in-view {
             opacity: 1;
-            transform: translateY(0) scale(1);
+            transform: translateY(0) scale(1) rotateX(0deg);
+            filter: blur(0);
         }
 
         /* Chữ "bay vào" theo từng từ, giống hiệu ứng Entrance của PowerPoint */
@@ -409,14 +429,22 @@
         .reveal-word {
             display: inline-block;
             opacity: 0;
-            transform: translateY(28px) rotateX(-55deg);
-            transform-origin: top;
-            transition: opacity 0.6s ease, transform 0.65s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateY(38px) scale(0.7) rotateX(-70deg) rotateZ(-4deg);
+            transform-origin: bottom center;
+            filter: blur(5px);
+            text-shadow: 0 0 0 rgba(212, 175, 55, 0);
+            transition: opacity 0.55s ease,
+                transform 0.75s cubic-bezier(0.34, 1.56, 0.64, 1),
+                filter 0.55s ease,
+                text-shadow 0.7s ease 0.1s;
+            will-change: opacity, transform, filter;
         }
 
         .reveal-text.in-view .reveal-word {
             opacity: 1;
-            transform: translateY(0) rotateX(0deg);
+            transform: translateY(0) scale(1) rotateX(0deg) rotateZ(0deg);
+            filter: blur(0);
+            text-shadow: 0 0 16px rgba(212, 175, 55, 0.55);
         }
 
         /* --- Khung ảnh dọc 9:16 --- */
@@ -551,6 +579,13 @@
         .txt-badge {
             font-size: 0.75rem;
             /* 12px */
+            text-wrap: balance;
+        }
+
+        /* Danh sách thành tích phụ (Top 100 Spring 2026, Sinh viên xuất sắc Fall 2025) */
+        .txt-badge-sub {
+            font-size: 0.68rem;
+            /* 11px */
         }
 
         /* --- Nút xem bản đồ & footer --- */
@@ -726,17 +761,16 @@
                         </p>
 
                         <div
-                            class="inline-block max-w-full px-6 py-5 sm:px-10 sm:py-6 rounded-2xl border border-gold-500/40 bg-gradient-to-br from-gold-500/10 via-white/[0.02] to-transparent shadow-[0_0_35px_rgba(212,175,55,0.15)]">
+                            class="reveal-item inline-block max-w-full px-6 py-5 sm:px-10 sm:py-6 rounded-2xl border border-gold-500/40 bg-gradient-to-br from-gold-500/10 via-white/[0.02] to-transparent shadow-[0_0_35px_rgba(212,175,55,0.15)]"
+                            style="--reveal-delay:0.15s;">
                             <h3 id="guest-name-display"
                                 class="font-script txt-guest-name text-gold-200 guest-name-text leading-tight break-words"
                                 style="text-shadow: 0 0 22px rgba(212,175,55,.45);">
                                 Quý Khách Mời</h3>
                         </div>
 
-                        <p class="font-serif txt-guest-sub text-gold-300/70 italic mt-5 leading-relaxed">Đến tham dự
-                            buổi Lễ
-                            tôn
-                            vinh của<br>Trường Đại học FPT TP.HCM</p>
+                        <p class="reveal-text font-serif txt-guest-sub text-gold-300/70 italic mt-5 leading-relaxed">
+                            Đến tham dự buổi Lễ tôn vinh của Trường Đại học FPT TP.HCM</p>
                     </div>
 
                     <!-- STUDENT PROFILE / AVATAR HIGHLIGHT SECTION (CÓ HƯỚNG DẪN IMPORT HÌNH) -->
@@ -756,15 +790,29 @@
                             </div>
                         </div>
 
-                        <h4 id="student-name" class="font-vn-heading txt-student-name gold-gradient-text uppercase">PHẠM
+                        <h4 id="student-name"
+                            class="reveal-text font-vn-heading txt-student-name gold-gradient-text uppercase">PHẠM
                             NGUYỄN THIỆN
                             HẢO</h4>
-                        <p class="txt-student-major text-gold-300/90 font-medium mt-1">Major: Software Engineering</p>
-                        <p
-                            class="inline-block mt-3 px-4 py-1.5 rounded-full bg-fpt-orange/20 border border-fpt-orange/50 text-fpt-orange txt-badge font-semibold">
-                            <i class="fa-solid fa-trophy mr-1"></i> Top 100 Students With Outstanding <br> Academic
-                            Achievememt Summer 2026
-                        </p>
+                        <p class="reveal-text txt-student-major text-gold-300/90 font-medium mt-1">Major: Software
+                            Engineering</p>
+                        <div class="mt-3 text-center space-y-1.5">
+                            <p class="reveal-item text-fpt-orange" style="--reveal-delay:0s;">
+                                <i class="fa-solid fa-trophy mr-1.5"></i><span
+                                    class="reveal-text inline txt-badge font-semibold">Top 100 Students With
+                                    Outstanding Academic Achievement Summer 2026</span>
+                            </p>
+                            <p class="reveal-item text-fpt-orange" style="--reveal-delay:0.15s;">
+                                <i class="fa-solid fa-medal mr-1.5"></i><span
+                                    class="reveal-text inline txt-badge font-semibold">Top 100 Students With
+                                    Outstanding Academic Achievement Spring 2026</span>
+                            </p>
+                            <p class="reveal-item text-fpt-orange" style="--reveal-delay:0.3s;">
+                                <i class="fa-solid fa-award mr-1.5"></i><span
+                                    class="reveal-text inline txt-badge font-semibold">Outstanding Student Fall
+                                    2025</span>
+                            </p>
+                        </div>
                     </div>
 
                     <!-- PHOTO GALLERY SECTION - 2 KHUNG HÌNH DỌC 9:16 -->
@@ -877,7 +925,7 @@
                 </div>
 
                 <!-- CARD FOOTER -->
-                <div class="bg-wine-950 py-6 px-6 text-center border-t border-gold-500/30">
+                <div class="bg-gradient-to-r from-wine-950 via-wine-900 to-wine-950 py-6 px-6 text-center border-t border-gold-500/40">
                     <p class="font-script txt-footer-script text-gold-300">Hân hạnh được đón tiếp!</p>
                 </div>
             </div>
@@ -937,6 +985,10 @@
                     envelopeSection.classList.add('hidden');
                     cardModal.classList.remove('hidden');
 
+                    // Luôn cuộn về đầu thiệp mỗi lần mở, để thiệp hiện lại
+                    // y như lúc đầu (đề phòng khách bấm nhầm đóng rồi mở lại).
+                    if (scrollContainer) scrollContainer.scrollTop = 0;
+
                     setTimeout(() => {
                         cardModal.classList.remove('opacity-0');
                         startAutoScroll();
@@ -961,6 +1013,7 @@
 
             stopAutoScroll();
             resetRevealEffects();
+            stopAllAudio();
 
             cardModal.classList.add('opacity-0');
             setTimeout(() => {
@@ -1071,6 +1124,27 @@
             } else {
                 startSynthAudio();
             }
+        }
+
+        // Stop all audio hoàn toàn (MP3 + synth), dùng khi đóng thiệp lại
+        function stopAllAudio() {
+            const bgAudio = document.getElementById('custom-bg-audio');
+            const musicBtnText = document.getElementById('music-status-text');
+            const soundwave = document.getElementById('soundwave');
+
+            if (bgAudio) {
+                bgAudio.pause();
+                bgAudio.currentTime = 0; // tua về đầu để lần sau mở thiệp nhạc phát lại từ đầu
+            }
+
+            if (synthContext) {
+                synthContext.close().catch(() => {});
+                synthContext = null;
+            }
+
+            isAudioPlaying = false;
+            if (musicBtnText) musicBtnText.innerText = "Bật Nhạc";
+            if (soundwave) soundwave.classList.add('paused');
         }
 
         function toggleAudio() {
@@ -1276,7 +1350,7 @@
                 words.forEach((word, i) => {
                     const span = document.createElement('span');
                     span.className = 'reveal-word';
-                    span.style.transitionDelay = (i * 0.07) + 's';
+                    span.style.transitionDelay = (i * 0.09) + 's';
                     span.textContent = word;
                     el.appendChild(span);
                     el.appendChild(document.createTextNode(' '));
