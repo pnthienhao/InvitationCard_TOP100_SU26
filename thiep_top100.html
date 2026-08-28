@@ -563,7 +563,21 @@
         #cinematic-intro {
             /* Khớp tông màu Wine/Gold của thiệp (wine-800 -> wine-900 -> wine-950) */
             background: radial-gradient(ellipse at 50% 32%, #3D080F 0%, #26040A 48%, #140205 80%, #0a0103 100%);
-            transition: opacity 0.9s ease, transform 1s cubic-bezier(0.6, 0, 0.9, 0.2);
+            transition: opacity 1.2s cubic-bezier(0.45, 0, 0.55, 1), transform 1.2s cubic-bezier(0.45, 0, 0.55, 1), filter 1.2s cubic-bezier(0.45, 0, 0.55, 1);
+        }
+
+        /* Màn hình video intro (~2.5s) chạy sau 3 ảnh, trước khi vào thiệp.
+           Cùng tông nền & cùng kiểu transition hoà cảnh mượt với cinematic-intro. */
+        #video-intro {
+            background: #0a0103;
+            transition: opacity 1.2s cubic-bezier(0.45, 0, 0.55, 1), transform 1.2s cubic-bezier(0.45, 0, 0.55, 1), filter 1.2s cubic-bezier(0.45, 0, 0.55, 1);
+        }
+
+        #video-intro video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
         /* Màn hình chờ "Chạm để mở thiệp" - đảm bảo có gesture trước khi phát nhạc */
@@ -593,11 +607,14 @@
             }
         }
 
-        /* Hiệu ứng chuyển cảnh: cả không gian intro phóng to & mờ dần đi,
-           như máy quay lao thẳng vào ánh sáng để "cắt cảnh" sang thiệp */
-        #cinematic-intro.ci-exit {
+        /* Hiệu ứng hoà cảnh mượt dùng chung: mờ dần + hơi nhoè (blur) + phóng to
+           RẤT nhẹ, như một cú dissolve điện ảnh êm ái, không giật/không chớp.
+           Dùng class (không scope theo ID) để tái sử dụng cho cả
+           #cinematic-intro (ảnh) lẫn #video-intro (video). */
+        .ci-exit {
             opacity: 0;
-            transform: scale(1.15);
+            filter: blur(14px);
+            transform: scale(1.04);
         }
 
         /* Ánh chớp vàng loé lên đúng lúc chuyển cảnh */
@@ -922,7 +939,7 @@
     <!-- ============================================================
          CINEMATIC INTRO — mở màn điện ảnh trước khi vào thiệp
          ============================================================ -->
-    <div id="cinematic-intro" class="fixed inset-0 z-[100] overflow-hidden flex items-center justify-center hidden">
+    <div id="cinematic-intro" class="fixed inset-0 z-[110] overflow-hidden flex items-center justify-center hidden">
         <div class="ci-halo"></div>
         <div class="ci-vignette"></div>
         <div class="ci-glow"></div>
@@ -938,9 +955,32 @@
         <div id="ci-flash" class="ci-flash"></div>
     </div>
 
+    <!-- ============================================================
+         VIDEO INTRO — đoạn video ngắn (~2.5s) chạy NGAY SAU 3 ảnh,
+         trước khi cắt cảnh vào phần thiệp/phong bì.
+         THAY "video-intro.mp4" bằng tên file video của bạn (để cùng
+         thư mục với file HTML này). Video tự phát có tiếng (đã có
+         gesture từ màn hình "Chạm để bắt đầu" trước đó nên không bị
+         trình duyệt chặn), rồi tự động cắt cảnh khi video kết thúc.
+         ============================================================ -->
+    <div id="video-intro" class="fixed inset-0 z-[100] overflow-hidden flex items-center justify-center hidden">
+        <div class="ci-vignette"></div>
+        <video id="vi-video" playsinline preload="auto">
+            <source src="video-intro.mp4" type="video/mp4">
+        </video>
+        <div id="vi-flash" class="ci-flash"></div>
+    </div>
+
     <!-- SECTION 1: 3D ENVELOPE COVER -->
+    <!-- Mặc định ẩn hẳn (display:none qua class "hidden") thay vì chỉ dựa vào
+         z-index, để chắc chắn phong bì/thiệp KHÔNG thể lộ ra sớm trong lúc
+         cinematic-intro/video-intro đang chạy, kể cả trên các trình duyệt có
+         hành vi render video "lệch lớp" (video nổi đè lên trên các phần tử
+         khác dù z-index thấp hơn, hay bị delay khi gỡ khỏi DOM). Chỉ được gỡ
+         "hidden" trong transitionFromVideoToEnvelope(), tức là chỉ sau khi
+         video kết thúc hẳn. -->
     <div id="envelope-section"
-        class="relative z-10 w-full min-h-screen flex flex-col justify-center items-center px-4 py-8 transition-all duration-700">
+        class="relative z-10 w-full min-h-screen flex flex-col justify-center items-center px-4 py-8 transition-all duration-700 hidden">
 
         <!-- FPT University Header Emblem -->
         <div class="text-center mb-6 sm:mb-8 animate-float">
@@ -1429,26 +1469,117 @@
             setTimeout(transitionToEnvelope, 9200);
         }
 
-        // Cắt cảnh điện ảnh từ intro sang thiệp: loé sáng vàng rồi intro phóng to & mờ
-        // dần biến mất hẳn khỏi trang (không chỉ ẩn) - kéo lên sẽ không còn thấy intro nữa.
+        // Chuyển cảnh mượt từ 3 ảnh sang VIDEO INTRO: video được bắt đầu phát
+        // NGAY (nằm ở lớp giữa, dưới lớp ảnh) trong khi ảnh mờ dần + nhoè nhẹ
+        // đi phía trên - tạo thành một cú hoà cảnh (cross-dissolve) êm, không
+        // giật, không chớp sáng. Video vẫn tiếp tục chạy xuyên suốt quá trình
+        // ảnh mờ đi, nên khi ảnh biến mất hẳn thì video đã đang chạy sẵn.
         function transitionToEnvelope() {
             const intro = document.getElementById('cinematic-intro');
-            const flash = document.getElementById('ci-flash');
+
+            // Nhạc intro KHÔNG tắt ở đây - video-intro không có âm thanh
+            // riêng, nên để nhạc chạy xuyên suốt qua luôn cả đoạn video, chỉ
+            // tắt hẳn khi video-intro kết thúc (xem transitionFromVideoToEnvelope).
+
+            // Video bắt đầu phát ngay lập tức, ở lớp dưới ảnh (z-index thấp
+            // hơn #cinematic-intro), nên vẫn bị ảnh che kín cho tới khi ảnh
+            // bắt đầu mờ đi.
+            playVideoIntro();
+
             if (!intro) return;
-
-            if (flash) flash.classList.add('ci-flash-active');
-
-            // Nhạc intro mờ dần rồi tắt hẳn cùng lúc màn hình cắt cảnh
-            fadeOutIntroAudio(900);
 
             setTimeout(() => {
                 intro.classList.add('ci-exit');
-            }, 150);
+            }, 60);
 
             setTimeout(() => {
                 intro.remove(); // gỡ hẳn khỏi trang, không còn dấu vết để kéo lên thấy lại
+            }, 1300);
+        }
+
+        // Phát đoạn video intro ngắn (~2.5s) ngay khi ảnh bắt đầu mờ đi. Vì
+        // trang đã có gesture chạm từ màn hình "Chạm để bắt đầu" trước đó,
+        // video được phép tự phát có tiếng luôn, không cần chạm thêm lần nào.
+        function playVideoIntro() {
+            const videoWrap = document.getElementById('video-intro');
+            const video = document.getElementById('vi-video');
+            if (!videoWrap || !video) {
                 document.body.style.overflow = '';
-            }, 1050);
+                const envelopeSection = document.getElementById('envelope-section');
+                if (envelopeSection) envelopeSection.classList.remove('hidden');
+                return;
+            }
+
+            videoWrap.classList.remove('hidden');
+            video.currentTime = 0;
+            const playPromise = video.play();
+            if (playPromise && typeof playPromise.catch === 'function') {
+                playPromise.catch(() => { });
+            }
+
+            let alreadyFinished = false;
+            const finishVideo = () => {
+                if (alreadyFinished) return;
+                alreadyFinished = true;
+                transitionFromVideoToEnvelope();
+            };
+
+            // Ưu tiên chuyển cảnh đúng lúc video kết thúc thật sự...
+            video.addEventListener('ended', finishVideo, { once: true });
+            // ...nếu video lỗi/không load được (vd chưa có file video-intro.mp4)
+            // thì cắt cảnh sớm luôn, khỏi để màn hình đen chờ vô ích.
+            video.addEventListener('error', finishVideo, { once: true });
+            // ...và vẫn có mốc dự phòng ~2.5s để chắc chắn luôn chuyển
+            // cảnh kể cả khi video dài/ngắn hơn dự kiến.
+            setTimeout(finishVideo, 2500);
+        }
+
+        // Chuyển cảnh mượt từ VIDEO INTRO sang phần thiệp/phong bì: phong bì
+        // được lộ ra NGAY (nằm ở lớp dưới cùng, dưới video) trong khi video
+        // mờ dần + nhoè nhẹ đi phía trên - cùng kiểu hoà cảnh êm như đoạn
+        // ảnh -> video ở trên, không chớp sáng, không giật cục.
+        function transitionFromVideoToEnvelope() {
+            const videoWrap = document.getElementById('video-intro');
+            const video = document.getElementById('vi-video');
+            const flash = document.getElementById('vi-flash');
+            const envelopeSection = document.getElementById('envelope-section');
+
+            // Dừng video NGAY (kể cả trước khi gỡ khỏi DOM). Một số trình
+            // duyệt (đặc biệt Safari/iOS) render <video> trên một lớp phần
+            // cứng riêng, nếu chỉ gỡ khỏi DOM mà không pause() thì hình ảnh
+            // video có thể còn "kẹt" lại và lộ ra chồng lên phần thiệp ngay
+            // sau đó. Pause trước sẽ tránh được hiện tượng này.
+            if (video) {
+                try { video.pause(); } catch (e) { /* ignore */ }
+            }
+
+            // Riêng đoạn video -> thiệp vẫn giữ ánh chớp vàng loé lên lúc
+            // chuyển cảnh (khác với đoạn ảnh -> video giờ là hoà mượt không
+            // chớp).
+            if (flash) flash.classList.add('ci-flash-active');
+
+            // Nhạc intro mờ dần rồi tắt hẳn đúng lúc video kết thúc & hoà
+            // cảnh sang thiệp (video không có tiếng nên nhạc chạy xuyên suốt
+            // tới đây)
+            fadeOutIntroAudio(900);
+
+            // Phong bì/thiệp lộ ra NGAY - nó nằm ở lớp thấp nhất (z-10, dưới
+            // cả video z-100), nên vẫn bị video che cho tới khi video mờ đi.
+            if (envelopeSection) envelopeSection.classList.remove('hidden');
+
+            if (!videoWrap) {
+                document.body.style.overflow = '';
+                return;
+            }
+
+            setTimeout(() => {
+                videoWrap.classList.add('ci-exit');
+            }, 60);
+
+            setTimeout(() => {
+                videoWrap.remove();
+                document.body.style.overflow = '';
+            }, 1300);
         }
 
         // Function: Open Envelope
