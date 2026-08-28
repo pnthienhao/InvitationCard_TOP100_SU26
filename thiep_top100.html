@@ -553,6 +553,339 @@
                 /* độ rộng thiệp trên PC/tablet - chỉnh số này để đổi ngang */
             }
         }
+
+        /* ====================================================================================
+           CINEMATIC INTRO (mở màn điện ảnh trước khi vào thiệp)
+           Không gian tối + sàn kính phản chiếu + đường sáng công nghệ, 3 ảnh
+           (SP26.jpg, FA25.jpg, traogiaitop100.jpg) lần lượt hiện ra như camera
+           lướt xuyên qua, kết thúc bằng việc lùi lại để lộ phong bì thiệp.
+           ==================================================================================== */
+        #cinematic-intro {
+            /* Khớp tông màu Wine/Gold của thiệp (wine-800 -> wine-900 -> wine-950) */
+            background: radial-gradient(ellipse at 50% 32%, #3D080F 0%, #26040A 48%, #140205 80%, #0a0103 100%);
+            transition: opacity 0.9s ease, transform 1s cubic-bezier(0.6, 0, 0.9, 0.2);
+        }
+
+        /* Hiệu ứng chuyển cảnh: cả không gian intro phóng to & mờ dần đi,
+           như máy quay lao thẳng vào ánh sáng để "cắt cảnh" sang thiệp */
+        #cinematic-intro.ci-exit {
+            opacity: 0;
+            transform: scale(1.15);
+        }
+
+        /* Ánh chớp vàng loé lên đúng lúc chuyển cảnh */
+        .ci-flash {
+            position: absolute;
+            inset: 0;
+            z-index: 40;
+            pointer-events: none;
+            opacity: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(253, 236, 178, 0.95) 0%, rgba(212, 175, 55, 0.5) 35%, transparent 70%);
+        }
+
+        .ci-flash.ci-flash-active {
+            animation: ciFlashPulse 0.85s ease forwards;
+        }
+
+        @keyframes ciFlashPulse {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            35% {
+                opacity: 0.9;
+                transform: scale(1.25);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(2.3);
+            }
+        }
+
+        /* Hào quang xoay nhẹ phía sau - tạo chiều sâu 3D sang trọng, thay cho lưới ô vuông cũ */
+        .ci-halo {
+            position: absolute;
+            width: min(115vmin, 780px);
+            height: min(115vmin, 780px);
+            border-radius: 50%;
+            background: conic-gradient(from 0deg,
+                    transparent 0deg,
+                    rgba(212, 175, 55, 0.16) 55deg,
+                    transparent 130deg,
+                    rgba(120, 170, 220, 0.12) 210deg,
+                    transparent 290deg,
+                    transparent 360deg);
+            filter: blur(50px);
+            animation: ciHaloSpin 22s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes ciHaloSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Sàn kính đen phản chiếu ánh sáng - quầng sáng mềm + tia sáng quét qua, không dùng lưới ô vuông */
+        .ci-floor {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 42%;
+            background: linear-gradient(to bottom, rgba(212, 175, 55, 0.05) 0%, rgba(20, 2, 5, 0.92) 55%, #000 100%);
+            transform: perspective(700px) rotateX(78deg);
+            transform-origin: bottom;
+            overflow: hidden;
+        }
+
+        /* Quầng phản chiếu vàng ấm ở giữa sàn kính */
+        .ci-floor::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 15%;
+            width: 65%;
+            height: 55%;
+            transform: translateX(-50%);
+            background: radial-gradient(ellipse at center, rgba(212, 175, 55, 0.4) 0%, rgba(212, 175, 55, 0.1) 45%, transparent 72%);
+            filter: blur(14px);
+            animation: ciGlowPulse 4.5s ease-in-out infinite;
+        }
+
+        @keyframes ciGlowPulse {
+
+            0%,
+            100% {
+                opacity: 0.55;
+                transform: translateX(-50%) scale(1);
+            }
+
+            50% {
+                opacity: 0.95;
+                transform: translateX(-50%) scale(1.08);
+            }
+        }
+
+        /* Dải sáng mảnh quét chéo qua sàn kính, như ánh đèn phản chiếu lướt qua mặt kính */
+        .ci-floor::after {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: -50%;
+            width: 55%;
+            height: 160%;
+            background: linear-gradient(75deg, transparent 0%, rgba(253, 236, 178, 0.22) 48%, rgba(253, 236, 178, 0.4) 50%, rgba(253, 236, 178, 0.22) 52%, transparent 100%);
+            filter: blur(4px);
+            animation: ciFloorSweep 5.5s ease-in-out infinite;
+        }
+
+        @keyframes ciFloorSweep {
+            0% {
+                transform: translateX(-30%);
+                opacity: 0;
+            }
+
+            15% {
+                opacity: 0.85;
+            }
+
+            50% {
+                transform: translateX(140%);
+                opacity: 0.5;
+            }
+
+            85% {
+                opacity: 0.1;
+            }
+
+            100% {
+                transform: translateX(220%);
+                opacity: 0;
+            }
+        }
+
+        /* Những đường sáng công nghệ tinh tế bay lên */
+        .ci-lines {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .ci-lines span {
+            position: absolute;
+            bottom: -10%;
+            width: 1px;
+            height: 40%;
+            background: linear-gradient(to top, rgba(212, 175, 55, 0.65), rgba(120, 170, 220, 0.35), transparent);
+            opacity: 0;
+            animation: ciLineRise 4.5s ease-in infinite;
+        }
+
+        @keyframes ciLineRise {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scaleY(0.6);
+            }
+
+            15% {
+                opacity: 0.9;
+            }
+
+            80% {
+                opacity: 0.15;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-70vh) scaleY(1.3);
+            }
+        }
+
+        /* Hạt sáng lơ lửng */
+        .ci-particles span {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: #F3D675;
+            box-shadow: 0 0 6px 1px rgba(243, 214, 117, 0.8);
+            opacity: 0;
+            animation: ciParticleFloat 5s ease-in-out infinite;
+        }
+
+        @keyframes ciParticleFloat {
+
+            0%,
+            100% {
+                opacity: 0;
+                transform: translateY(0);
+            }
+
+            10% {
+                opacity: 0.9;
+            }
+
+            90% {
+                opacity: 0.3;
+            }
+
+            100% {
+                transform: translateY(-120px);
+            }
+        }
+
+        /* Khung ảnh điện ảnh - kính trong suốt bao quanh.
+           Dùng đơn vị vmin (thay vì vw) để khung luôn canh đều và không
+           bị tràn/méo dù màn hình ngang 16:9, dọc 9:16 hay vuông. */
+        .ci-frame {
+            position: absolute;
+            width: min(70vmin, 520px);
+            height: min(48vmin, 360px);
+            border-radius: 16px;
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(253, 236, 178, 0.14), rgba(212, 175, 55, 0.04));
+            border: 1px solid rgba(243, 214, 117, 0.5);
+            box-shadow: 0 0 0 1px rgba(120, 170, 220, 0.15), 0 30px 90px rgba(0, 0, 0, 0.85), 0 0 70px rgba(212, 175, 55, 0.18);
+            opacity: 0;
+            transform: scale(1.35) translateZ(0);
+            filter: blur(6px);
+            transition: opacity 1.4s ease, transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), filter 1.4s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Góc kim loại vàng - điểm nhấn sang trọng ở 2 góc khung */
+        .ci-frame::before,
+        .ci-frame::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-color: #F3D675;
+            border-style: solid;
+            opacity: 0.85;
+            z-index: 2;
+        }
+
+        .ci-frame::before {
+            top: 4px;
+            left: 4px;
+            border-width: 2px 0 0 2px;
+            border-top-left-radius: 6px;
+        }
+
+        .ci-frame::after {
+            bottom: 4px;
+            right: 4px;
+            border-width: 0 2px 2px 0;
+            border-bottom-right-radius: 6px;
+        }
+
+        .ci-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            display: block;
+            /* vignette nhẹ để ảnh hoà vào không gian tối, cảm giác điện ảnh hơn */
+            box-shadow: inset 0 0 60px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .ci-frame.ci-active {
+            opacity: 1;
+            transform: scale(1) translateZ(0);
+            filter: blur(0);
+        }
+
+        .ci-frame.ci-leaving {
+            opacity: 0;
+            transform: scale(0.82) translateZ(0);
+            filter: blur(10px);
+            transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.7, 0, 0.84, 0);
+        }
+
+        /* Trạng thái cuối: 3 ảnh thu nhỏ xếp cạnh nhau, camera lùi ra.
+           SỬA LỖI: trước đây khoảng cách (translateY) và chiều cao khung ảnh
+           dùng 2 công thức "min(vmin, px)" khác tỉ lệ nhau, nên ở màn hình
+           to (tablet/PC) khoảng lệch nhỏ hơn nửa chiều cao khung -> ảnh 2 và
+           3 bị chồng "dính" vào nhau, còn khoảng cách 1-2 và 2-3 cũng không
+           đều. Giờ tính khoảng lệch = chiều cao khung ảnh (đúng theo width
+           thật) + 1 khoảng hở cố định --trio-gap, nên 2 khung luôn tách rõ
+           và khoảng hở trên/dưới luôn bằng nhau ở mọi kích thước màn hình. */
+        .ci-frame.ci-trio {
+            /* Giữ đúng tỉ lệ ảnh gốc 16:9, chỉ thu nhỏ lại để xếp dọc */
+            --trio-frame-w: min(46vmin, 300px);
+            --trio-frame-h: calc(var(--trio-frame-w) * 9 / 16);
+            --trio-gap: 18px;
+            --trio-offset: calc(var(--trio-frame-h) + var(--trio-gap));
+            width: var(--trio-frame-w);
+            height: auto;
+            aspect-ratio: 16 / 9;
+            opacity: 1;
+            filter: blur(0);
+            transition: opacity 1.2s ease, transform 1.4s cubic-bezier(0.22, 1, 0.36, 1), filter 1.2s ease;
+        }
+
+        .ci-frame.ci-trio::before,
+        .ci-frame.ci-trio::after {
+            width: 12px;
+            height: 12px;
+        }
+
+        #ci-frame-1.ci-trio {
+            transform: translateY(calc(-1 * var(--trio-offset))) scale(1);
+        }
+
+        #ci-frame-2.ci-trio {
+            transform: translateY(0) scale(1);
+        }
+
+        #ci-frame-3.ci-trio {
+            transform: translateY(var(--trio-offset)) scale(1);
+        }
     </style>
 </head>
 
@@ -566,6 +899,30 @@
     <audio id="custom-bg-audio" loop preload="auto">
         <source src="thanhxuan.mp3" type="audio/mpeg">
     </audio>
+
+    <!-- Nhạc riêng cho phần CINEMATIC INTRO (đoạn 3 ảnh lướt qua trước khi vào thiệp) -->
+    <!-- THAY "intro.mp3" bằng tên file nhạc intro của bạn (để cùng thư mục với file HTML này) -->
+    <audio id="intro-bg-audio" preload="auto">
+        <source src="intro.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- ============================================================
+         CINEMATIC INTRO — mở màn điện ảnh trước khi vào thiệp
+         ============================================================ -->
+    <div id="cinematic-intro" class="fixed inset-0 z-[100] overflow-hidden flex items-center justify-center">
+        <div class="ci-halo"></div>
+        <div class="ci-floor"></div>
+        <div class="ci-lines" id="ci-lines"></div>
+        <div class="ci-particles" id="ci-particles"></div>
+
+        <!-- 3 khung ảnh điện ảnh -->
+        <div class="ci-frame" id="ci-frame-1"><img src="intro1.jpg" alt="Khoảnh khắc 1"></div>
+        <div class="ci-frame" id="ci-frame-2"><img src="intro2.jpg" alt="Khoảnh khắc 2"></div>
+        <div class="ci-frame" id="ci-frame-3"><img src="intro3.jpg" alt="Khoảnh khắc 3"></div>
+
+        <!-- Ánh chớp vàng loé lên khi chuyển cảnh sang thiệp -->
+        <div id="ci-flash" class="ci-flash"></div>
+    </div>
 
     <!-- SECTION 1: 3D ENVELOPE COVER -->
     <div id="envelope-section"
@@ -925,6 +1282,138 @@
         const scrollStatusText = document.getElementById('scroll-status-text');
         const scrollPing = document.getElementById('scroll-ping');
         const scrollDot = document.getElementById('scroll-dot');
+
+        /*
+            ====================================================================================
+            CINEMATIC INTRO SEQUENCE
+            ====================================================================================
+        */
+        let ciStarted = false;
+
+        // Sinh ngẫu nhiên các đường sáng + hạt sáng lơ lửng cho intro
+        function buildCinematicAtmosphere() {
+            const lines = document.getElementById('ci-lines');
+            const particles = document.getElementById('ci-particles');
+            if (lines && lines.children.length === 0) {
+                for (let i = 0; i < 14; i++) {
+                    const s = document.createElement('span');
+                    s.style.left = (Math.random() * 100) + '%';
+                    s.style.animationDelay = (Math.random() * 4.5) + 's';
+                    s.style.animationDuration = (3.5 + Math.random() * 2.5) + 's';
+                    lines.appendChild(s);
+                }
+            }
+            if (particles && particles.children.length === 0) {
+                for (let i = 0; i < 26; i++) {
+                    const s = document.createElement('span');
+                    s.style.left = (Math.random() * 100) + '%';
+                    s.style.top = (40 + Math.random() * 55) + '%';
+                    s.style.animationDelay = (Math.random() * 5) + 's';
+                    s.style.animationDuration = (4 + Math.random() * 3) + 's';
+                    particles.appendChild(s);
+                }
+            }
+        }
+
+        // Phát nhạc riêng cho phần intro (file gắn ở thẻ <audio id="intro-bg-audio">).
+        // Lưu ý: hầu hết trình duyệt CHẶN autoplay có tiếng khi trang vừa
+        // load (chưa có thao tác chạm nào từ người dùng) -> nếu bị chặn,
+        // ta chờ đúng 1 lần chạm/click đầu tiên trên trang để phát lại.
+        function startIntroAudio() {
+            const introAudio = document.getElementById('intro-bg-audio');
+            if (!introAudio) return;
+            introAudio.volume = 1;
+            introAudio.currentTime = 0;
+            const playPromise = introAudio.play();
+            if (playPromise && typeof playPromise.catch === 'function') {
+                playPromise.catch(() => {
+                    const retryOnce = () => {
+                        introAudio.play().catch(() => { });
+                        document.removeEventListener('click', retryOnce);
+                        document.removeEventListener('touchstart', retryOnce);
+                    };
+                    document.addEventListener('click', retryOnce, { once: true });
+                    document.addEventListener('touchstart', retryOnce, { once: true });
+                });
+            }
+        }
+
+        // Giảm dần âm lượng nhạc intro rồi dừng hẳn (dùng khi cắt cảnh sang thiệp)
+        function fadeOutIntroAudio(durationMs) {
+            const introAudio = document.getElementById('intro-bg-audio');
+            if (!introAudio || introAudio.paused) return;
+            const steps = 20;
+            const stepTime = durationMs / steps;
+            const startVolume = introAudio.volume;
+            let i = 0;
+            const fadeInterval = setInterval(() => {
+                i++;
+                introAudio.volume = Math.max(0, startVolume * (1 - i / steps));
+                if (i >= steps) {
+                    clearInterval(fadeInterval);
+                    introAudio.pause();
+                    introAudio.currentTime = 0;
+                    introAudio.volume = startVolume;
+                }
+            }, stepTime);
+        }
+
+        function startCinematicIntro() {
+            if (ciStarted) return;
+            ciStarted = true;
+
+            // Khoá cuộn trang trong lúc intro chạy, tránh lộ nội dung phía dưới sớm
+            document.body.style.overflow = 'hidden';
+
+            // Bật nhạc intro ngay khi đoạn mở màn bắt đầu
+            startIntroAudio();
+
+            const f1 = document.getElementById('ci-frame-1');
+            const f2 = document.getElementById('ci-frame-2');
+            const f3 = document.getElementById('ci-frame-3');
+
+            // Ảnh 1 hiện ra
+            setTimeout(() => f1.classList.add('ci-active'), 500);
+            // Ảnh 1 lùi ra, ảnh 2 tiến vào (camera "xuyên qua")
+            setTimeout(() => { f1.classList.remove('ci-active'); f1.classList.add('ci-leaving'); }, 2600);
+            setTimeout(() => f2.classList.add('ci-active'), 3000);
+            // Ảnh 2 lùi ra, ảnh 3 tiến vào
+            setTimeout(() => { f2.classList.remove('ci-active'); f2.classList.add('ci-leaving'); }, 5100);
+            setTimeout(() => f3.classList.add('ci-active'), 5500);
+
+            // Camera lùi xa: cả 3 khoảnh khắc xuất hiện cùng lúc, liên kết thành 1 hành trình
+            setTimeout(() => {
+                [f1, f2, f3].forEach(f => {
+                    f.classList.remove('ci-leaving');
+                    f.classList.add('ci-active', 'ci-trio');
+                });
+            }, 7600);
+
+            // Kết thúc intro: cắt cảnh (loé sáng + phóng to mờ dần) sang thẳng giao diện thiệp
+            setTimeout(transitionToEnvelope, 9200);
+        }
+
+        // Cắt cảnh điện ảnh từ intro sang thiệp: loé sáng vàng rồi intro phóng to & mờ
+        // dần biến mất hẳn khỏi trang (không chỉ ẩn) - kéo lên sẽ không còn thấy intro nữa.
+        function transitionToEnvelope() {
+            const intro = document.getElementById('cinematic-intro');
+            const flash = document.getElementById('ci-flash');
+            if (!intro) return;
+
+            if (flash) flash.classList.add('ci-flash-active');
+
+            // Nhạc intro mờ dần rồi tắt hẳn cùng lúc màn hình cắt cảnh
+            fadeOutIntroAudio(900);
+
+            setTimeout(() => {
+                intro.classList.add('ci-exit');
+            }, 150);
+
+            setTimeout(() => {
+                intro.remove(); // gỡ hẳn khỏi trang, không còn dấu vết để kéo lên thấy lại
+                document.body.style.overflow = '';
+            }, 1050);
+        }
 
         // Function: Open Envelope
         function openEnvelope() {
@@ -1463,6 +1952,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             initGuestNameFromURL();
             initStarfield();
+            buildCinematicAtmosphere();
+            startCinematicIntro();
             initTouchControlListeners();
             updateCountdown();
             setInterval(updateCountdown, 1000);
