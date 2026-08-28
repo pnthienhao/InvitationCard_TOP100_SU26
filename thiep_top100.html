@@ -569,15 +569,125 @@
         /* Màn hình video intro (~2.5s) chạy sau 3 ảnh, trước khi vào thiệp.
            Cùng tông nền & cùng kiểu transition hoà cảnh mượt với cinematic-intro. */
         #video-intro {
-            background: #0a0103;
+            /* Đổi sang đúng gradient nền của #cinematic-intro (3 ảnh trước đó),
+               để phần viền/letterbox lộ ra quanh video (do object-fit: contain)
+               có cùng tông màu, không bị lệch/giật màu khi chuyển cảnh ảnh -> video. */
+            background: radial-gradient(ellipse at 50% 32%, #3D080F 0%, #26040A 48%, #140205 80%, #0a0103 100%);
             transition: opacity 1.2s cubic-bezier(0.45, 0, 0.55, 1), transform 1.2s cubic-bezier(0.45, 0, 0.55, 1), filter 1.2s cubic-bezier(0.45, 0, 0.55, 1);
         }
 
-        #video-intro video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
+        /* Quầng lửa cam-vàng bùng lên phía dưới màn "THE NEW CHAPTER",
+           cùng tông màu FPT-orange/gold của toàn thiệp, "thở" nhẹ liên tục
+           như ngọn lửa thật đang cháy. Gồm 2 lớp chồng nhau (đáy to mờ +
+           lõi nhỏ sáng rực ở giữa) để nhìn "cháy" dày và rực hơn. */
+        .chapter-fire-glow {
+            position: absolute;
+            bottom: -12%;
+            left: 50%;
+            width: min(155vmin, 980px);
+            height: min(100vmin, 660px);
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background:
+                radial-gradient(ellipse at 50% 100%, rgba(255, 230, 180, 0.55) 0%, transparent 22%),
+                radial-gradient(ellipse at 50% 100%,
+                    rgba(255, 148, 83, 0.75) 0%,
+                    rgba(242, 111, 33, 0.55) 26%,
+                    rgba(212, 175, 55, 0.28) 46%,
+                    rgba(122, 17, 30, 0.16) 64%,
+                    transparent 80%);
+            filter: blur(28px);
+            z-index: 0;
+            pointer-events: none;
+            animation: chapterFireBreath 1.1s ease-in-out infinite alternate;
+        }
+
+        @keyframes chapterFireBreath {
+            0% {
+                opacity: 0.75;
+                transform: translateX(-50%) scale(0.95);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateX(-50%) scale(1.08);
+            }
+        }
+
+        /* Đốm lửa/tàn lửa bay lên - JS sinh ra từng <span>, mỗi đốm tự bay
+           từ đáy màn hình lên trên, nhấp nháy như tia lửa thật. */
+        .chapter-embers {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .chapter-embers span {
+            position: absolute;
+            bottom: -5%;
+            border-radius: 50%;
+            background: radial-gradient(circle, #FFF3D6 0%, #FFB25B 40%, #F26F21 72%, transparent 85%);
+            opacity: 0;
+            animation-name: chapterEmberRise;
+            animation-timing-function: ease-in;
+            animation-iteration-count: infinite;
+            will-change: transform, opacity;
+        }
+
+        @keyframes chapterEmberRise {
+            0% {
+                opacity: 0;
+                transform: translateY(0) translateX(0) scale(0.6);
+            }
+
+            12% {
+                opacity: 1;
+            }
+
+            75% {
+                opacity: 0.6;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-115vh) translateX(var(--chapter-drift, 24px)) scale(1.15);
+            }
+        }
+
+        /* Chữ "THE NEW CHAPTER" - cùng font/kiểu chữ với "Chạm để bắt đầu"
+           (font-sans, uppercase), thêm hiệu ứng rực sáng như ánh lửa hắt
+           vào chữ, nhấp nháy nhẹ cho sống động.
+           Dùng clamp() cho cả font-size lẫn letter-spacing (thay vì set
+           cứng theo breakpoint) để chữ LUÔN co giãn khớp đúng bề ngang màn
+           hình và KHÔNG BAO GIỜ bị xuống dòng, kể cả trên điện thoại nhỏ
+           nhất - màn càng hẹp thì chữ + độ giãn cách càng tự thu nhỏ lại. */
+        .chapter-text {
+            font-size: clamp(1.05rem, 6.2vw, 3rem);
+            letter-spacing: clamp(0.08em, 1.7vw, 0.35em);
+            white-space: nowrap;
+            text-shadow: 0 0 18px rgba(242, 111, 33, 0.85), 0 0 42px rgba(212, 175, 55, 0.5);
+            animation: chapterTextFlicker 1.8s ease-in-out infinite;
+        }
+
+        @keyframes chapterTextFlicker {
+
+            0%,
+            100% {
+                opacity: 1;
+                text-shadow: 0 0 18px rgba(242, 111, 33, 0.85), 0 0 42px rgba(212, 175, 55, 0.5);
+            }
+
+            45% {
+                opacity: 0.92;
+                text-shadow: 0 0 12px rgba(242, 111, 33, 0.6), 0 0 28px rgba(212, 175, 55, 0.35);
+            }
+
+            55% {
+                opacity: 1;
+                text-shadow: 0 0 22px rgba(242, 111, 33, 0.95), 0 0 50px rgba(212, 175, 55, 0.6);
+            }
         }
 
         /* Màn hình chờ "Chạm để mở thiệp" - đảm bảo có gesture trước khi phát nhạc */
@@ -956,18 +1066,20 @@
     </div>
 
     <!-- ============================================================
-         VIDEO INTRO — đoạn video ngắn (~2.5s) chạy NGAY SAU 3 ảnh,
-         trước khi cắt cảnh vào phần thiệp/phong bì.
-         THAY "video-intro.mp4" bằng tên file video của bạn (để cùng
-         thư mục với file HTML này). Video tự phát có tiếng (đã có
-         gesture từ màn hình "Chạm để bắt đầu" trước đó nên không bị
-         trình duyệt chặn), rồi tự động cắt cảnh khi video kết thúc.
+         "THE NEW CHAPTER" — màn chữ ngắn (~2.5s, đúng bằng thời lượng
+         video intro cũ) chạy NGAY SAU 3 ảnh, trước khi cắt cảnh vào
+         phần thiệp/phong bì. Đã BỎ hẳn video intro, thay bằng chữ
+         "THE NEW CHAPTER" (cùng font/kiểu chữ với màn "Chạm để bắt
+         đầu") trên nền lửa cháy rực để bắt mắt.
          ============================================================ -->
     <div id="video-intro" class="fixed inset-0 z-[100] overflow-hidden flex items-center justify-center hidden">
         <div class="ci-vignette"></div>
-        <video id="vi-video" playsinline preload="auto">
-            <source src="video-intro.mp4" type="video/mp4">
-        </video>
+        <div class="chapter-fire-glow"></div>
+        <div class="chapter-embers" id="chapter-embers"></div>
+        <div class="relative z-10 text-center px-6">
+            <div class="chapter-text font-sans uppercase text-gold-300">
+                The New Chapter</div>
+        </div>
         <div id="vi-flash" class="ci-flash"></div>
     </div>
 
@@ -1469,21 +1581,20 @@
             setTimeout(transitionToEnvelope, 9200);
         }
 
-        // Chuyển cảnh mượt từ 3 ảnh sang VIDEO INTRO: video được bắt đầu phát
-        // NGAY (nằm ở lớp giữa, dưới lớp ảnh) trong khi ảnh mờ dần + nhoè nhẹ
-        // đi phía trên - tạo thành một cú hoà cảnh (cross-dissolve) êm, không
-        // giật, không chớp sáng. Video vẫn tiếp tục chạy xuyên suốt quá trình
-        // ảnh mờ đi, nên khi ảnh biến mất hẳn thì video đã đang chạy sẵn.
+        // Chuyển cảnh mượt từ 3 ảnh sang màn "THE NEW CHAPTER": màn chữ +
+        // lửa được bật lên NGAY (nằm ở lớp giữa, dưới lớp ảnh) trong khi ảnh
+        // mờ dần + nhoè nhẹ đi phía trên - tạo thành một cú hoà cảnh
+        // (cross-dissolve) êm, không giật, không chớp sáng.
         function transitionToEnvelope() {
             const intro = document.getElementById('cinematic-intro');
 
-            // Nhạc intro KHÔNG tắt ở đây - video-intro không có âm thanh
-            // riêng, nên để nhạc chạy xuyên suốt qua luôn cả đoạn video, chỉ
-            // tắt hẳn khi video-intro kết thúc (xem transitionFromVideoToEnvelope).
+            // Nhạc intro KHÔNG tắt ở đây - màn "THE NEW CHAPTER" không có
+            // âm thanh riêng, nên để nhạc chạy xuyên suốt qua luôn, chỉ tắt
+            // hẳn khi màn này kết thúc (xem transitionFromVideoToEnvelope).
 
-            // Video bắt đầu phát ngay lập tức, ở lớp dưới ảnh (z-index thấp
-            // hơn #cinematic-intro), nên vẫn bị ảnh che kín cho tới khi ảnh
-            // bắt đầu mờ đi.
+            // Bật màn "THE NEW CHAPTER" ngay lập tức, ở lớp dưới ảnh
+            // (z-index thấp hơn #cinematic-intro), nên vẫn bị ảnh che kín
+            // cho tới khi ảnh bắt đầu mờ đi.
             playVideoIntro();
 
             if (!intro) return;
@@ -1497,13 +1608,31 @@
             }, 1300);
         }
 
-        // Phát đoạn video intro ngắn (~2.5s) ngay khi ảnh bắt đầu mờ đi. Vì
-        // trang đã có gesture chạm từ màn hình "Chạm để bắt đầu" trước đó,
-        // video được phép tự phát có tiếng luôn, không cần chạm thêm lần nào.
+        // Sinh ngẫu nhiên các đốm lửa/tàn lửa bay lên cho màn "THE NEW
+        // CHAPTER", chỉ tạo 1 lần (giữ nguyên nếu gọi lại nhiều lần).
+        // Số lượng để CAO (80 đốm) cho rực rỡ, bắt mắt tối đa - vì màn này
+        // chỉ hiện ~2.5s rồi biến mất nên không ảnh hưởng hiệu năng tổng thể.
+        function buildChapterEmbers() {
+            const embers = document.getElementById('chapter-embers');
+            if (!embers || embers.children.length > 0) return;
+            for (let i = 0; i < 80; i++) {
+                const s = document.createElement('span');
+                const size = 2.5 + Math.random() * 6;
+                s.style.left = (Math.random() * 100) + '%';
+                s.style.width = size + 'px';
+                s.style.height = size + 'px';
+                s.style.setProperty('--chapter-drift', (Math.random() * 80 - 40) + 'px');
+                s.style.animationDelay = (Math.random() * 1.6) + 's';
+                s.style.animationDuration = (1.6 + Math.random() * 1.8) + 's';
+                embers.appendChild(s);
+            }
+        }
+
+        // Bật màn "THE NEW CHAPTER" (chữ + lửa) trong đúng ~2.5s - bằng
+        // thời lượng của video intro cũ - rồi tự động cắt cảnh sang phong bì.
         function playVideoIntro() {
             const videoWrap = document.getElementById('video-intro');
-            const video = document.getElementById('vi-video');
-            if (!videoWrap || !video) {
+            if (!videoWrap) {
                 document.body.style.overflow = '';
                 const envelopeSection = document.getElementById('envelope-section');
                 if (envelopeSection) envelopeSection.classList.remove('hidden');
@@ -1511,60 +1640,32 @@
             }
 
             videoWrap.classList.remove('hidden');
-            video.currentTime = 0;
-            const playPromise = video.play();
-            if (playPromise && typeof playPromise.catch === 'function') {
-                playPromise.catch(() => { });
-            }
+            buildChapterEmbers();
 
-            let alreadyFinished = false;
-            const finishVideo = () => {
-                if (alreadyFinished) return;
-                alreadyFinished = true;
-                transitionFromVideoToEnvelope();
-            };
-
-            // Ưu tiên chuyển cảnh đúng lúc video kết thúc thật sự...
-            video.addEventListener('ended', finishVideo, { once: true });
-            // ...nếu video lỗi/không load được (vd chưa có file video-intro.mp4)
-            // thì cắt cảnh sớm luôn, khỏi để màn hình đen chờ vô ích.
-            video.addEventListener('error', finishVideo, { once: true });
-            // ...và vẫn có mốc dự phòng ~2.5s để chắc chắn luôn chuyển
-            // cảnh kể cả khi video dài/ngắn hơn dự kiến.
-            setTimeout(finishVideo, 2500);
+            // Mốc thời gian cố định ~2.5s, đúng bằng thời lượng video intro
+            // cũ, rồi chuyển cảnh sang phong bì.
+            setTimeout(transitionFromVideoToEnvelope, 2500);
         }
 
-        // Chuyển cảnh mượt từ VIDEO INTRO sang phần thiệp/phong bì: phong bì
-        // được lộ ra NGAY (nằm ở lớp dưới cùng, dưới video) trong khi video
-        // mờ dần + nhoè nhẹ đi phía trên - cùng kiểu hoà cảnh êm như đoạn
-        // ảnh -> video ở trên, không chớp sáng, không giật cục.
+        // Chuyển cảnh mượt từ màn "THE NEW CHAPTER" sang phần thiệp/phong
+        // bì: phong bì được lộ ra NGAY (nằm ở lớp dưới cùng) trong khi màn
+        // chữ + lửa mờ dần + nhoè nhẹ đi phía trên - cùng kiểu hoà cảnh êm
+        // như đoạn ảnh -> "THE NEW CHAPTER" ở trên, có thêm ánh chớp vàng
+        // loé lên lúc chuyển cảnh.
         function transitionFromVideoToEnvelope() {
             const videoWrap = document.getElementById('video-intro');
-            const video = document.getElementById('vi-video');
             const flash = document.getElementById('vi-flash');
             const envelopeSection = document.getElementById('envelope-section');
 
-            // Dừng video NGAY (kể cả trước khi gỡ khỏi DOM). Một số trình
-            // duyệt (đặc biệt Safari/iOS) render <video> trên một lớp phần
-            // cứng riêng, nếu chỉ gỡ khỏi DOM mà không pause() thì hình ảnh
-            // video có thể còn "kẹt" lại và lộ ra chồng lên phần thiệp ngay
-            // sau đó. Pause trước sẽ tránh được hiện tượng này.
-            if (video) {
-                try { video.pause(); } catch (e) { /* ignore */ }
-            }
-
-            // Riêng đoạn video -> thiệp vẫn giữ ánh chớp vàng loé lên lúc
-            // chuyển cảnh (khác với đoạn ảnh -> video giờ là hoà mượt không
-            // chớp).
             if (flash) flash.classList.add('ci-flash-active');
 
-            // Nhạc intro mờ dần rồi tắt hẳn đúng lúc video kết thúc & hoà
-            // cảnh sang thiệp (video không có tiếng nên nhạc chạy xuyên suốt
-            // tới đây)
+            // Nhạc intro mờ dần rồi tắt hẳn đúng lúc màn "THE NEW CHAPTER"
+            // kết thúc & hoà cảnh sang thiệp.
             fadeOutIntroAudio(900);
 
             // Phong bì/thiệp lộ ra NGAY - nó nằm ở lớp thấp nhất (z-10, dưới
-            // cả video z-100), nên vẫn bị video che cho tới khi video mờ đi.
+            // cả màn "THE NEW CHAPTER" z-100), nên vẫn bị che cho tới khi
+            // màn đó mờ đi.
             if (envelopeSection) envelopeSection.classList.remove('hidden');
 
             if (!videoWrap) {
