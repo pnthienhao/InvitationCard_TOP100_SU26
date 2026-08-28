@@ -566,6 +566,33 @@
             transition: opacity 0.9s ease, transform 1s cubic-bezier(0.6, 0, 0.9, 0.2);
         }
 
+        /* Màn hình chờ "Chạm để mở thiệp" - đảm bảo có gesture trước khi phát nhạc */
+        #tap-to-start {
+            background: radial-gradient(ellipse at 50% 45%, #3D080F 0%, #26040A 55%, #140205 100%);
+            transition: opacity 0.6s ease;
+        }
+
+        #tap-to-start.tts-exit {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .tap-pulse {
+            animation: tapPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes tapPulse {
+
+            0%,
+            100% {
+                opacity: 0.55;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
         /* Hiệu ứng chuyển cảnh: cả không gian intro phóng to & mờ dần đi,
            như máy quay lao thẳng vào ánh sáng để "cắt cảnh" sang thiệp */
         #cinematic-intro.ci-exit {
@@ -859,14 +886,19 @@
             /* Giữ đúng tỉ lệ ảnh gốc 16:9, chỉ thu nhỏ lại để xếp dọc */
             --trio-frame-w: min(46vmin, 300px);
             --trio-frame-h: calc(var(--trio-frame-w) * 9 / 16);
-            --trio-gap: 18px;
+            /* Khoảng hở co giãn theo kích thước khung, không còn là số cố định,
+               nên trên màn hình nhỏ khoảng hở vẫn đủ rộng so với khung ảnh nhỏ */
+            --trio-gap: max(18px, calc(var(--trio-frame-h) * 0.32));
             --trio-offset: calc(var(--trio-frame-h) + var(--trio-gap));
             width: var(--trio-frame-w);
             height: auto;
             aspect-ratio: 16 / 9;
             opacity: 1;
             filter: blur(0);
-            transition: opacity 1.2s ease, transform 1.4s cubic-bezier(0.22, 1, 0.36, 1), filter 1.2s ease;
+            /* Bóng đổ/glow thu nhỏ lại theo khung, tránh viền sáng của 3 khung
+               lấn vào nhau (nguyên nhân gây "dính" trên màn hình nhỏ) */
+            box-shadow: 0 0 0 1px rgba(120, 170, 220, 0.15), 0 10px 26px rgba(0, 0, 0, 0.75), 0 0 18px rgba(212, 175, 55, 0.16);
+            transition: opacity 1.2s ease, transform 1.4s cubic-bezier(0.22, 1, 0.36, 1), filter 1.2s ease, box-shadow 1.2s ease;
         }
 
         .ci-frame.ci-trio::before,
@@ -907,9 +939,20 @@
     </audio>
 
     <!-- ============================================================
+         TAP-TO-START — màn hình chờ chạm, đảm bảo có user gesture
+         trước khi phát nhạc (bắt buộc trên nhiều trình duyệt khi
+         deploy lên domain thật như Vercel, khác với localhost).
+         ============================================================ -->
+    <div id="tap-to-start"
+        class="fixed inset-0 z-[200] flex items-center justify-center text-center bg-wine-950 cursor-pointer select-none">
+        <div class="text-gold-200 text-base md:text-lg font-sans tracking-[0.35em] uppercase tap-pulse">Chạm để bắt
+            đầu</div>
+    </div>
+
+    <!-- ============================================================
          CINEMATIC INTRO — mở màn điện ảnh trước khi vào thiệp
          ============================================================ -->
-    <div id="cinematic-intro" class="fixed inset-0 z-[100] overflow-hidden flex items-center justify-center">
+    <div id="cinematic-intro" class="fixed inset-0 z-[100] overflow-hidden flex items-center justify-center hidden">
         <div class="ci-halo"></div>
         <div class="ci-floor"></div>
         <div class="ci-lines" id="ci-lines"></div>
@@ -1356,6 +1399,28 @@
                     introAudio.volume = startVolume;
                 }
             }, stepTime);
+        }
+
+        // Xử lý màn hình "Chạm để mở thiệp": chờ đúng 1 gesture đầu tiên
+        // của người dùng rồi mới ẩn màn hình chờ và bắt đầu cinematic intro
+        // (kèm nhạc). Nhờ có gesture thật này, trình duyệt sẽ KHÔNG chặn
+        // audio.play() nữa, kể cả trên domain mới toanh như Vercel.
+        function initTapToStart() {
+            const tapScreen = document.getElementById('tap-to-start');
+            const intro = document.getElementById('cinematic-intro');
+            if (!tapScreen) return;
+
+            const handleTap = () => {
+                tapScreen.removeEventListener('click', handleTap);
+                tapScreen.removeEventListener('touchend', handleTap);
+                tapScreen.classList.add('tts-exit');
+                if (intro) intro.classList.remove('hidden');
+                startCinematicIntro();
+                setTimeout(() => tapScreen.remove(), 650);
+            };
+
+            tapScreen.addEventListener('click', handleTap, { once: true });
+            tapScreen.addEventListener('touchend', handleTap, { once: true });
         }
 
         function startCinematicIntro() {
@@ -1953,7 +2018,7 @@
             initGuestNameFromURL();
             initStarfield();
             buildCinematicAtmosphere();
-            startCinematicIntro();
+            initTapToStart();
             initTouchControlListeners();
             updateCountdown();
             setInterval(updateCountdown, 1000);
