@@ -717,6 +717,16 @@
             }
         }
 
+        /* Chữ "Chạm để bắt đầu" - PHÓNG TO giống hệt kiểu chữ "THE NEW
+           CHAPTER": dùng clamp() cho cả font-size lẫn letter-spacing để
+           chữ to rõ, tự co giãn khớp bề ngang màn hình và không bao giờ
+           bị xuống dòng dù màn hình nhỏ tới đâu. */
+        .tap-text {
+            font-size: clamp(1.05rem, 6.2vw, 3rem);
+            letter-spacing: clamp(0.08em, 1.7vw, 0.35em);
+            white-space: nowrap;
+        }
+
         /* Hiệu ứng hoà cảnh mượt dùng chung: mờ dần + hơi nhoè (blur) + phóng to
            RẤT nhẹ, như một cú dissolve điện ảnh êm ái, không giật/không chớp.
            Dùng class (không scope theo ID) để tái sử dụng cho cả
@@ -902,17 +912,27 @@
         }
 
         /* Khung ảnh điện ảnh - kính trong suốt bao quanh.
-           Dùng đơn vị vmin (thay vì vw) để khung luôn canh đều và không
-           bị tràn/méo dù màn hình ngang 16:9, dọc 9:16 hay vuông. */
+           Dùng clamp() theo bề ngang màn hình (giống cách xử lý chữ "THE
+           NEW CHAPTER") thay vì min(vmin, px) như trước - trước đây trên
+           điện thoại khung bị tính hụt, nhìn nhỏ tí xíu giữa màn hình. Giờ
+           khung sẽ chiếm phần lớn bề ngang màn hình (82vw) trên điện thoại,
+           tự thu nhỏ trên màn cực nhỏ (tối thiểu 260px) và không phồng to
+           quá mức trên desktop (tối đa 620px). Tỉ lệ 16:9 giữ đúng bằng
+           aspect-ratio thay vì set cứng width/height riêng lẻ như trước. */
         .ci-frame {
             position: absolute;
-            width: min(70vmin, 520px);
-            height: min(48vmin, 360px);
-            border-radius: 16px;
-            padding: 12px;
-            background: linear-gradient(135deg, rgba(253, 236, 178, 0.14), rgba(212, 175, 55, 0.04));
-            border: 1px solid rgba(243, 214, 117, 0.5);
-            box-shadow: 0 0 0 1px rgba(120, 170, 220, 0.15), 0 30px 90px rgba(0, 0, 0, 0.85), 0 0 70px rgba(212, 175, 55, 0.18);
+            width: clamp(260px, 82vw, 620px);
+            aspect-ratio: 16 / 9;
+            height: auto;
+            border-radius: 18px;
+            padding: 5px;
+            /* Viền y hệt khung ảnh chính trong thiệp (.photo-frame) - cùng
+               công thức gradient 4 điểm dừng - nhưng NHẠT màu hơn (mỗi màu
+               được pha loãng bớt độ đậm) để không quá chói khi khung to
+               chiếm gần hết màn hình lúc intro. Đã bỏ 2 góc bo kim loại
+               (::before/::after) theo yêu cầu, chỉ còn viền + ảnh. */
+            background: linear-gradient(145deg, #FFFDF7 0%, #E8D6A0 35%, #F0B98A 65%, #E8D6A0 100%);
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.85), 0 0 80px rgba(212, 175, 55, 0.28);
             opacity: 0;
             transform: scale(1.35) translateZ(0);
             filter: blur(6px);
@@ -921,38 +941,11 @@
             z-index: 1;
         }
 
-        /* Góc kim loại vàng - điểm nhấn sang trọng ở 2 góc khung */
-        .ci-frame::before,
-        .ci-frame::after {
-            content: '';
-            position: absolute;
-            width: 22px;
-            height: 22px;
-            border-color: #F3D675;
-            border-style: solid;
-            opacity: 0.85;
-            z-index: 2;
-        }
-
-        .ci-frame::before {
-            top: 4px;
-            left: 4px;
-            border-width: 2px 0 0 2px;
-            border-top-left-radius: 6px;
-        }
-
-        .ci-frame::after {
-            bottom: 4px;
-            right: 4px;
-            border-width: 0 2px 2px 0;
-            border-bottom-right-radius: 6px;
-        }
-
         .ci-frame img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 14px;
             display: block;
             /* vignette nhẹ để ảnh hoà vào không gian tối, cảm giác điện ảnh hơn */
             box-shadow: inset 0 0 60px 10px rgba(0, 0, 0, 0.5);
@@ -980,28 +973,31 @@
            thật) + 1 khoảng hở cố định --trio-gap, nên 2 khung luôn tách rõ
            và khoảng hở trên/dưới luôn bằng nhau ở mọi kích thước màn hình. */
         .ci-frame.ci-trio {
-            /* Giữ đúng tỉ lệ ảnh gốc 16:9, chỉ thu nhỏ lại để xếp dọc */
-            --trio-frame-w: min(46vmin, 300px);
+            /* Dùng min(vw, vh) thay vì chỉ vw: khung tự giới hạn theo CẢ bề
+               ngang LẪN bề cao màn hình, nên vừa to rõ trên điện thoại dọc
+               (bị giới hạn bởi vw trước đây làm ảnh nhỏ tí xíu), vừa không
+               tràn màn hình trên máy màn ngang/thấp (bị giới hạn bởi vh). */
+            --trio-frame-w: clamp(230px, min(72vw, 40vh), 380px);
             --trio-frame-h: calc(var(--trio-frame-w) * 9 / 16);
             /* Khoảng hở co giãn theo kích thước khung, không còn là số cố định,
                nên trên màn hình nhỏ khoảng hở vẫn đủ rộng so với khung ảnh nhỏ */
-            --trio-gap: max(18px, calc(var(--trio-frame-h) * 0.32));
+            --trio-gap: max(16px, calc(var(--trio-frame-h) * 0.28));
             --trio-offset: calc(var(--trio-frame-h) + var(--trio-gap));
             width: var(--trio-frame-w);
             height: auto;
             aspect-ratio: 16 / 9;
+            padding: 4px;
+            border-radius: 12px;
             opacity: 1;
             filter: blur(0);
             /* Bóng đổ/glow thu nhỏ lại theo khung, tránh viền sáng của 3 khung
                lấn vào nhau (nguyên nhân gây "dính" trên màn hình nhỏ) */
-            box-shadow: 0 0 0 1px rgba(120, 170, 220, 0.15), 0 10px 26px rgba(0, 0, 0, 0.75), 0 0 18px rgba(212, 175, 55, 0.16);
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.75), 0 0 22px rgba(212, 175, 55, 0.2);
             transition: opacity 1.2s ease, transform 1.4s cubic-bezier(0.22, 1, 0.36, 1), filter 1.2s ease, box-shadow 1.2s ease;
         }
 
-        .ci-frame.ci-trio::before,
-        .ci-frame.ci-trio::after {
-            width: 12px;
-            height: 12px;
+        .ci-frame.ci-trio img {
+            border-radius: 8px;
         }
 
         #ci-frame-1.ci-trio {
@@ -1042,7 +1038,7 @@
          ============================================================ -->
     <div id="tap-to-start"
         class="fixed inset-0 z-[200] flex items-center justify-center text-center bg-wine-950 cursor-pointer select-none">
-        <div class="text-gold-300 text-base md:text-lg font-sans tracking-[0.35em] uppercase tap-pulse">Chạm để bắt
+        <div class="tap-text text-gold-300 font-sans uppercase tap-pulse px-6">Chạm để bắt
             đầu</div>
     </div>
 
