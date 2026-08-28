@@ -974,14 +974,16 @@
            và khoảng hở trên/dưới luôn bằng nhau ở mọi kích thước màn hình. */
         .ci-frame.ci-trio {
             /* Dùng min(vw, vh) thay vì chỉ vw: khung tự giới hạn theo CẢ bề
-               ngang LẪN bề cao màn hình, nên vừa to rõ trên điện thoại dọc
-               (bị giới hạn bởi vw trước đây làm ảnh nhỏ tí xíu), vừa không
-               tràn màn hình trên máy màn ngang/thấp (bị giới hạn bởi vh). */
-            --trio-frame-w: clamp(230px, min(72vw, 40vh), 380px);
+               ngang LẪN bề cao màn hình, nên vừa to rõ trên điện thoại dọc,
+               vừa không tràn màn hình trên máy màn ngang/thấp (bị giới hạn
+               bởi vh). Tăng trần vh (40vh -> 46vh) và mức tối đa (380px ->
+               460px) vì bản cũ bị chặn cap quá sớm, khiến khung ảnh vẫn nhỏ
+               dù màn hình rất lớn (laptop/PC/tablet). */
+            --trio-frame-w: clamp(230px, min(72vw, 46vh), 460px);
             --trio-frame-h: calc(var(--trio-frame-w) * 9 / 16);
             /* Khoảng hở co giãn theo kích thước khung, không còn là số cố định,
                nên trên màn hình nhỏ khoảng hở vẫn đủ rộng so với khung ảnh nhỏ */
-            --trio-gap: max(16px, calc(var(--trio-frame-h) * 0.28));
+            --trio-gap: max(16px, calc(var(--trio-frame-h) * 0.24));
             --trio-offset: calc(var(--trio-frame-h) + var(--trio-gap));
             width: var(--trio-frame-w);
             height: auto;
