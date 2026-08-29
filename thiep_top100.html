@@ -566,7 +566,7 @@
             transition: opacity 1.2s cubic-bezier(0.45, 0, 0.55, 1), transform 1.2s cubic-bezier(0.45, 0, 0.55, 1), filter 1.2s cubic-bezier(0.45, 0, 0.55, 1);
         }
 
-        /* Màn hình video intro (~2.5s) chạy sau 3 ảnh, trước khi vào thiệp.
+        /* Màn hình video intro (~6.5s) chạy sau 3 ảnh, trước khi vào thiệp.
            Cùng tông nền & cùng kiểu transition hoà cảnh mượt với cinematic-intro. */
         #video-intro {
             /* Đổi sang đúng gradient nền của #cinematic-intro (3 ảnh trước đó),
@@ -664,29 +664,410 @@
            hình và KHÔNG BAO GIỜ bị xuống dòng, kể cả trên điện thoại nhỏ
            nhất - màn càng hẹp thì chữ + độ giãn cách càng tự thu nhỏ lại. */
         .chapter-text {
+            grid-area: 1 / 1;
             font-size: clamp(1.05rem, 6.2vw, 3rem);
             letter-spacing: clamp(0.08em, 1.7vw, 0.35em);
             white-space: nowrap;
             text-shadow: 0 0 18px rgba(242, 111, 33, 0.85), 0 0 42px rgba(212, 175, 55, 0.5);
-            animation: chapterTextFlicker 1.8s ease-in-out infinite;
+            opacity: 0;
+            animation: chapterTextLife 1.8s ease-in-out forwards;
         }
 
-        @keyframes chapterTextFlicker {
+        /* "THE NEW CHAPTER" chỉ sống trong ~1.5s đầu: hiện lên, rực sáng
+           một nhịp, rồi tự mờ dần đi để nhường sân khấu cho chữ "FPTU
+           TOP100" (bên trong #chapter-orb) xuất hiện tiếp theo. */
+        @keyframes chapterTextLife {
+            0% {
+                opacity: 0;
+                text-shadow: 0 0 10px rgba(242, 111, 33, 0.5), 0 0 20px rgba(212, 175, 55, 0.3);
+            }
 
-            0%,
-            100% {
+            18% {
                 opacity: 1;
                 text-shadow: 0 0 18px rgba(242, 111, 33, 0.85), 0 0 42px rgba(212, 175, 55, 0.5);
             }
 
-            45% {
-                opacity: 0.92;
-                text-shadow: 0 0 12px rgba(242, 111, 33, 0.6), 0 0 28px rgba(212, 175, 55, 0.35);
-            }
-
-            55% {
+            72% {
                 opacity: 1;
                 text-shadow: 0 0 22px rgba(242, 111, 33, 0.95), 0 0 50px rgba(212, 175, 55, 0.6);
+            }
+
+            100% {
+                opacity: 0;
+                text-shadow: 0 0 10px rgba(242, 111, 33, 0.4), 0 0 20px rgba(212, 175, 55, 0.25);
+            }
+        }
+
+        /* ============================================================
+           CHỮ "FPTU TOP100" - hiện to rõ ràng ngay sau khi "THE NEW
+           CHAPTER" mờ đi, giữ nguyên một nhịp cho đọc được, rồi CHÍNH chữ
+           đó co nhỏ lại + một khối cầu vàng kim hiện dần lên bao quanh nó
+           (không phải 2 thứ tách rời) - như thể chữ "đúc" thành con dấu.
+           Lúc chuyển cảnh sang phong bì, chính khối cầu này (không phải
+           bản sao) được JS đo toạ độ & bay/thu nhỏ khớp CHÍNH XÁC vào vị
+           trí con dấu sáp thật trên phong bì (xem orbFlyToSeal()), tạo
+           cảm giác "biến hình" liền mạch thành con dấu, không cắt cứng.
+           ============================================================ */
+        /* Khung bọc ngoài (wrap) - đây mới là phần tử thật sự phóng to/thu
+           nhỏ + bay vào con dấu (JS sẽ tách #chapter-orb-wrap ra khỏi
+           #video-intro, không phải #chapter-orb như trước). Tách wrap
+           riêng khỏi .chapter-orb (chỉ còn là khối cầu tròn có
+           overflow:hidden để cắt đúng hình tròn cho disc/stars/shine) để
+           VÒNG TRÒN QUỸ ĐẠO (.chapter-orb-ring) có thể nằm LỚN HƠN, LÒI RA
+           NGOÀI khối cầu mà không bị cắt mất - giống một quỹ đạo bao quanh
+           hành tinh. */
+        /* Sân khấu chồng lớp: "The New Chapter" và quả cầu "FPTU TOP100"
+           cùng nằm chung 1 ô lưới (grid-area 1/1) chồng khít đúng tâm màn
+           hình - để lúc chữ trên mờ dần đi thì FPTU TOP100 + quả cầu hiện
+           ra NGAY ĐÚNG GIỮA chỗ đó, không bị lệch xuống dưới. */
+        .chapter-stage {
+            display: grid;
+            place-items: center;
+        }
+
+        .chapter-orb-wrap {
+            grid-area: 1 / 1;
+            position: relative;
+            width: clamp(96px, 27vw, 156px);
+            height: clamp(96px, 27vw, 156px);
+            margin: 0 auto;
+            opacity: 0;
+            transform: scale(3.8);
+            animation: chapterOrbFormFromText 4.4s cubic-bezier(0.45, 0.05, 0.15, 1) 1.7s forwards;
+        }
+
+        .chapter-orb {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        /* Vòng tròn quỹ đạo kiểu 3D (giống vành đai Sao Thổ) - dùng hình
+           ELIP thật (width khác height) rồi mới nghiêng thêm một chút
+           bằng rotateX, thay vì bắt một hình tròn nghiêng gập 74deg như
+           trước (khiến bề dọc bị bóp quá nhỏ, chui hẳn vào trong lòng quả
+           cầu -> nhìn giả, không ôm hết được quả cầu). Với elip + góc
+           nghiêng vừa phải này, bán kính dọc sau khi nghiêng vẫn LỚN HƠN
+           bán kính quả cầu -> vòng luôn ôm trọn quả cầu ở mọi hướng. */
+        .chapter-orb-wrap {
+            perspective: 500px;
+        }
+
+        .chapter-orb-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 192%;
+            height: 130%;
+            border-radius: 50%;
+            border: 1.5px solid rgba(212, 175, 55, 0.55);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.25);
+            opacity: 0;
+            pointer-events: none;
+            transform-style: preserve-3d;
+            transform: translate(-50%, -50%) rotateX(34deg) rotateZ(0deg);
+            animation:
+                chapterOrbRingSpin 11s linear infinite,
+                chapterOrbDiscFadeIn 4.4s ease 1.7s forwards;
+        }
+
+        /* Lớp SAU: nằm dưới quả cầu (z-index thấp hơn .chapter-orb) - đây là
+           nửa vòng đi phía sau, bị quả cầu che khuất một phần, đúng như
+           một quỹ đạo thật đi vòng ra sau hành tinh. */
+        .chapter-orb-ring-back {
+            z-index: 0;
+        }
+
+        /* Lớp TRƯỚC: chỉ hiện đúng NỬA DƯỚI của elip (clip-path), nằm TRÊN
+           quả cầu (z-index cao hơn) - tạo cảm giác vòng thật sự "ôm" lấy
+           quả cầu, đi vòng ra trước ở phía dưới, thay vì chỉ là 1 elip
+           phẳng nằm lì phía sau như trước (nhìn giả/xấu). */
+        .chapter-orb-ring-front {
+            z-index: 2;
+            clip-path: inset(50% 0 0 0);
+        }
+
+        /* 2 hạt sáng nhỏ (vệ tinh) - chỉ gắn trên lớp SAU để tránh bị cắt
+           ngang bởi clip-path của lớp trước, vẫn đủ tạo cảm giác có vật
+           thể bay quanh quỹ đạo. */
+        .chapter-orb-ring-back::before,
+        .chapter-orb-ring-back::after {
+            content: '';
+            position: absolute;
+            width: 4.5px;
+            height: 4.5px;
+            border-radius: 50%;
+            background: #FFE9B0;
+            box-shadow: 0 0 6px 2px rgba(255, 214, 122, 0.85);
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* left:100%/0% (thay vì 50% + dịch ra) để chấm sáng luôn nằm ĐÚNG
+           trên viền vòng tròn (điểm 3h và 9h của hình tròn nội tiếp trong
+           khung vuông), bất kể kích thước vòng to nhỏ theo clamp(). */
+        .chapter-orb-ring-back::before {
+            left: 100%;
+        }
+
+        .chapter-orb-ring-back::after {
+            left: 0%;
+        }
+
+        @keyframes chapterOrbRingSpin {
+            from {
+                transform: translate(-50%, -50%) rotateX(34deg) rotateZ(0deg);
+            }
+
+            to {
+                transform: translate(-50%, -50%) rotateX(34deg) rotateZ(360deg);
+            }
+        }
+
+        /* Bước 1 (0-8%): vô hình, đợi "THE NEW CHAPTER" mờ hẳn đi.
+           Bước 2 (8%-50%): hiện chữ FPTU TOP100 TO NGANG "THE NEW CHAPTER"
+           (scale 3.8x), giữ nguyên khá lâu cho đọc thoải mái, CHƯA có khối
+           cầu quanh nó - y hệt chữ đứng một mình giữa màn hình.
+           Bước 3 (50%-100%): toàn bộ TỪ TỪ co nhỏ dần về đúng kích thước
+           quả cầu thật (chiếm nửa sau thời lượng, chậm rãi chứ không giật
+           cục), đồng thời khối cầu vàng kim lấp lánh hiện dần lên bao lấy
+           chữ (xem .chapter-orb-disc/-stars) - cảm giác chữ "đúc" thành
+           con dấu. */
+        @keyframes chapterOrbFormFromText {
+            0% {
+                opacity: 0;
+                transform: scale(3.8);
+            }
+
+            8% {
+                opacity: 1;
+                transform: scale(3.8);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(3.8);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Khối cầu vàng kim thật - một lớp riêng biệt (không phải nền của
+           .chapter-orb) để có thể MỜ DẦN HIỆN LÊN (opacity, luôn mượt trên
+           mọi trình duyệt) đúng lúc chữ co nhỏ lại, thay vì bật sẵn/bật
+           đột ngột. Tông màu đồng-vàng ấm cùng họ với lửa/vàng kim của cả
+           thiệp (không dùng tím/xanh vũ trụ vì lệch tông, nhìn giả). */
+        .chapter-orb-disc {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 32% 26%, rgba(255, 250, 224, 0.9) 0%, rgba(255, 224, 150, 0.55) 12%, transparent 34%),
+                radial-gradient(circle at 60% 74%, #FFD77A 0%, #F2A93B 30%, #B9740E 56%, #5C3305 82%, #2b1702 100%);
+            border: 2px solid #D4AF37;
+            box-shadow:
+                0 0 26px 6px rgba(212, 175, 55, 0.45),
+                0 10px 30px rgba(0, 0, 0, 0.65),
+                inset -10px -12px 24px rgba(0, 0, 0, 0.55),
+                inset 8px 10px 20px rgba(255, 255, 255, 0.15);
+            opacity: 0;
+            animation: chapterOrbDiscFadeIn 4.4s ease 1.7s forwards;
+        }
+
+        @keyframes chapterOrbDiscFadeIn {
+
+            0%,
+            50% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Vài đốm sáng vàng nhỏ lấp lánh trên bề mặt (như bản trước) - hiện
+           dần lên cùng lúc với khối cầu, giữ đúng tông ấm vàng-lửa. */
+        .chapter-orb-stars {
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(1.3px 1.3px at 26% 32%, #fff6df, transparent),
+                radial-gradient(1px 1px at 70% 22%, #ffe9b0, transparent),
+                radial-gradient(1.2px 1.2px at 44% 70%, #fff6df, transparent),
+                radial-gradient(1px 1px at 82% 60%, #ffe9b0, transparent),
+                radial-gradient(1.1px 1.1px at 55% 48%, #fff6df, transparent);
+            opacity: 0;
+            animation:
+                chapterOrbTwinkle 2.4s ease-in-out infinite,
+                chapterOrbDiscFadeIn 4.4s ease 1.7s forwards;
+        }
+
+        @keyframes chapterOrbTwinkle {
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* Vệt sáng bóng quét chéo qua bề mặt - chỉ hiện SAU khi khối cầu
+           đã thành hình, mô phỏng ánh sáng lướt trên 1 khối cầu 3D. */
+        .chapter-orb-shine {
+            position: absolute;
+            top: -20%;
+            left: -60%;
+            width: 55%;
+            height: 140%;
+            background: linear-gradient(75deg, transparent 0%, rgba(255, 255, 255, 0.45) 45%, transparent 60%);
+            transform: rotate(20deg);
+            opacity: 0;
+            animation:
+                chapterOrbShineSweep 3.2s ease-in-out infinite,
+                chapterOrbDiscFadeIn 4.4s ease 1.7s forwards;
+            pointer-events: none;
+        }
+
+        @keyframes chapterOrbShineSweep {
+            0% {
+                left: -60%;
+            }
+
+            55%,
+            100% {
+                left: 130%;
+            }
+        }
+
+        /* Chữ "FPTU / TOP100" - hiện ngay từ đầu (đây chính là chữ "to"
+           ban đầu), cùng bố cục 2 dòng với con dấu sáp thật trên phong bì
+           để lúc "biến hình" xong nhìn liền mạch, không lệch. */
+        .chapter-orb-label {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1;
+            gap: 2px;
+        }
+
+        /* Màu chữ "FPTU / TOP100" đổi theo 2 giai đoạn bằng keyframes riêng
+           (khớp NHỊP với chapterOrbDiscFadeIn bên dưới):
+           - Lúc chữ còn đứng một mình, TO giữa màn hình (chưa có khối cầu
+             vàng kim phía sau) -> giữ nguyên màu vàng sáng gốc, cùng tông
+             với "THE NEW CHAPTER".
+           - Ngay khi khối cầu vàng kim hiện dần lên bao quanh (50%-100%
+             của animation) -> chữ tự đổi dần sang màu đen/nâu sẫm để nổi
+             rõ trên nền vàng kim, không bị chìm mất. */
+        .chapter-orb-label span:first-child {
+            font-size: clamp(9px, 2.4vw, 12px);
+            letter-spacing: 0.16em;
+            font-weight: 900;
+            animation: chapterOrbLabelToDark1 4.4s ease 1.7s forwards;
+        }
+
+        .chapter-orb-label span:last-child {
+            font-size: clamp(11px, 3vw, 15px);
+            letter-spacing: 0.1em;
+            font-weight: 900;
+            animation: chapterOrbLabelToDark2 4.4s ease 1.7s forwards;
+        }
+
+        @keyframes chapterOrbLabelToDark1 {
+
+            0%,
+            50% {
+                color: #FFE9B0;
+                text-shadow: 0 0 8px rgba(255, 196, 90, 0.8);
+            }
+
+            100% {
+                color: #24140a;
+                text-shadow: 0 1px 2px rgba(255, 233, 176, 0.55);
+            }
+        }
+
+        @keyframes chapterOrbLabelToDark2 {
+
+            0%,
+            50% {
+                color: #FFD77A;
+                text-shadow: 0 0 10px rgba(255, 196, 90, 0.9);
+            }
+
+            100% {
+                color: #24140a;
+                text-shadow: 0 1px 2px rgba(255, 233, 176, 0.55);
+            }
+        }
+
+        /* Trạng thái "tách rời" - JS gắn thẳng quả cầu vào <body> bằng
+           position:fixed (toạ độ left/top/width/height được set inline
+           khớp với vị trí đang hiển thị) để nó không bị cuốn theo hiệu
+           ứng mờ/nhoè (ci-exit) của #video-intro, và có thể bay tự do đè
+           lên mọi lớp phía trên trong lúc chuyển cảnh. */
+        #chapter-orb-wrap.orb-detached {
+            position: fixed;
+            margin: 0;
+            z-index: 200;
+            animation: none;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Trạng thái "đang bay" - JS set transform (translate + scale +
+           rotate) tới đúng toạ độ/kích thước con dấu sáp thật. Giữ nguyên
+           opacity 1 (KHÔNG mờ dần nửa chừng như trước) để cả khối cầu
+           vàng kim (không chỉ mỗi chữ) luôn hiện rõ, sáng, đi liền một
+           khối trong suốt quãng bay - nhìn như CẢ quả cầu đang rơi/bay
+           xuống chứ không phải chỉ có chữ trôi xuống một mình. */
+        #chapter-orb-wrap.orb-flying {
+            transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+            opacity: 1;
+        }
+
+        /* Vòng tròn quỹ đạo KHÔNG bay theo tới đích cùng khối cầu - nó tự
+           thu nhỏ + mờ dần đi ngay trong lúc bay ("tan biến" vào), để lúc
+           khối cầu đáp xuống thành con dấu thì chỉ còn lại đúng con dấu
+           tròn trơn, không bị vướng viền quỹ đạo lớn đè lên phong bì. */
+        #chapter-orb-wrap.orb-flying .chapter-orb-ring {
+            transition: opacity 0.55s ease, transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+            opacity: 0;
+            transform: translate(-50%, -50%) rotateX(34deg) rotateZ(160deg) scale(0.4);
+        }
+
+
+        /* Hiệu ứng "đáp/đóng dấu" trên con dấu sáp THẬT của phong bì, bùng
+           sáng nhanh đúng lúc quả cầu bay tới - tạo cảm giác như quả cầu
+           vừa "đóng dấu" xuống phong bì. */
+        .wax-seal.seal-impact {
+            animation: sealImpactPulse 0.7s ease-out;
+        }
+
+        @keyframes sealImpactPulse {
+            0% {
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.9);
+            }
+
+            30% {
+                box-shadow: 0 0 0 14px rgba(212, 175, 55, 0.35), 0 0 40px 10px rgba(255, 196, 90, 0.85), inset 0 2px 4px rgba(255, 255, 255, 0.9);
+            }
+
+            100% {
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.9);
             }
         }
 
@@ -1064,7 +1445,8 @@
     </div>
 
     <!-- ============================================================
-         "THE NEW CHAPTER" — màn chữ ngắn (~2.5s, đúng bằng thời lượng
+         "THE NEW CHAPTER" — màn chữ (~6.5s, đủ thời gian cho chữ FPTU
+         TOP100 hiện to rồi từ từ thu nhỏ thành quả cầu, đúng bằng thời lượng
          video intro cũ) chạy NGAY SAU 3 ảnh, trước khi cắt cảnh vào
          phần thiệp/phong bì. Đã BỎ hẳn video intro, thay bằng chữ
          "THE NEW CHAPTER" (cùng font/kiểu chữ với màn "Chạm để bắt
@@ -1074,9 +1456,30 @@
         <div class="ci-vignette"></div>
         <div class="chapter-fire-glow"></div>
         <div class="chapter-embers" id="chapter-embers"></div>
-        <div class="relative z-10 text-center px-6">
+        <div class="relative z-10 text-center px-6 chapter-stage">
             <div class="chapter-text font-sans uppercase text-gold-300">
                 The New Chapter</div>
+
+            <!-- Chữ "FPTU TOP100" hiện to ngay sau khi chữ trên mờ đi, rồi
+                 chính chữ đó co nhỏ lại + khối cầu vàng kim hiện dần lên
+                 bao quanh nó, sẽ bay & thu nhỏ thành chính con dấu sáp
+                 thật trên phong bì lúc chuyển cảnh (xem orbFlyToSeal()).
+                 Đặt CÙNG Ô LƯỚI (grid-area 1/1) với "The New Chapter" ở
+                 trên - để cả 2 luôn hiện ĐÚNG GIỮA MÀN, chồng khít lên
+                 nhau, thay vì bị đẩy xuống dưới chữ kia. -->
+            <div id="chapter-orb-wrap" class="chapter-orb-wrap">
+                <div class="chapter-orb-ring chapter-orb-ring-back"></div>
+                <div id="chapter-orb" class="chapter-orb">
+                    <div class="chapter-orb-disc"></div>
+                    <div class="chapter-orb-stars"></div>
+                    <div class="chapter-orb-shine"></div>
+                    <div class="chapter-orb-label">
+                        <span class="font-cinzel">FPTU</span>
+                        <span class="font-cinzel">TOP100</span>
+                    </div>
+                </div>
+                <div class="chapter-orb-ring chapter-orb-ring-front"></div>
+            </div>
         </div>
         <div id="vi-flash" class="ci-flash"></div>
     </div>
@@ -1609,7 +2012,7 @@
         // Sinh ngẫu nhiên các đốm lửa/tàn lửa bay lên cho màn "THE NEW
         // CHAPTER", chỉ tạo 1 lần (giữ nguyên nếu gọi lại nhiều lần).
         // Số lượng để CAO (80 đốm) cho rực rỡ, bắt mắt tối đa - vì màn này
-        // chỉ hiện ~2.5s rồi biến mất nên không ảnh hưởng hiệu năng tổng thể.
+        // chỉ hiện ~6.5s rồi biến mất nên không ảnh hưởng hiệu năng tổng thể.
         function buildChapterEmbers() {
             const embers = document.getElementById('chapter-embers');
             if (!embers || embers.children.length > 0) return;
@@ -1626,7 +2029,7 @@
             }
         }
 
-        // Bật màn "THE NEW CHAPTER" (chữ + lửa) trong đúng ~2.5s - bằng
+        // Bật màn "THE NEW CHAPTER" (chữ + lửa) trong đúng ~6.5s - bằng
         // thời lượng của video intro cũ - rồi tự động cắt cảnh sang phong bì.
         function playVideoIntro() {
             const videoWrap = document.getElementById('video-intro');
@@ -1640,9 +2043,12 @@
             videoWrap.classList.remove('hidden');
             buildChapterEmbers();
 
-            // Mốc thời gian cố định ~2.5s, đúng bằng thời lượng video intro
+            // Mốc thời gian cố định ~6.5s (tăng thêm so với trước để đoạn
+            // chuyển từ "THE NEW CHAPTER" qua "FPTU TOP100" đỡ gấp) - đủ
+            // cho chữ FPTU TOP100 hiện to rồi từ từ co thành quả cầu
+            // trước khi bay vào con dấu.
             // cũ, rồi chuyển cảnh sang phong bì.
-            setTimeout(transitionFromVideoToEnvelope, 3000);
+            setTimeout(transitionFromVideoToEnvelope, 6500);
         }
 
         // Chuyển cảnh mượt từ màn "THE NEW CHAPTER" sang phần thiệp/phong
@@ -1666,6 +2072,11 @@
             // màn đó mờ đi.
             if (envelopeSection) envelopeSection.classList.remove('hidden');
 
+            // Cho quả cầu vũ trụ "FPTU TOP100" bay & thu nhỏ thành đúng con
+            // dấu sáp thật trên phong bì vừa lộ ra - đo toạ độ NGAY lúc này
+            // vì phong bì chỉ có layout chính xác sau khi bỏ "hidden".
+            orbFlyToSeal();
+
             if (!videoWrap) {
                 document.body.style.overflow = '';
                 return;
@@ -1679,6 +2090,75 @@
                 videoWrap.remove();
                 document.body.style.overflow = '';
             }, 1300);
+        }
+
+        // Cho quả cầu vũ trụ "FPTU TOP100" (đang ở giữa màn "THE NEW
+        // CHAPTER") bay thẳng & thu nhỏ khớp CHÍNH XÁC vào vị trí + kích
+        // thước con dấu sáp thật trên phong bì, tạo cảm giác quả cầu
+        // "biến hình" thành con dấu - chuyển cảnh liền mạch thay vì cắt
+        // cứng. Được gọi ngay khi #envelope-section vừa lộ ra (bỏ hidden),
+        // vì cần layout thật của phong bì để đo toạ độ đích.
+        function orbFlyToSeal() {
+            // Bay/thu nhỏ theo #chapter-orb-wrap (khối bọc ngoài chứa cả
+            // khối cầu + vòng tròn quỹ đạo) thay vì #chapter-orb - vì vòng
+            // tròn quỹ đạo nằm LỚN HƠN, LÒI RA NGOÀI khối cầu, nên phải để
+            // cả wrap cùng bay thì vòng tròn mới thu nhỏ/tan biến đúng nhịp
+            // theo (xem rule "#chapter-orb-wrap.orb-flying .chapter-orb-ring").
+            const orb = document.getElementById('chapter-orb-wrap');
+            if (!orb) return;
+
+            const orbRect = orb.getBoundingClientRect();
+
+            // Tách quả cầu ra khỏi #video-intro, gắn thẳng vào <body> bằng
+            // position:fixed (giữ nguyên đúng vị trí/kích thước hiện tại
+            // qua toạ độ đo được ở trên) - để nó KHÔNG bị cuốn theo hiệu
+            // ứng mờ/nhoè (ci-exit) của #video-intro và có thể bay tự do
+            // đè lên mọi lớp phía trên.
+            orb.classList.add('orb-detached');
+            orb.style.left = orbRect.left + 'px';
+            orb.style.top = orbRect.top + 'px';
+            orb.style.width = orbRect.width + 'px';
+            orb.style.height = orbRect.height + 'px';
+            document.body.appendChild(orb);
+
+            const seal = document.querySelector('#envelope-container .wax-seal');
+            if (!seal) {
+                // Không tìm thấy con dấu thật (trường hợp hiếm) - cho quả
+                // cầu mờ dần tại chỗ rồi dọn đi, tránh treo lại trên màn.
+                orb.style.transition = 'opacity 0.5s ease';
+                orb.style.opacity = '0';
+                setTimeout(() => orb.remove(), 550);
+                return;
+            }
+
+            // Đợi 2 khung hình để layout của phong bì (vừa unhidden) ổn
+            // định hẳn trước khi đo toạ độ đích, tránh đo trúng lúc chưa
+            // kịp render xong (nhất là trên máy yếu/điện thoại).
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    const sealRect = seal.getBoundingClientRect();
+                    const dx = (sealRect.left + sealRect.width / 2) - (orbRect.left + orbRect.width / 2);
+                    const dy = (sealRect.top + sealRect.height / 2) - (orbRect.top + orbRect.height / 2);
+                    const scale = sealRect.width / orbRect.width;
+
+                    orb.classList.add('orb-flying');
+                    // Dùng bội số của 360deg (720deg = quay đúng 2 vòng)
+                    // để quả cầu quay nhiều hơn NHƯNG vẫn đáp xuống thẳng
+                    // đúng góc ban đầu như file cũ - tránh bị lệch góc/chữ
+                    // nằm nghiêng ngược lúc vừa biến thành con dấu.
+                    orb.style.transform = `translate(${dx}px, ${dy}px) scale(${scale}) rotate(720deg)`;
+
+                    // Khớp với thời lượng transition transform ở CSS
+                    // (.orb-flying, 0.8s) - lúc quả cầu vừa "đáp" xuống thì
+                    // bùng sáng con dấu thật một nhịp cho cảm giác "đóng
+                    // dấu", rồi dọn quả cầu khỏi trang.
+                    setTimeout(() => {
+                        seal.classList.add('seal-impact');
+                        orb.remove();
+                        setTimeout(() => seal.classList.remove('seal-impact'), 720);
+                    }, 800);
+                });
+            });
         }
 
         // Function: Open Envelope
@@ -2011,8 +2491,7 @@
             "20": "Lan Phương",
             "21": "Minh Ngân",
             "22": "Tuyết Như",
-            "23": "Thầy Tấn Phúc",
-            "24": "Em Bảo Phúc"
+            "23": "Thầy Tấn Phúc"
         };
 
         // URL Guest Parameter Handling (?id=01)
