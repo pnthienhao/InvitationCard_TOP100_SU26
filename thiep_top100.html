@@ -329,6 +329,11 @@
             font-size: 1.5rem;
             /* 24px */
             line-height: 1.3;
+            /* Màn hình rộng đủ chỗ thì hiển thị nguyên 1 dòng; màn hình
+               nhỏ phải xuống dòng thì tự chia đều chữ trên các dòng
+               (giống đoạn "Đến tham dự..." bên trong thiệp), tránh
+               dòng cuối bị lẻ loi 1-2 chữ trông mất cân đối. */
+            text-wrap: balance;
         }
 
         @media (min-width: 640px) {
