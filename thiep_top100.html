@@ -117,6 +117,52 @@
         /* Envelope 3D Visual Styling */
         .envelope-wrapper {
             perspective: 1000px;
+            transform: scale(1);
+            /* Con dấu sáp nằm hơi dưới tâm phong bì (không đúng 50%),
+               nên lệch transform-origin xuống dưới một chút để lúc
+               zoom vào, con dấu luôn nằm ở khoảng giữa khung hình
+               thay vì bị trôi lên cao. */
+            transform-origin: center 62%;
+            transition: transform 1s cubic-bezier(0.65, 0, 0.35, 1);
+            will-change: transform;
+        }
+
+        /* "Camera" zoom hẳn vào phong bì đúng lúc quả cầu vũ trụ đang
+           biến hình thành con dấu sáp thật (xem orbFlyToSeal() trong
+           JS) - để khoảnh khắc "đóng dấu" hiện to, rõ, đầy màn hình,
+           gây ấn tượng, thay vì bé tí ở giữa một phong bì nhỏ xíu. Sau
+           khi con dấu "đóng" xong, JS sẽ tự gỡ class này ra để phong
+           bì zoom ngược trở lại đúng kích thước cũ, lộ ra NGUYÊN cái
+           thiệp (cả phong bì) như bình thường. */
+        .envelope-wrapper.envelope-zoom-in {
+            transform: scale(1.9);
+        }
+
+        @media (max-width: 480px) {
+
+            /* Màn hình điện thoại hẹp hơn - zoom vừa phải lại một chút
+               để phong bì không bị tràn ra ngoài 2 bên viewport. */
+            .envelope-wrapper.envelope-zoom-in {
+                transform: scale(1.55);
+            }
+        }
+
+        /* Tiêu đề/logo phía trên phong bì + dòng chữ hướng dẫn "Chạm vào
+           con dấu..." phía dưới - lúc phong bì zoom to lên thì 2 khối
+           chữ này PHẢI biến mất (mờ dần đi) để không bị đứng yên, rối
+           mắt, chồng chéo lên cảnh "đóng dấu" đang phóng to. Chỉ hiện
+           lại đúng lúc phong bì zoom ngược về kích thước cũ (xem JS
+           orbFlyToSeal(), toggle chung class "envelope-bg-hidden"). */
+        #envelope-header,
+        #envelope-hint {
+            opacity: 1;
+            transition: opacity 0.6s ease;
+        }
+
+        #envelope-header.envelope-bg-hidden,
+        #envelope-hint.envelope-bg-hidden {
+            opacity: 0;
+            pointer-events: none;
         }
 
         .envelope {
@@ -1028,6 +1074,44 @@
             transform: scale(1);
         }
 
+        /* QUAN TRỌNG: lúc JS appendChild() quả cầu qua thẳng <body> để nó
+           bay tự do, việc "dời nhà" này khiến các animation "mờ dần hiện
+           lên" của khối cầu vàng kim (đĩa vàng + đốm sáng lấp lánh + vệt
+           sáng quét) VÀ animation đổi màu chữ (còn đang chạy dở, dùng
+           chung 1 khung thời gian 4.4s/delay 1.7s) bị RESET chạy lại từ
+           đầu (opacity về lại 0) - mà quãng bay lại quá ngắn (chưa đầy
+           2s) nên chúng không kịp hiện lại, kết quả chỉ còn thấy mỗi chữ
+           (chữ không có animation opacity, luôn hiện sẵn) trôi trên nền
+           đen, KHÔNG THẤY khối cầu vàng đâu cả. Fix: khoá cứng thẳng
+           TRẠNG THÁI CUỐI (opacity: 1, màu chữ tối) bằng CSS thường (tắt
+           hẳn animation), không phụ thuộc animation nữa, để khối cầu +
+           chữ luôn hiện đúng, đủ, ngay khi vừa tách ra và suốt quãng bay. */
+        #chapter-orb-wrap.orb-detached .chapter-orb-disc,
+        #chapter-orb-wrap.orb-detached .chapter-orb-stars,
+        #chapter-orb-wrap.orb-detached .chapter-orb-shine {
+            animation: none;
+            opacity: 1;
+        }
+
+        #chapter-orb-wrap.orb-detached .chapter-orb-label span:first-child,
+        #chapter-orb-wrap.orb-detached .chapter-orb-label span:last-child {
+            animation: none;
+            color: #24140a;
+            text-shadow: 0 1px 2px rgba(255, 233, 176, 0.55);
+        }
+
+        /* Bỏ HẲN vòng quỹ đạo kiểu vành đai Sao Thổ (.chapter-orb-ring)
+           ngay từ lúc quả cầu vừa tách ra để bay vào con dấu - vòng này
+           (nhất là lớp "front" nằm ĐÈ LÊN trên khối cầu) trước đây che
+           mất khối cầu vàng kim lúc bay, khiến người xem chỉ thấy mỗi
+           chữ "FPTU TOP100" trôi chứ không thấy rõ quả cầu. Ẩn thẳng
+           (display: none) thay vì để tự mờ/thu nhỏ dần như trước, để
+           suốt quãng bay chỉ còn lại đúng khối cầu vàng kim + chữ, nhìn
+           rõ ràng là "quả cầu" đang bay chứ không phải chỉ có chữ. */
+        #chapter-orb-wrap.orb-detached .chapter-orb-ring {
+            display: none;
+        }
+
         /* Trạng thái "đang bay" - JS set transform (translate + scale +
            rotate) tới đúng toạ độ/kích thước con dấu sáp thật. Giữ nguyên
            opacity 1 (KHÔNG mờ dần nửa chừng như trước) để cả khối cầu
@@ -1039,22 +1123,30 @@
             opacity: 1;
         }
 
-        /* Vòng tròn quỹ đạo KHÔNG bay theo tới đích cùng khối cầu - nó tự
-           thu nhỏ + mờ dần đi ngay trong lúc bay ("tan biến" vào), để lúc
-           khối cầu đáp xuống thành con dấu thì chỉ còn lại đúng con dấu
-           tròn trơn, không bị vướng viền quỹ đạo lớn đè lên phong bì. */
-        #chapter-orb-wrap.orb-flying .chapter-orb-ring {
-            transition: opacity 0.55s ease, transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
-            opacity: 0;
-            transform: translate(-50%, -50%) rotateX(34deg) rotateZ(160deg) scale(0.4);
-        }
-
-
         /* Hiệu ứng "đáp/đóng dấu" trên con dấu sáp THẬT của phong bì, bùng
            sáng nhanh đúng lúc quả cầu bay tới - tạo cảm giác như quả cầu
            vừa "đóng dấu" xuống phong bì. */
         .wax-seal.seal-impact {
             animation: sealImpactPulse 0.7s ease-out;
+        }
+
+        /* Con dấu sáp THẬT trên phong bì phải MỜ HẲN ĐI (ẩn) suốt lúc
+           phong bì đang zoom vào + quả cầu đang bay tới - nếu không, con
+           dấu thật sẽ đã hiện sẵn ngay từ đầu, nhìn kỳ (như đã có sẵn 2
+           con dấu: 1 cái đứng yên trên phong bì + 1 cái đang bay tới),
+           mất hẳn cảm giác "quả cầu biến hình thành con dấu". Chỉ hiện
+           lại (mờ dần vào, dùng chung transition opacity có sẵn ở
+           ".envelope .wax-seal") ĐÚNG NGAY LÚC quả cầu vừa "đáp" xuống
+           (JS gắn 2 class "seal-impact" + gỡ "seal-pending" CÙNG MỘT
+           LÚC - xem orbFlyToSeal()), tạo cảm giác con dấu vừa xuất hiện
+           đúng khoảnh khắc quả cầu chạm vào, không lộ trước.
+           LƯU Ý: chỉ đổi opacity, KHÔNG đổi transform/scale - để
+           getBoundingClientRect() đo được đúng size/vị trí thật của con
+           dấu lúc đang ẩn (JS cần đo toạ độ này để bay quả cầu tới cho
+           trúng). */
+        .wax-seal.seal-pending {
+            opacity: 0;
+            pointer-events: none;
         }
 
         @keyframes sealImpactPulse {
@@ -1421,7 +1513,8 @@
          ============================================================ -->
     <div id="tap-to-start"
         class="fixed inset-0 z-[200] flex items-center justify-center text-center bg-wine-950 cursor-pointer select-none">
-        <div class="tap-text text-gold-300 font-sans uppercase tap-pulse px-6">PRESS TO START</div>
+        <div class="tap-text text-gold-300 font-sans uppercase tap-pulse px-6">Chạm để bắt
+            đầu</div>
     </div>
 
     <!-- ============================================================
@@ -1495,7 +1588,7 @@
         class="relative z-10 w-full min-h-screen flex flex-col justify-center items-center px-4 py-8 transition-all duration-700 hidden">
 
         <!-- FPT University Header Emblem -->
-        <div class="text-center mb-6 sm:mb-8 animate-float">
+        <div id="envelope-header" class="text-center mb-6 sm:mb-8 animate-float">
             <!-- LOGO: thay src="..." dưới đây bằng ảnh logo PNG nền trong suốt của bạn.
                  Class "h-16 sm:h-20 w-auto object-contain" giữ chiều cao cố định, không méo hình, không hộp/không viền. -->
             <div class="inline-flex flex-col items-center mb-5">
@@ -1552,7 +1645,7 @@
         </div>
 
         <!-- Touch Instruction Badge -->
-        <div class="mt-8 text-center animate-bounce">
+        <div id="envelope-hint" class="mt-8 text-center animate-bounce">
             <p
                 class="text-xs tracking-widest uppercase text-gold-300/90 font-medium flex items-center justify-center gap-2 bg-wine-950/80 border border-gold-500/30 px-5 py-2.5 rounded-full shadow-lg">
                 <i class="fa-solid fa-hand-pointer text-fpt-orange"></i>
@@ -2062,9 +2155,11 @@
 
             if (flash) flash.classList.add('ci-flash-active');
 
-            // Nhạc intro mờ dần rồi tắt hẳn đúng lúc màn "THE NEW CHAPTER"
-            // kết thúc & hoà cảnh sang thiệp.
-            fadeOutIntroAudio(900);
+            // Nhạc intro KHÔNG tắt vội ở đây nữa - để nó tiếp tục phát
+            // xuyên suốt cả đoạn "camera" zoom vào phong bì + quả cầu
+            // biến thành con dấu (xem orbFlyToSeal()), tránh bị im re
+            // giữa chừng. Nhạc sẽ mờ dần tắt hẳn đúng lúc phong bì zoom
+            // ngược trở lại, do chính orbFlyToSeal() gọi.
 
             // Phong bì/thiệp lộ ra NGAY - nó nằm ở lớp thấp nhất (z-10, dưới
             // cả màn "THE NEW CHAPTER" z-100), nên vẫn bị che cho tới khi
@@ -2098,11 +2193,13 @@
         // cứng. Được gọi ngay khi #envelope-section vừa lộ ra (bỏ hidden),
         // vì cần layout thật của phong bì để đo toạ độ đích.
         function orbFlyToSeal() {
-            // Bay/thu nhỏ theo #chapter-orb-wrap (khối bọc ngoài chứa cả
-            // khối cầu + vòng tròn quỹ đạo) thay vì #chapter-orb - vì vòng
-            // tròn quỹ đạo nằm LỚN HƠN, LÒI RA NGOÀI khối cầu, nên phải để
-            // cả wrap cùng bay thì vòng tròn mới thu nhỏ/tan biến đúng nhịp
-            // theo (xem rule "#chapter-orb-wrap.orb-flying .chapter-orb-ring").
+            // Bay/thu nhỏ theo #chapter-orb-wrap (khối bọc ngoài) thay vì
+            // #chapter-orb - còn vòng tròn quỹ đạo (vành đai kiểu Sao Thổ)
+            // thì bị ẩn hẳn NGAY LÚC TÁCH RA (xem rule
+            // "#chapter-orb-wrap.orb-detached .chapter-orb-ring"), không
+            // bay theo nữa, để suốt quãng bay chỉ còn lại đúng khối cầu
+            // vàng kim + chữ - nhìn rõ là quả cầu đang bay, không bị vòng
+            // quỹ đạo đè/che mất.
             const orb = document.getElementById('chapter-orb-wrap');
             if (!orb) return;
 
@@ -2121,6 +2218,10 @@
             document.body.appendChild(orb);
 
             const seal = document.querySelector('#envelope-container .wax-seal');
+            const envelopeWrapper = document.querySelector('.envelope-wrapper');
+            const envelopeHeader = document.getElementById('envelope-header');
+            const envelopeHint = document.getElementById('envelope-hint');
+
             if (!seal) {
                 // Không tìm thấy con dấu thật (trường hợp hiếm) - cho quả
                 // cầu mờ dần tại chỗ rồi dọn đi, tránh treo lại trên màn.
@@ -2130,34 +2231,106 @@
                 return;
             }
 
-            // Đợi 2 khung hình để layout của phong bì (vừa unhidden) ổn
-            // định hẳn trước khi đo toạ độ đích, tránh đo trúng lúc chưa
-            // kịp render xong (nhất là trên máy yếu/điện thoại).
-            requestAnimationFrame(() => {
+            // BƯỚC 0 - ẨN HẲN con dấu sáp THẬT đi ngay từ đầu (trước khi
+            // phong bì kịp zoom vào) - để nó KHÔNG lộ ra trước, tránh
+            // cảnh kỳ cục "2 con dấu cùng lúc" (1 cái thật đứng yên sẵn +
+            // 1 cái đang bay tới). Tắt luôn hiệu ứng "nhấp nháy mời gọi"
+            // (animate-pulse-slow) trong lúc ẩn, vì animation đó tự đổi
+            // opacity liên tục, sẽ đè lên "opacity: 0" của seal-pending
+            // nếu để chạy song song.
+            seal.classList.remove('animate-pulse-slow');
+            seal.classList.add('seal-pending');
+
+            // BƯỚC 1 - "CAMERA" ZOOM HẲN VÀO PHONG BÌ trước, giống như máy
+            // quay đẩy lại gần khoảnh khắc sắp "đóng dấu". Zoom xong (hết
+            // transition 1s ở CSS ".envelope-wrapper") rồi mới đo toạ độ
+            // con dấu để bay quả cầu tới - vì lúc phong bì phóng to lên,
+            // vị trí/kích thước thật của con dấu trên màn hình cũng thay
+            // đổi theo, phải đo LẠI sau khi zoom xong thì quả cầu mới đáp
+            // trúng chính giữa con dấu (đã phóng to).
+            if (envelopeWrapper) envelopeWrapper.classList.add('envelope-zoom-in');
+
+            // Đồng thời cho tiêu đề/logo phía trên + dòng chữ hướng dẫn
+            // phía dưới MỜ HẲN ĐI ngay lúc phong bì bắt đầu zoom to lên -
+            // để nền phía sau "sạch", chỉ còn đúng phong bì đang phóng to,
+            // không bị 2 khối chữ đứng yên đè/rối lên cảnh đóng dấu.
+            if (envelopeHeader) envelopeHeader.classList.add('envelope-bg-hidden');
+            if (envelopeHint) envelopeHint.classList.add('envelope-bg-hidden');
+
+            const ZOOM_IN_MS = 1000; // khớp đúng transition transform ở CSS
+
+            setTimeout(() => {
+                // Đợi thêm 2 khung hình để chắc chắn layout đã "chốt" hẳn
+                // ở trạng thái phóng to (tránh đo hụt lúc engine vẫn còn
+                // đang vẽ nốt khung hình cuối của transition).
                 requestAnimationFrame(() => {
-                    const sealRect = seal.getBoundingClientRect();
-                    const dx = (sealRect.left + sealRect.width / 2) - (orbRect.left + orbRect.width / 2);
-                    const dy = (sealRect.top + sealRect.height / 2) - (orbRect.top + orbRect.height / 2);
-                    const scale = sealRect.width / orbRect.width;
+                    requestAnimationFrame(() => {
+                        const sealRect = seal.getBoundingClientRect();
+                        const dx = (sealRect.left + sealRect.width / 2) - (orbRect.left + orbRect.width / 2);
+                        const dy = (sealRect.top + sealRect.height / 2) - (orbRect.top + orbRect.height / 2);
+                        const scale = sealRect.width / orbRect.width;
 
-                    orb.classList.add('orb-flying');
-                    // Dùng bội số của 360deg (720deg = quay đúng 2 vòng)
-                    // để quả cầu quay nhiều hơn NHƯNG vẫn đáp xuống thẳng
-                    // đúng góc ban đầu như file cũ - tránh bị lệch góc/chữ
-                    // nằm nghiêng ngược lúc vừa biến thành con dấu.
-                    orb.style.transform = `translate(${dx}px, ${dy}px) scale(${scale}) rotate(720deg)`;
+                        orb.classList.add('orb-flying');
+                        // Dùng bội số của 360deg (720deg = quay đúng 2 vòng)
+                        // để quả cầu quay nhiều hơn NHƯNG vẫn đáp xuống thẳng
+                        // đúng góc ban đầu như file cũ - tránh bị lệch góc/chữ
+                        // nằm nghiêng ngược lúc vừa biến thành con dấu.
+                        orb.style.transform = `translate(${dx}px, ${dy}px) scale(${scale}) rotate(720deg)`;
 
-                    // Khớp với thời lượng transition transform ở CSS
-                    // (.orb-flying, 0.8s) - lúc quả cầu vừa "đáp" xuống thì
-                    // bùng sáng con dấu thật một nhịp cho cảm giác "đóng
-                    // dấu", rồi dọn quả cầu khỏi trang.
-                    setTimeout(() => {
-                        seal.classList.add('seal-impact');
-                        orb.remove();
-                        setTimeout(() => seal.classList.remove('seal-impact'), 720);
-                    }, 800);
+                        // Khớp với thời lượng transition transform ở CSS
+                        // (.orb-flying, 0.8s) - lúc quả cầu vừa "đáp" xuống thì
+                        // bùng sáng con dấu thật một nhịp cho cảm giác "đóng
+                        // dấu", rồi dọn quả cầu khỏi trang.
+                        setTimeout(() => {
+                            // Con dấu thật CHỈ hiện ra ĐÚNG NGAY LÚC NÀY -
+                            // gỡ "seal-pending" (ẩn) và thêm "seal-impact"
+                            // (bùng sáng) CÙNG MỘT LÚC, khớp đúng khoảnh
+                            // khắc quả cầu vừa "đáp" xuống, tạo cảm giác
+                            // quả cầu vừa biến hình thành chính con dấu
+                            // này chứ không phải nó đã có sẵn từ trước.
+                            seal.classList.remove('seal-pending');
+                            seal.classList.add('seal-impact');
+                            orb.remove();
+                            setTimeout(() => {
+                                seal.classList.remove('seal-impact');
+
+                                // Bật lại hiệu ứng nhấp nháy mời gọi
+                                // "Chạm để mở thiệp" cho con dấu, y như
+                                // lúc đầu, giờ con dấu đã hiện ra hẳn hoi.
+                                seal.classList.add('animate-pulse-slow');
+
+                                // BƯỚC 2 - Con dấu vừa "đóng" xong, giữ máy
+                                // quay đứng yên thêm một nhịp ngắn để khách
+                                // kịp nhìn rõ con dấu thật to trước khi zoom
+                                // ngược trở lại, rồi mới gỡ class zoom-in ra
+                                // để phong bì zoom lại về đúng kích thước cũ,
+                                // lộ ra NGUYÊN cái thiệp (cả phong bì) như
+                                // bình thường - sẵn sàng cho khách bấm mở.
+                                // Cho tiêu đề/logo + dòng chữ hướng dẫn hiện
+                                // lại (mờ dần vào) CÙNG LÚC phong bì thu nhỏ
+                                // về đúng kích thước cũ - để cả cảnh "hiện
+                                // ra" trông liền mạch, đồng bộ với nhau.
+                                setTimeout(() => {
+                                    if (envelopeWrapper) envelopeWrapper.classList.remove('envelope-zoom-in');
+                                    if (envelopeHeader) envelopeHeader.classList.remove('envelope-bg-hidden');
+                                    if (envelopeHint) envelopeHint.classList.remove('envelope-bg-hidden');
+
+                                    // Đúng lúc phong bì BẮT ĐẦU zoom ngược
+                                    // trở lại (transition transform 1s ở
+                                    // CSS ".envelope-wrapper"), cho nhạc
+                                    // intro mờ dần tắt hẳn theo ĐÚNG NHỊP
+                                    // đó - để nhạc còn kéo dài xuyên suốt
+                                    // lúc quả cầu bay/đóng dấu (không bị im
+                                    // ru giữa chừng như trước), rồi êm ái
+                                    // tắt hẳn khi phong bì vừa hiện ra lại
+                                    // bình thường.
+                                    fadeOutIntroAudio(1000);
+                                }, 450);
+                            }, 720);
+                        }, 800);
+                    });
                 });
-            });
+            }, ZOOM_IN_MS);
         }
 
         // Function: Open Envelope
