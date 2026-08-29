@@ -1933,6 +1933,22 @@
         // Countdown Target Date: October 5, 2026 17:00:00
         const targetDate = new Date('October 5, 2026 17:00:00').getTime();
 
+        /*
+            ====================================================================================
+            AUTO-RESET KHI ĐỔI TAB / THU NHỎ TRÌNH DUYỆT
+            Nếu người dùng rời khỏi tab (chuyển tab khác, thu nhỏ cửa sổ...) trong lúc
+            trang đang chạy (nhạc, animation, auto-scroll...), ta reload lại toàn bộ
+            trang ngay khi họ quay lại - vừa chắc chắn dừng hết mọi thứ đang chạy ngầm
+            (nhạc, interval, timeout...), vừa đưa trang về đúng màn hình PRESS TO START
+            ban đầu như lúc mới vào.
+            ====================================================================================
+        */
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                location.reload();
+            }
+        });
+
         // Auto-Scroll State Engine variables
         let autoScrollInterval = null;
         let isUserTouching = false;
