@@ -1172,6 +1172,12 @@
         #tap-to-start {
             background: radial-gradient(ellipse at 50% 45%, #3D080F 0%, #26040A 55%, #140205 100%);
             transition: opacity 0.6s ease;
+            /* Chặn menu ngữ cảnh / bôi đen chữ khi người dùng nhấn giữ lâu,
+               để không bị "nuốt" mất sự kiện touchend giữa chừng. */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
         }
 
         #tap-to-start.tts-exit {
@@ -2046,17 +2052,42 @@
             const intro = document.getElementById('cinematic-intro');
             if (!tapScreen) return;
 
-            const handleTap = () => {
-                tapScreen.removeEventListener('click', handleTap);
-                tapScreen.removeEventListener('touchend', handleTap);
+            // Ngưỡng thời gian tối đa (ms) để tính là 1 cú CHẠM thật sự.
+            // Nhấn giữ lâu hơn mức này sẽ bị bỏ qua, không kích hoạt gì cả -
+            // vì gesture "nguội" như vậy nhiều trình duyệt mobile sẽ KHÔNG
+            // cho phép audio.play() chạy (mất tính "tức thời" của thao tác),
+            // khiến app chuyển cảnh nhưng lại bị câm tiếng.
+            const MAX_TAP_MS = 400;
+            let touchStartTime = 0;
+
+            const triggerStart = () => {
+                tapScreen.removeEventListener('click', handleClick);
+                tapScreen.removeEventListener('touchstart', handleTouchStart);
+                tapScreen.removeEventListener('touchend', handleTouchEnd);
                 tapScreen.classList.add('tts-exit');
                 if (intro) intro.classList.remove('hidden');
                 startCinematicIntro();
                 setTimeout(() => tapScreen.remove(), 650);
             };
 
-            tapScreen.addEventListener('click', handleTap, { once: true });
-            tapScreen.addEventListener('touchend', handleTap, { once: true });
+            const handleTouchStart = (e) => {
+                touchStartTime = e.timeStamp;
+            };
+
+            const handleTouchEnd = (e) => {
+                const duration = e.timeStamp - touchStartTime;
+                // Giữ tay quá lâu -> coi là "nhấn giữ", không phải chạm -> bỏ qua.
+                if (duration > MAX_TAP_MS) return;
+                triggerStart();
+            };
+
+            const handleClick = () => {
+                triggerStart();
+            };
+
+            tapScreen.addEventListener('click', handleClick);
+            tapScreen.addEventListener('touchstart', handleTouchStart, { passive: true });
+            tapScreen.addEventListener('touchend', handleTouchEnd);
         }
 
         function startCinematicIntro() {
