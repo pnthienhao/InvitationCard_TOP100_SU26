@@ -2185,6 +2185,7 @@
 
             videoWrap.classList.remove('hidden');
             buildChapterEmbers();
+            restartVideoIntroAnimations(videoWrap);
 
             // Mốc thời gian cố định ~6.5s (tăng thêm so với trước để đoạn
             // chuyển từ "THE NEW CHAPTER" qua "FPTU TOP100" đỡ gấp) - đủ
@@ -2192,6 +2193,36 @@
             // trước khi bay vào con dấu.
             // cũ, rồi chuyển cảnh sang phong bì.
             setTimeout(transitionFromVideoToEnvelope, 6500);
+        }
+
+        // Ép các animation CSS của màn "THE NEW CHAPTER" / "FPTU TOP100"
+        // CHẠY LẠI TỪ ĐẦU (frame 0%) đúng thời điểm màn này hiện ra.
+        //
+        // Lý do cần hàm này: các animation đó (.chapter-text, .chapter-orb-wrap,
+        // .chapter-orb-disc, .chapter-orb-stars, .chapter-orb-shine, label...)
+        // được khai báo chạy TỰ ĐỘNG ngay khi phần tử "hiện ra" (display khác
+        // none), dựa theo đồng hồ thời gian thực (wall-clock) của trình duyệt,
+        // KHÔNG phải do JS điều khiển từng bước. Trên một số máy/app trình
+        // duyệt (đặc biệt webview trong app chat như Zalo/Messenger, hoặc máy
+        // yếu bị khựng đúng lúc đổi cảnh), trình duyệt có thể tính lố thời gian
+        // đã trôi qua rồi "nhảy cóc" thẳng tới trạng thái CUỐI của animation
+        // (opacity:1, đã co về đúng kích thước quả cầu...) thay vì chạy tuần
+        // tự từ đầu -> người dùng chỉ thấy quả cầu đã xoay sẵn, không thấy
+        // đoạn chữ "The New Chapter" / "FPTU TOP100" hiện dần.
+        //
+        // Cách sửa: đặt "animation: none" rồi ép trình duyệt reflow (đọc
+        // offsetWidth), sau đó gỡ "none" ra để animation buộc phải khởi động
+        // lại đúng từ 0% ngay tại thời điểm này, không phụ thuộc trạng thái
+        // trước đó của phần tử.
+        function restartVideoIntroAnimations(videoWrap) {
+            const animatedEls = videoWrap.querySelectorAll(
+                '.chapter-text, .chapter-orb-wrap, .chapter-orb-ring, .chapter-orb-disc, .chapter-orb-stars, .chapter-orb-shine, .chapter-orb-label span'
+            );
+            animatedEls.forEach(el => { el.style.animation = 'none'; });
+            // Đọc offsetWidth để ép trình duyệt reflow ngay lập tức, "chốt"
+            // trạng thái animation:none trước khi bật lại ở dòng dưới.
+            void videoWrap.offsetWidth;
+            animatedEls.forEach(el => { el.style.animation = ''; });
         }
 
         // Chuyển cảnh mượt từ màn "THE NEW CHAPTER" sang phần thiệp/phong
