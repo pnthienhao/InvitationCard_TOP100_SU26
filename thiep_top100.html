@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invitation Card</title>
+    <title>Thiệp mời - Thiện Hảo</title>
 
     <!-- Favicon (icon nhỏ hiện trên tab trình duyệt) - đặt 1 file ảnh
          VUÔNG tên "favicon.png" (khuyên dùng tối thiểu 512x512px, PNG,
@@ -1198,7 +1198,13 @@
             }
         }
 
-        /* Màn hình chờ "Chạm để mở thiệp" - đảm bảo có gesture trước khi phát nhạc */
+        /* Khoá không cho bấm mở phong bì trong lúc đoạn "quả cầu biến
+           thành con dấu" (zoom camera vào phong bì) đang chạy - tránh
+           trường hợp khách bấm trúng ngay lúc phong bì đang phóng to,
+           vô tình mở thiệp giữa chừng khi hiệu ứng intro chưa xong. */
+        #envelope-container.intro-locked {
+            pointer-events: none;
+        }
         #tap-to-start {
             background: radial-gradient(ellipse at 50% 45%, #3D080F 0%, #26040A 55%, #140205 100%);
             transition: opacity 0.6s ease;
@@ -1786,23 +1792,19 @@
                                 HẢO</h4>
                         </div>
 
-                        <p data-reveal-gap="0.15"
-                            class="reveal-text txt-student-major text-gold-300/90 font-medium mt-1">Major: Software
+                        <p data-reveal-gap="0.15" class="reveal-text txt-student-major text-gold-300/90 font-medium mt-1">Major: Software
                             Engineering</p>
                         <div class="mt-3 text-center space-y-1.5">
                             <p class="text-fpt-orange">
-                                <span data-reveal-gap="0.15" class="reveal-text inline txt-badge font-semibold">Top 100
-                                    Students With
+                                <span data-reveal-gap="0.15" class="reveal-text inline txt-badge font-semibold">Top 100 Students With
                                     Outstanding Academic Achievement Summer 2026</span>
                             </p>
                             <p class="text-fpt-orange">
-                                <span data-reveal-gap="0.15" class="reveal-text inline txt-badge font-semibold">Top 100
-                                    Students With
+                                <span data-reveal-gap="0.15" class="reveal-text inline txt-badge font-semibold">Top 100 Students With
                                     Outstanding Academic Achievement Spring 2026</span>
                             </p>
                             <p class="text-fpt-orange">
-                                <span data-reveal-gap="0.15"
-                                    class="reveal-text inline txt-badge font-semibold">Excellent Student Fall
+                                <span data-reveal-gap="0.15" class="reveal-text inline txt-badge font-semibold">Excellent Student Fall
                                     2025</span>
                             </p>
                         </div>
@@ -2021,6 +2023,13 @@
         // Auto-Scroll State Engine variables
         let autoScrollInterval = null;
         let isUserTouching = false;
+
+        // Chỉ cho phép bấm mở phong bì SAU KHI đoạn intro "quả cầu biến
+        // thành con dấu" (camera zoom vào phong bì) đã chạy xong hẳn.
+        // true = cho phép bấm mở bình thường (mặc định - áp dụng cho
+        // trường hợp không có đoạn intro quả cầu, ví dụ #video-intro
+        // không tồn tại).
+        let introFinished = true;
         const scrollContainer = document.getElementById('card-scroll-container');
         const scrollStatusText = document.getElementById('scroll-status-text');
         const scrollPing = document.getElementById('scroll-ping');
@@ -2306,6 +2315,14 @@
             // màn đó mờ đi.
             if (envelopeSection) envelopeSection.classList.remove('hidden');
 
+            // Khoá không cho bấm mở phong bì ngay từ lúc này - đoạn quả
+            // cầu bay + camera zoom vào phong bì sắp chạy, chưa cho phép
+            // mở thiệp giữa chừng. Sẽ mở khoá lại trong orbFlyToSeal() khi
+            // đoạn zoom-ngược-trở-lại kết thúc hẳn.
+            introFinished = false;
+            const envelopeContainerEl = document.getElementById('envelope-container');
+            if (envelopeContainerEl) envelopeContainerEl.classList.add('intro-locked');
+
             // Cho quả cầu vũ trụ "FPTU TOP100" bay & thu nhỏ thành đúng con
             // dấu sáp thật trên phong bì vừa lộ ra - đo toạ độ NGAY lúc này
             // vì phong bì chỉ có layout chính xác sau khi bỏ "hidden".
@@ -2332,6 +2349,17 @@
         // "biến hình" thành con dấu - chuyển cảnh liền mạch thay vì cắt
         // cứng. Được gọi ngay khi #envelope-section vừa lộ ra (bỏ hidden),
         // vì cần layout thật của phong bì để đo toạ độ đích.
+        // Mở khoá cho phép bấm mở phong bì trở lại (gỡ class khoá +
+        // đánh dấu introFinished = true). Gom thành 1 hàm để gọi ở MỌI
+        // điểm kết thúc/thoát sớm của orbFlyToSeal(), tránh trường hợp lỡ
+        // sót 1 nhánh nào đó khiến phong bì bị khoá cứng vĩnh viễn không
+        // ai bấm mở được nữa.
+        function unlockEnvelope() {
+            introFinished = true;
+            const envelopeContainerEl = document.getElementById('envelope-container');
+            if (envelopeContainerEl) envelopeContainerEl.classList.remove('intro-locked');
+        }
+
         function orbFlyToSeal() {
             // Bay/thu nhỏ theo #chapter-orb-wrap (khối bọc ngoài) thay vì
             // #chapter-orb - còn vòng tròn quỹ đạo (vành đai kiểu Sao Thổ)
@@ -2341,7 +2369,10 @@
             // vàng kim + chữ - nhìn rõ là quả cầu đang bay, không bị vòng
             // quỹ đạo đè/che mất.
             const orb = document.getElementById('chapter-orb-wrap');
-            if (!orb) return;
+            if (!orb) {
+                unlockEnvelope();
+                return;
+            }
 
             const orbRect = orb.getBoundingClientRect();
 
@@ -2374,6 +2405,7 @@
                 orb.style.transition = 'opacity 0.5s ease';
                 orb.style.opacity = '0';
                 setTimeout(() => orb.remove(), 550);
+                unlockEnvelope();
                 return;
             }
 
@@ -2471,6 +2503,14 @@
                                     // tắt hẳn khi phong bì vừa hiện ra lại
                                     // bình thường.
                                     fadeOutIntroAudio(1000);
+
+                                    // Đợi đúng hết thời lượng zoom-ngược-lại
+                                    // (1s, khớp CSS ".envelope-wrapper")
+                                    // rồi mới MỞ KHOÁ cho phép bấm mở
+                                    // phong bì - tới lúc này phong bì đã
+                                    // về đúng kích thước cũ, intro coi như
+                                    // kết thúc hoàn toàn.
+                                    setTimeout(unlockEnvelope, 1000);
                                 }, 450);
                             }, 720);
                         }, 800);
@@ -2486,6 +2526,12 @@
             const cardModal = document.getElementById('invitation-card');
 
             if (container.classList.contains('open')) return;
+
+            // Chặn thêm 1 lớp nữa (ngoài CSS pointer-events) - phòng
+            // trường hợp hàm này bị gọi bằng cách khác (không qua click
+            // chuột/chạm tay) trong lúc đoạn quả cầu-biến-thành-con-dấu
+            // vẫn đang chạy dở, chưa tới lúc cho phép mở thiệp.
+            if (!introFinished) return;
 
             // Step 1: Open envelope flap
             container.classList.add('open');
