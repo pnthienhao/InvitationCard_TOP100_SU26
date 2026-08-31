@@ -13,6 +13,7 @@
          không hiện, không lỗi gì cả. -->
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="favicon.png">
+    <link rel="preload" as="image" href="logo-th.png">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -29,6 +30,9 @@
 
     <!-- Canvas Confetti CDN -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- GSAP — timeline intro logo T&H (file local, không phụ thuộc CDN) -->
+    <script src="gsap_min.js"></script>
 
     <script>
         tailwind.config = {
@@ -1533,6 +1537,161 @@
         #ci-frame-3.ci-trio {
             transform: translateY(var(--trio-offset)) scale(1);
         }
+
+        /* ============================================================
+           INTRO LOGO T&H — cinematic particle assembly
+           Chạy ngay SAU "PRESS TO START", TRƯỚC 3 ảnh cinematic.
+           Thời lượng: ~10 giây (GSAP ~9.75s + giữ ngắn 0.35s), rồi hoà cảnh
+           sang #cinematic-intro. Style cùng tông wine/gold với intro
+           (halo + vignette + glow), logo vuông luôn vừa mọi màn hình
+           nhờ min(vw, vh) giống cách .ci-frame đã xử lý.
+           ============================================================ */
+        #logo-intro {
+            background: radial-gradient(ellipse at 50% 32%, #3D080F 0%, #26040A 48%, #140205 80%, #0a0103 100%);
+            transition: opacity 1.2s cubic-bezier(0.45, 0, 0.55, 1),
+                transform 1.2s cubic-bezier(0.45, 0, 0.55, 1),
+                filter 1.2s cubic-bezier(0.45, 0, 0.55, 1);
+            -webkit-touch-callout: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        #logo-particles {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 1.4s ease;
+            pointer-events: none;
+        }
+
+        #logo-particles.on {
+            opacity: 1;
+        }
+
+        #logo-light-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        #logo-glow-core {
+            position: absolute;
+            left: 50%;
+            top: 48%;
+            width: min(70vmin, 520px);
+            height: min(70vmin, 520px);
+            background: radial-gradient(circle,
+                    rgba(255, 224, 150, 0.34) 0%,
+                    rgba(212, 175, 55, 0.16) 32%,
+                    rgba(242, 111, 33, 0.06) 52%,
+                    rgba(212, 175, 55, 0) 70%);
+            opacity: 0;
+            filter: blur(2px);
+            pointer-events: none;
+            will-change: transform, opacity;
+        }
+
+        #logo-stage {
+            position: relative;
+            z-index: 3;
+            /* Điện thoại dọc: ~82vw. Màn ngang/thấp: bị chặn bởi vh.
+               Desktop: trần 560px — đúng tỉ lệ tấm logo vuông của file cũ. */
+            width: min(82vw, 72vh, 560px);
+            max-width: 560px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #logo-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+        }
+
+        #logo-wrap > * {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #logo-glow-shape {
+            background-image: url("logo-th.png");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            filter: blur(26px) saturate(1.5) brightness(1.6);
+            opacity: 0;
+            transform: scale(1.06);
+            pointer-events: none;
+        }
+
+        #logo-assembly {
+            opacity: 1;
+            pointer-events: none;
+        }
+
+        #logo-final {
+            object-fit: contain;
+            opacity: 0;
+            -webkit-user-drag: none;
+            user-select: none;
+            pointer-events: none;
+            filter: drop-shadow(0 0 18px rgba(212, 175, 55, 0.28));
+        }
+
+        #logo-sweep {
+            -webkit-mask-image: url("logo-th.png");
+            mask-image: url("logo-th.png");
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+            background: linear-gradient(100deg,
+                    transparent 30%,
+                    rgba(255, 255, 255, 0.05) 42%,
+                    rgba(255, 255, 255, 0.95) 49%,
+                    rgba(255, 255, 255, 0.95) 51%,
+                    rgba(255, 255, 255, 0.05) 58%,
+                    transparent 70%);
+            background-size: 300% 100%;
+            background-repeat: no-repeat;
+            background-position: -130% 0;
+            mix-blend-mode: screen;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #logo-flash {
+            -webkit-mask-image: url("logo-th.png");
+            mask-image: url("logo-th.png");
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+            background: #fff6df;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @media (max-width: 520px) {
+            #logo-stage {
+                width: min(86vw, 70vh, 560px);
+            }
+        }
+
+        @media (max-height: 500px) and (orientation: landscape) {
+            #logo-stage {
+                width: min(68vh, 52vw, 420px);
+            }
+        }
     </style>
 </head>
 
@@ -1553,6 +1712,14 @@
         <source src="intro.mp3" type="audio/mpeg">
     </audio>
 
+    <!-- Nhạc riêng cho phần INTRO LOGO T&H (chạy ngay sau PRESS TO START) -->
+    <!-- THAY "logo-intro.mp3" bằng file nhạc logo của bạn (cùng thư mục với file HTML này). -->
+    <!-- Thời lượng intro logo: 14 GIÂY (animation ~12s + giữ 2s rồi chuyển sang 3 ảnh).
+         Cắt nhạc logo đúng ~10 giây cho khớp. -->
+    <audio id="logo-intro-audio" preload="auto">
+        <source src="logo-intro.mp3" type="audio/mpeg">
+    </audio>
+
     <!-- ============================================================
          TAP-TO-START — màn hình chờ chạm, đảm bảo có user gesture
          trước khi phát nhạc (bắt buộc trên nhiều trình duyệt khi
@@ -1561,6 +1728,31 @@
     <div id="tap-to-start"
         class="fixed inset-0 z-[200] flex items-center justify-center text-center bg-wine-950 cursor-pointer select-none">
         <div class="tap-text text-gold-300 font-sans uppercase tap-pulse px-6">PRESS TO START</div>
+    </div>
+
+    <!-- ============================================================
+         INTRO LOGO T&H — particle assembly cinematic
+         Hiện ngay sau PRESS TO START, trước 3 ảnh. Thời lượng ~10s.
+         ============================================================ -->
+    <div id="logo-intro"
+        class="fixed inset-0 z-[120] overflow-hidden flex items-center justify-center hidden">
+        <div class="ci-halo"></div>
+        <div class="ci-vignette"></div>
+        <div class="ci-glow"></div>
+        <canvas id="logo-particles"></canvas>
+        <div id="logo-light-layer">
+            <div id="logo-glow-core"></div>
+        </div>
+        <div id="logo-stage">
+            <div id="logo-wrap">
+                <div id="logo-glow-shape"></div>
+                <canvas id="logo-assembly"></canvas>
+                <img id="logo-final" src="logo-th.png" alt="T and H gold monogram logo">
+                <div id="logo-sweep"></div>
+                <div id="logo-flash"></div>
+            </div>
+        </div>
+        <div id="li-flash" class="ci-flash"></div>
     </div>
 
     <!-- ============================================================
@@ -2114,6 +2306,371 @@
         // của người dùng rồi mới ẩn màn hình chờ và bắt đầu cinematic intro
         // (kèm nhạc). Nhờ có gesture thật này, trình duyệt sẽ KHÔNG chặn
         // audio.play() nữa, kể cả trên domain mới toanh như Vercel.
+
+        /*
+            ====================================================================================
+            INTRO LOGO T&H
+            Particle assembly từ file index.html gốc, gắn vào đúng nhịp
+            SAU press-to-start / TRƯỚC 3 ảnh cinematic.
+            Thời lượng tổng: ~10 giây (GSAP ~9.75s + giữ 0.35s).
+            Nhạc: file logo-intro.mp3 — cắt khoảng 10 giây.
+            ====================================================================================
+        */
+        let logoStarted = false;
+        let logoTlStarted = false;
+        let logoTransitioned = false;
+        let logoTl = null;
+        let logoRaf = 0;
+        let logoDust = [];
+        let assemblyProgress = 0;
+        let logoDpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        function startLogoAudio() {
+            const audio = document.getElementById('logo-intro-audio');
+            if (!audio) return;
+            audio.volume = 1;
+            audio.currentTime = 0;
+            const playPromise = audio.play();
+            if (playPromise && typeof playPromise.catch === 'function') {
+                playPromise.catch(() => { });
+            }
+        }
+
+        function fadeOutLogoAudio(durationMs) {
+            const audio = document.getElementById('logo-intro-audio');
+            if (!audio || audio.paused) return;
+            const steps = 20;
+            const stepTime = durationMs / steps;
+            const startVolume = audio.volume;
+            let i = 0;
+            const fadeInterval = setInterval(() => {
+                i++;
+                audio.volume = Math.max(0, startVolume * (1 - i / steps));
+                if (i >= steps) {
+                    clearInterval(fadeInterval);
+                    audio.pause();
+                    audio.currentTime = 0;
+                    audio.volume = startVolume;
+                }
+            }, stepTime);
+        }
+
+        function logoEaseOutCubic(t) {
+            return 1 - Math.pow(1 - t, 3);
+        }
+
+        function initLogoBgParticles() {
+            const canvas = document.getElementById('logo-particles');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const isSmall = window.innerWidth < 640;
+            const lowPower = isSmall || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+            const count = reduceMotion ? 0 : (lowPower ? 42 : 95);
+            const particles = [];
+
+            function resize() {
+                canvas.width = window.innerWidth * logoDpr;
+                canvas.height = window.innerHeight * logoDpr;
+                canvas.style.width = window.innerWidth + 'px';
+                canvas.style.height = window.innerHeight + 'px';
+                ctx.setTransform(logoDpr, 0, 0, logoDpr, 0, 0);
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    r: Math.random() * 1.4 + 0.3,
+                    vx: (Math.random() - 0.5) * 0.06,
+                    vy: -Math.random() * 0.09 - 0.02,
+                    a: Math.random() * 0.5 + 0.15,
+                    tw: Math.random() * Math.PI * 2
+                });
+            }
+
+            function draw() {
+                if (logoTransitioned) return;
+                ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.tw += 0.02;
+                    if (p.y < -10) {
+                        p.y = window.innerHeight + 10;
+                        p.x = Math.random() * window.innerWidth;
+                    }
+                    if (p.x < -10) p.x = window.innerWidth + 10;
+                    if (p.x > window.innerWidth + 10) p.x = -10;
+                    const flicker = (Math.sin(p.tw) + 1) / 2;
+                    const alpha = p.a * (0.55 + flicker * 0.45);
+                    ctx.beginPath();
+                    ctx.fillStyle = 'rgba(232,203,140,' + alpha.toFixed(3) + ')';
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                logoRaf = requestAnimationFrame(draw);
+            }
+            logoRaf = requestAnimationFrame(draw);
+            requestAnimationFrame(function () { canvas.classList.add('on'); });
+        }
+
+        function stopLogoParticles() {
+            if (logoRaf) cancelAnimationFrame(logoRaf);
+            logoRaf = 0;
+        }
+
+        function buildLogoDust(img) {
+            const isSmall = window.innerWidth < 640;
+            const lowPower = isSmall || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+            const SAMPLE = lowPower ? 150 : 220;
+            const off = document.createElement('canvas');
+            off.width = SAMPLE;
+            off.height = SAMPLE;
+            const octx = off.getContext('2d');
+            const scale = Math.min(SAMPLE / img.naturalWidth, SAMPLE / img.naturalHeight);
+            const dw = img.naturalWidth * scale;
+            const dh = img.naturalHeight * scale;
+            const dx = (SAMPLE - dw) / 2;
+            const dy = (SAMPLE - dh) / 2;
+            octx.drawImage(img, dx, dy, dw, dh);
+            let data;
+            try { data = octx.getImageData(0, 0, SAMPLE, SAMPLE).data; }
+            catch (e) {
+                // Thường xảy ra khi mở file trực tiếp bằng file:// (canvas bị "tainted"
+                // bởi CORS) — chạy qua 1 local server (vd: python3 -m http.server) hoặc
+                // upload lên hosting thật để hiệu ứng hạt điểm ảnh hoạt động.
+                console.warn('[logo-intro] Không đọc được pixel logo (có thể do mở file:// thay vì qua server):', e);
+                return [];
+            }
+
+            const pts = [];
+            const step = 2;
+            for (let y = 0; y < SAMPLE; y += step) {
+                for (let x = 0; x < SAMPLE; x += step) {
+                    const idx = (y * SAMPLE + x) * 4;
+                    const a = data[idx + 3];
+                    if (a > 60) {
+                        pts.push({
+                            nx: x / SAMPLE, ny: y / SAMPLE,
+                            r: data[idx], g: data[idx + 1], b: data[idx + 2], a: a / 255
+                        });
+                    }
+                }
+            }
+            for (let i = pts.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const t = pts[i]; pts[i] = pts[j]; pts[j] = t;
+            }
+            const target = lowPower ? 1100 : 2600;
+            return pts.length > target ? pts.slice(0, target) : pts;
+        }
+
+        function prepLogoDust() {
+            logoDust.forEach(function (p) {
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 0.55 + Math.random() * 0.9;
+                p.sx = 0.5 + Math.cos(angle) * dist;
+                p.sy = 0.5 + Math.sin(angle) * dist;
+                p.delay = Math.random() * 0.5;
+                p.curl = (Math.random() - 0.5) * 40;
+            });
+        }
+
+        function resizeLogoAssembly() {
+            const logoWrap = document.getElementById('logo-wrap');
+            const assemblyCanvas = document.getElementById('logo-assembly');
+            if (!logoWrap || !assemblyCanvas) return;
+            const rect = logoWrap.getBoundingClientRect();
+            assemblyCanvas.width = Math.max(1, rect.width * logoDpr);
+            assemblyCanvas.height = Math.max(1, rect.height * logoDpr);
+            const actx = assemblyCanvas.getContext('2d');
+            actx.setTransform(logoDpr, 0, 0, logoDpr, 0, 0);
+        }
+
+        function drawLogoAssembly() {
+            const logoWrap = document.getElementById('logo-wrap');
+            const assemblyCanvas = document.getElementById('logo-assembly');
+            if (!logoWrap || !assemblyCanvas || !logoDust.length) return;
+            const actx = assemblyCanvas.getContext('2d');
+            const rect = logoWrap.getBoundingClientRect();
+            const w = rect.width, h = rect.height;
+            const isSmall = window.innerWidth < 640;
+            const lowPower = isSmall || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+            actx.clearRect(0, 0, w, h);
+            actx.globalCompositeOperation = 'lighter';
+            for (let i = 0; i < logoDust.length; i++) {
+                const p = logoDust[i];
+                const local = Math.min(1, Math.max(0, (assemblyProgress - p.delay) / (1 - p.delay)));
+                const eased = logoEaseOutCubic(local);
+                const tx = p.nx * w, ty = p.ny * h;
+                const sx = p.sx * w, sy = p.sy * h;
+                const curl = Math.sin(eased * Math.PI) * (1 - eased) * p.curl;
+                const px = sx + (tx - sx) * eased + curl;
+                const py = sy + (ty - sy) * eased;
+                const alpha = Math.min(1, eased * 1.3) * p.a;
+                if (alpha <= 0.01) continue;
+                const rad = (lowPower ? 1.1 : 1.5) * (0.7 + eased * 0.5);
+                actx.beginPath();
+                actx.fillStyle = 'rgba(' + p.r + ',' + p.g + ',' + p.b + ',' + alpha.toFixed(3) + ')';
+                actx.arc(px, py, rad, 0, Math.PI * 2);
+                actx.fill();
+            }
+            actx.globalCompositeOperation = 'source-over';
+        }
+
+        function setLogoFinalState() {
+            assemblyProgress = 1;
+            drawLogoAssembly();
+            const finalImg = document.getElementById('logo-final');
+            const assemblyCanvas = document.getElementById('logo-assembly');
+            const glowShape = document.getElementById('logo-glow-shape');
+            const glowCore = document.getElementById('logo-glow-core');
+            const sweepOverlay = document.getElementById('logo-sweep');
+            const flashLayer = document.getElementById('logo-flash');
+            if (finalImg) finalImg.style.opacity = 1;
+            if (assemblyCanvas) assemblyCanvas.style.opacity = 0;
+            if (glowShape) {
+                glowShape.style.opacity = 0.8;
+                glowShape.style.transform = 'scale(1)';
+            }
+            if (glowCore) {
+                glowCore.style.opacity = 0.7;
+                glowCore.style.transform = 'translate(-50%, -50%) scale(1)';
+            }
+            if (sweepOverlay) sweepOverlay.style.opacity = 0;
+            if (flashLayer) flashLayer.style.opacity = 0;
+        }
+
+        function logoBreathingLoop() {
+            if (!window.gsap) return;
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            const glowCore = document.getElementById('logo-glow-core');
+            const glowShape = document.getElementById('logo-glow-shape');
+            if (glowCore) gsap.to(glowCore, { opacity: 0.55, scale: 0.92, duration: 3.6, ease: 'sine.inOut', repeat: -1, yoyo: true });
+            if (glowShape) gsap.to(glowShape, { opacity: 0.62, duration: 4.2, ease: 'sine.inOut', repeat: -1, yoyo: true });
+        }
+
+        function buildLogoTimeline() {
+            if (logoTlStarted) return;
+            logoTlStarted = true;
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (reduceMotion || !window.gsap) {
+                setLogoFinalState();
+                setTimeout(transitionFromLogoToPhotos, 1800);
+                return;
+            }
+
+            const glowCore = document.getElementById('logo-glow-core');
+            const glowShape = document.getElementById('logo-glow-shape');
+            const finalImg = document.getElementById('logo-final');
+            const assemblyCanvas = document.getElementById('logo-assembly');
+            const sweepOverlay = document.getElementById('logo-sweep');
+            const flashLayer = document.getElementById('logo-flash');
+
+            gsap.set(glowCore, { xPercent: -50, yPercent: -50, scale: 0.3, opacity: 0 });
+
+            const dustProxy = { t: 0 };
+            logoTl = gsap.timeline({
+                defaults: { ease: 'power2.inOut' },
+                onComplete: function () {
+                    // Chuyển cảnh gần như ngay sau khi quét sáng xong (~9.75s),
+                    // chỉ giữ lại 1 khoảng ngắn để mắt kịp nhận logo hoàn chỉnh.
+                    setTimeout(transitionFromLogoToPhotos, 350);
+                }
+            });
+
+            logoTl.set(glowCore, { opacity: 0, scale: 0.3 }, 0);
+            logoTl.to(glowCore, { opacity: 0.45, scale: 0.55, duration: 1.5, ease: 'sine.out' }, 1.0);
+            logoTl.to(dustProxy, {
+                t: 1, duration: 2.9, ease: 'power2.out',
+                onUpdate: function () { assemblyProgress = dustProxy.t; drawLogoAssembly(); }
+            }, 2.0);
+            logoTl.to(glowShape, { opacity: 0.55, duration: 2.0, ease: 'sine.out' }, 2.6);
+            logoTl.to(finalImg, { opacity: 1, duration: 0.8, ease: 'power1.out' }, 4.55);
+            logoTl.to(assemblyCanvas, { opacity: 0, duration: 0.8, ease: 'power1.out' }, 4.55);
+            logoTl.to(glowCore, { opacity: 0.85, scale: 0.9, duration: 1.4, ease: 'sine.inOut' }, 4.6);
+            logoTl.to(glowShape, { opacity: 0.85, duration: 1.2, ease: 'sine.inOut' }, 4.7);
+            logoTl.set(sweepOverlay, { opacity: 1, backgroundPositionX: '-130%' }, 5.5);
+            logoTl.to(sweepOverlay, { backgroundPositionX: '230%', duration: 4.2, ease: 'sine.inOut' }, 5.5);
+            logoTl.to(sweepOverlay, { opacity: 0, duration: 0.45 }, 9.3);
+            logoTl.to(flashLayer, { opacity: 0.55, duration: 0.16, ease: 'power1.out' }, 7.55);
+            logoTl.to(flashLayer, { opacity: 0, duration: 0.7, ease: 'power1.out' }, 7.71);
+            logoTl.to(glowCore, { opacity: 0.6, scale: 1, duration: 0.45, ease: 'sine.inOut' }, 9.3);
+            // Quét sáng xong (~9.75s) là kết thúc timeline luôn — không giữ thêm hold dài,
+            // chuyển cảnh liền sang phần intro/thiệp tiếp theo.
+        }
+
+        function startLogoIntro() {
+            if (logoStarted) return;
+            logoStarted = true;
+            document.body.style.overflow = 'hidden';
+            startLogoAudio();
+            initLogoBgParticles();
+
+            const img = document.getElementById('logo-final');
+            const begin = function () {
+                if (logoTlStarted) return;
+                if (img && img.naturalWidth) {
+                    logoDust = buildLogoDust(img);
+                    prepLogoDust();
+                }
+                resizeLogoAssembly();
+                buildLogoTimeline();
+            };
+
+            requestAnimationFrame(function () {
+                resizeLogoAssembly();
+                if (img && img.complete && img.naturalWidth) {
+                    begin();
+                    return;
+                }
+                if (img) {
+                    img.addEventListener('load', begin, { once: true });
+                    img.addEventListener('error', function () {
+                        setLogoFinalState();
+                        setTimeout(transitionFromLogoToPhotos, 1800);
+                    }, { once: true });
+                }
+                setTimeout(function () { if (!logoTlStarted) begin(); }, 2000);
+            });
+
+            window.addEventListener('resize', function () {
+                resizeLogoAssembly();
+                if (assemblyProgress > 0) drawLogoAssembly();
+            });
+        }
+
+        function transitionFromLogoToPhotos() {
+            if (logoTransitioned) return;
+            logoTransitioned = true;
+
+            if (logoTl && window.gsap) logoTl.kill();
+            if (window.gsap) {
+                const glowCore = document.getElementById('logo-glow-core');
+                const glowShape = document.getElementById('logo-glow-shape');
+                if (glowCore) gsap.killTweensOf(glowCore);
+                if (glowShape) gsap.killTweensOf(glowShape);
+            }
+            stopLogoParticles();
+            fadeOutLogoAudio(1200);
+
+            const flash = document.getElementById('li-flash');
+            if (flash) flash.classList.add('ci-flash-active');
+
+            const cinematic = document.getElementById('cinematic-intro');
+            if (cinematic) cinematic.classList.remove('hidden');
+            startCinematicIntro();
+
+            const logoIntro = document.getElementById('logo-intro');
+            if (!logoIntro) return;
+            setTimeout(function () { logoIntro.classList.add('ci-exit'); }, 60);
+            setTimeout(function () { logoIntro.remove(); }, 1300);
+        }
+
         function initTapToStart() {
             const tapScreen = document.getElementById('tap-to-start');
             const intro = document.getElementById('cinematic-intro');
@@ -2132,8 +2689,9 @@
                 tapScreen.removeEventListener('touchstart', handleTouchStart);
                 tapScreen.removeEventListener('touchend', handleTouchEnd);
                 tapScreen.classList.add('tts-exit');
-                if (intro) intro.classList.remove('hidden');
-                startCinematicIntro();
+                const logoIntro = document.getElementById('logo-intro');
+                if (logoIntro) logoIntro.classList.remove('hidden');
+                startLogoIntro();
                 setTimeout(() => tapScreen.remove(), 650);
             };
 
@@ -3031,11 +3589,6 @@
                     };
 
                     if (gap <= 0) {
-                        // Gap = 0 KHÔNG có nghĩa là "hiện ngay bất chấp" - nếu phía
-                        // trên vẫn còn khối đang chờ tới lượt (revealLastStartTime
-                        // nằm ở tương lai), khối này vẫn phải xếp hàng chờ tới đúng
-                        // mốc đó, chỉ là "không cộng thêm khoảng nghỉ nào cả" so với
-                        // khối trước.
                         const now0 = performance.now() / 1000;
                         const startAt0 = Math.max(now0, revealLastStartTime);
                         revealLastStartTime = startAt0;
