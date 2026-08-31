@@ -1706,18 +1706,17 @@
         <source src="thanhxuan.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- Nhạc riêng cho phần CINEMATIC INTRO (đoạn 3 ảnh lướt qua trước khi vào thiệp) -->
-    <!-- THAY "intro.mp3" bằng tên file nhạc intro của bạn (để cùng thư mục với file HTML này) -->
+    <!-- Nhạc GỘP CHUNG cho cả 2 đoạn: INTRO LOGO T&H (chạy ngay sau PRESS TO
+         START) nối liền 1 mạch sang CINEMATIC INTRO (đoạn 3 ảnh lướt qua
+         trước khi vào thiệp). THAY "intro-full.mp3" bằng file nhạc đã ghép
+         sẵn của bạn (cùng thư mục với file HTML này).
+         MỐC CẮT/NGẮT giữa 2 đoạn trong file nhạc: đúng 8.25 GIÂY tính từ đầu
+         file (animation logo chạy ~7.9s rồi giữ thêm 0.35s là hết phần logo
+         -> ngay sau đó là lúc đoạn cinematic intro (3 ảnh) bắt đầu). Nếu bạn
+         chèn thêm khoảng lặng cho khớp nhịp animation thì tổng thời lượng từ
+         đầu file tới đầu đoạn nhạc intro (3 ảnh) phải = 8.25 giây. -->
     <audio id="intro-bg-audio" preload="auto">
-        <source src="intro.mp3" type="audio/mpeg">
-    </audio>
-
-    <!-- Nhạc riêng cho phần INTRO LOGO T&H (chạy ngay sau PRESS TO START) -->
-    <!-- THAY "logo-intro.mp3" bằng file nhạc logo của bạn (cùng thư mục với file HTML này). -->
-    <!-- Thời lượng intro logo: ~8.3 GIÂY (animation ~7.9s + giữ ngắn 0.35s rồi chuyển sang 3 ảnh).
-         Cắt nhạc logo đúng ~8.3 giây cho khớp. -->
-    <audio id="logo-intro-audio" preload="auto">
-        <source src="logo-intro.mp3" type="audio/mpeg">
+        <source src="intro-full.mp3" type="audio/mpeg">
     </audio>
 
     <!-- ============================================================
@@ -2259,52 +2258,17 @@
             }
         }
 
-        // "Mở khoá" (bless) toàn bộ thẻ <audio> trong trang ngay tại cú chạm/
-        // click ĐẦU TIÊN của người dùng (màn "Chạm để mở thiệp"). Chạy đúng
-        // .play() rồi .pause() ngay lập tức (không nghe thấy gì) cho từng
-        // audio - nhờ vậy các trình duyệt mobile khó tính như Safari/iOS sẽ
-        // ghi nhận riêng TỪNG thẻ này là "đã được phát trong 1 gesture thật",
-        // và cho phép gọi .play() lại bằng JS (qua setTimeout, không cần
-        // chạm nữa) ở những bước sau (nhạc intro sau logo, nhạc nền chính...)
-        // mà không bị chặn âm thanh.
-        function unlockAllAudioElements() {
-            ['custom-bg-audio', 'intro-bg-audio', 'logo-intro-audio'].forEach(function (id) {
-                const el = document.getElementById(id);
-                if (!el) return;
-                const p = el.play();
-                if (p && typeof p.then === 'function') {
-                    p.then(function () {
-                        el.pause();
-                        el.currentTime = 0;
-                    }).catch(function () { });
-                } else {
-                    el.pause();
-                    el.currentTime = 0;
-                }
-            });
-        }
-
-        // Phát nhạc riêng cho phần intro (file gắn ở thẻ <audio id="intro-bg-audio">).
-        // Lưu ý: hầu hết trình duyệt CHẶN autoplay có tiếng khi trang vừa
-        // load (chưa có thao tác chạm nào từ người dùng) -> nếu bị chặn,
-        // ta chờ đúng 1 lần chạm/click đầu tiên trên trang để phát lại.
+        // Nhạc GỘP CHUNG logo + intro giờ là 1 file DUY NHẤT, phát liền 1
+        // mạch từ đầu (xem startLogoAudio() bên dưới - được gọi đúng lúc
+        // "Chạm để mở thiệp"). Hàm này KHÔNG phát lại/tua về đầu nữa - chỉ
+        // là 1 lớp bảo hiểm: nếu vì lý do gì đó (ví dụ trình duyệt chặn lần
+        // gọi play() đầu tiên) mà nhạc đang bị dừng giữa chừng, thì tiếp tục
+        // phát tại ĐÚNG vị trí đang dở dang, không reset về 0.
         function startIntroAudio() {
             const introAudio = document.getElementById('intro-bg-audio');
             if (!introAudio) return;
-            introAudio.volume = 1;
-            introAudio.currentTime = 0;
-            const playPromise = introAudio.play();
-            if (playPromise && typeof playPromise.catch === 'function') {
-                playPromise.catch(() => {
-                    const retryOnce = () => {
-                        introAudio.play().catch(() => { });
-                        document.removeEventListener('click', retryOnce);
-                        document.removeEventListener('touchstart', retryOnce);
-                    };
-                    document.addEventListener('click', retryOnce, { once: true });
-                    document.addEventListener('touchstart', retryOnce, { once: true });
-                });
-            }
+            if (!introAudio.paused) return;
+            introAudio.play().catch(() => { });
         }
 
         // Giảm dần âm lượng nhạc intro rồi dừng hẳn (dùng khi cắt cảnh sang thiệp)
@@ -2338,7 +2302,8 @@
             Particle assembly từ file index.html gốc, gắn vào đúng nhịp
             SAU press-to-start / TRƯỚC 3 ảnh cinematic.
             Thời lượng tổng: ~8.3 giây (GSAP ~7.9s + giữ 0.35s).
-            Nhạc: file logo-intro.mp3 — cắt khoảng 10 giây.
+            Nhạc: dùng chung 1 file intro-full.mp3 (gộp logo + intro), phát
+            từ đầu file ngay tại đây - xem startLogoAudio().
             ====================================================================================
         */
         let logoStarted = false;
@@ -2350,34 +2315,29 @@
         let assemblyProgress = 0;
         let logoDpr = Math.min(window.devicePixelRatio || 1, 2);
 
+        // Phát nhạc GỘP (logo + intro trong 1 file) NGAY TỪ ĐẦU, đúng lúc
+        // người dùng chạm "Chạm để mở thiệp". Nhạc sẽ tự chạy liền 1 mạch
+        // xuyên suốt cả đoạn logo lẫn đoạn 3 ảnh cinematic phía sau, không
+        // bị cắt/đổi file giữa chừng nữa. Nếu trình duyệt chặn lần play()
+        // đầu tiên (autoplay policy), chờ đúng 1 lần chạm/click kế tiếp để
+        // phát lại từ đúng vị trí đang dở dang.
         function startLogoAudio() {
-            const audio = document.getElementById('logo-intro-audio');
+            const audio = document.getElementById('intro-bg-audio');
             if (!audio) return;
             audio.volume = 1;
             audio.currentTime = 0;
             const playPromise = audio.play();
             if (playPromise && typeof playPromise.catch === 'function') {
-                playPromise.catch(() => { });
+                playPromise.catch(() => {
+                    const retryOnce = () => {
+                        audio.play().catch(() => { });
+                        document.removeEventListener('click', retryOnce);
+                        document.removeEventListener('touchstart', retryOnce);
+                    };
+                    document.addEventListener('click', retryOnce, { once: true });
+                    document.addEventListener('touchstart', retryOnce, { once: true });
+                });
             }
-        }
-
-        function fadeOutLogoAudio(durationMs) {
-            const audio = document.getElementById('logo-intro-audio');
-            if (!audio || audio.paused) return;
-            const steps = 20;
-            const stepTime = durationMs / steps;
-            const startVolume = audio.volume;
-            let i = 0;
-            const fadeInterval = setInterval(() => {
-                i++;
-                audio.volume = Math.max(0, startVolume * (1 - i / steps));
-                if (i >= steps) {
-                    clearInterval(fadeInterval);
-                    audio.pause();
-                    audio.currentTime = 0;
-                    audio.volume = startVolume;
-                }
-            }, stepTime);
         }
 
         function logoEaseOutCubic(t) {
@@ -2685,7 +2645,9 @@
                 if (glowShape) gsap.killTweensOf(glowShape);
             }
             stopLogoParticles();
-            fadeOutLogoAudio(1200);
+            // KHÔNG fade-out/tắt nhạc ở đây nữa - nhạc giờ là 1 file GỘP
+            // CHUNG logo + intro, phải để nó tự chạy liền mạch qua luôn
+            // đoạn cinematic intro (3 ảnh) phía sau, không ngắt giữa chừng.
 
             const flash = document.getElementById('li-flash');
             if (flash) flash.classList.add('ci-flash-active');
@@ -2718,17 +2680,6 @@
                 tapScreen.removeEventListener('touchstart', handleTouchStart);
                 tapScreen.removeEventListener('touchend', handleTouchEnd);
                 tapScreen.classList.add('tts-exit');
-                // "Mở khoá" TRƯỚC (bless) TẤT CẢ các thẻ <audio> ngay trong
-                // đúng cú chạm đầu tiên này - kể cả nhạc của đoạn cinematic
-                // intro (intro-bg-audio) và nhạc nền chính (custom-bg-audio),
-                // dù chúng sẽ được play() thật sự ở tận vài giây sau (sau khi
-                // intro logo chạy xong). Nhiều trình duyệt mobile (đặc biệt
-                // Safari/iOS) chỉ cho phép audio.play() chạy không cần thao
-                // tác chạm nếu đúng THẺ AUDIO đó đã từng được play() ngay bên
-                // trong một gesture thật của người dùng trước đó. Nếu không
-                // "bless" trước như thế này, nhạc intro sẽ bị im re cho tới
-                // khi người dùng lỡ chạm/bấm gì đó thì mới bật lên được.
-                unlockAllAudioElements();
                 const logoIntro = document.getElementById('logo-intro');
                 if (logoIntro) logoIntro.classList.remove('hidden');
                 startLogoIntro();
