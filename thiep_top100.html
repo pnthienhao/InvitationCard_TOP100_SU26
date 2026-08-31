@@ -2259,6 +2259,31 @@
             }
         }
 
+        // "Mở khoá" (bless) toàn bộ thẻ <audio> trong trang ngay tại cú chạm/
+        // click ĐẦU TIÊN của người dùng (màn "Chạm để mở thiệp"). Chạy đúng
+        // .play() rồi .pause() ngay lập tức (không nghe thấy gì) cho từng
+        // audio - nhờ vậy các trình duyệt mobile khó tính như Safari/iOS sẽ
+        // ghi nhận riêng TỪNG thẻ này là "đã được phát trong 1 gesture thật",
+        // và cho phép gọi .play() lại bằng JS (qua setTimeout, không cần
+        // chạm nữa) ở những bước sau (nhạc intro sau logo, nhạc nền chính...)
+        // mà không bị chặn âm thanh.
+        function unlockAllAudioElements() {
+            ['custom-bg-audio', 'intro-bg-audio', 'logo-intro-audio'].forEach(function (id) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const p = el.play();
+                if (p && typeof p.then === 'function') {
+                    p.then(function () {
+                        el.pause();
+                        el.currentTime = 0;
+                    }).catch(function () { });
+                } else {
+                    el.pause();
+                    el.currentTime = 0;
+                }
+            });
+        }
+
         // Phát nhạc riêng cho phần intro (file gắn ở thẻ <audio id="intro-bg-audio">).
         // Lưu ý: hầu hết trình duyệt CHẶN autoplay có tiếng khi trang vừa
         // load (chưa có thao tác chạm nào từ người dùng) -> nếu bị chặn,
@@ -2693,6 +2718,17 @@
                 tapScreen.removeEventListener('touchstart', handleTouchStart);
                 tapScreen.removeEventListener('touchend', handleTouchEnd);
                 tapScreen.classList.add('tts-exit');
+                // "Mở khoá" TRƯỚC (bless) TẤT CẢ các thẻ <audio> ngay trong
+                // đúng cú chạm đầu tiên này - kể cả nhạc của đoạn cinematic
+                // intro (intro-bg-audio) và nhạc nền chính (custom-bg-audio),
+                // dù chúng sẽ được play() thật sự ở tận vài giây sau (sau khi
+                // intro logo chạy xong). Nhiều trình duyệt mobile (đặc biệt
+                // Safari/iOS) chỉ cho phép audio.play() chạy không cần thao
+                // tác chạm nếu đúng THẺ AUDIO đó đã từng được play() ngay bên
+                // trong một gesture thật của người dùng trước đó. Nếu không
+                // "bless" trước như thế này, nhạc intro sẽ bị im re cho tới
+                // khi người dùng lỡ chạm/bấm gì đó thì mới bật lên được.
+                unlockAllAudioElements();
                 const logoIntro = document.getElementById('logo-intro');
                 if (logoIntro) logoIntro.classList.remove('hidden');
                 startLogoIntro();
