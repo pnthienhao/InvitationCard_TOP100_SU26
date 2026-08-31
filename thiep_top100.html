@@ -1541,7 +1541,7 @@
         /* ============================================================
            INTRO LOGO T&H — cinematic particle assembly
            Chạy ngay SAU "PRESS TO START", TRƯỚC 3 ảnh cinematic.
-           Thời lượng: ~10 giây (GSAP ~9.75s + giữ ngắn 0.35s), rồi hoà cảnh
+           Thời lượng: ~8.3 giây (GSAP ~7.9s + giữ ngắn 0.35s), rồi hoà cảnh
            sang #cinematic-intro. Style cùng tông wine/gold với intro
            (halo + vignette + glow), logo vuông luôn vừa mọi màn hình
            nhờ min(vw, vh) giống cách .ci-frame đã xử lý.
@@ -1714,8 +1714,8 @@
 
     <!-- Nhạc riêng cho phần INTRO LOGO T&H (chạy ngay sau PRESS TO START) -->
     <!-- THAY "logo-intro.mp3" bằng file nhạc logo của bạn (cùng thư mục với file HTML này). -->
-    <!-- Thời lượng intro logo: 14 GIÂY (animation ~12s + giữ 2s rồi chuyển sang 3 ảnh).
-         Cắt nhạc logo đúng ~10 giây cho khớp. -->
+    <!-- Thời lượng intro logo: ~8.3 GIÂY (animation ~7.9s + giữ ngắn 0.35s rồi chuyển sang 3 ảnh).
+         Cắt nhạc logo đúng ~8.3 giây cho khớp. -->
     <audio id="logo-intro-audio" preload="auto">
         <source src="logo-intro.mp3" type="audio/mpeg">
     </audio>
@@ -1732,7 +1732,7 @@
 
     <!-- ============================================================
          INTRO LOGO T&H — particle assembly cinematic
-         Hiện ngay sau PRESS TO START, trước 3 ảnh. Thời lượng ~10s.
+         Hiện ngay sau PRESS TO START, trước 3 ảnh. Thời lượng ~8.3s.
          ============================================================ -->
     <div id="logo-intro"
         class="fixed inset-0 z-[120] overflow-hidden flex items-center justify-center hidden">
@@ -2312,7 +2312,7 @@
             INTRO LOGO T&H
             Particle assembly từ file index.html gốc, gắn vào đúng nhịp
             SAU press-to-start / TRƯỚC 3 ảnh cinematic.
-            Thời lượng tổng: ~10 giây (GSAP ~9.75s + giữ 0.35s).
+            Thời lượng tổng: ~8.3 giây (GSAP ~7.9s + giữ 0.35s).
             Nhạc: file logo-intro.mp3 — cắt khoảng 10 giây.
             ====================================================================================
         */
@@ -2577,30 +2577,34 @@
             logoTl = gsap.timeline({
                 defaults: { ease: 'power2.inOut' },
                 onComplete: function () {
-                    // Chuyển cảnh gần như ngay sau khi quét sáng xong (~9.75s),
+                    // Chuyển cảnh gần như ngay sau khi quét sáng xong (~7.9s),
                     // chỉ giữ lại 1 khoảng ngắn để mắt kịp nhận logo hoàn chỉnh.
                     setTimeout(transitionFromLogoToPhotos, 350);
                 }
             });
 
+            // Đã rút ngắn khoảng chờ ban đầu (trước đây glow phải sáng lên
+            // gần 2s người xem mới thấy điểm ảnh logo bắt đầu kết tụ) —
+            // giờ hạt bụi bắt đầu kết tụ gần như ngay khi vừa chạm (0.15s),
+            // toàn bộ timeline dồn sớm lên ~1.85s, tổng thời lượng còn ~8.3s.
             logoTl.set(glowCore, { opacity: 0, scale: 0.3 }, 0);
-            logoTl.to(glowCore, { opacity: 0.45, scale: 0.55, duration: 1.5, ease: 'sine.out' }, 1.0);
+            logoTl.to(glowCore, { opacity: 0.45, scale: 0.55, duration: 1.5, ease: 'sine.out' }, 0.1);
             logoTl.to(dustProxy, {
                 t: 1, duration: 2.9, ease: 'power2.out',
                 onUpdate: function () { assemblyProgress = dustProxy.t; drawLogoAssembly(); }
-            }, 2.0);
-            logoTl.to(glowShape, { opacity: 0.55, duration: 2.0, ease: 'sine.out' }, 2.6);
-            logoTl.to(finalImg, { opacity: 1, duration: 0.8, ease: 'power1.out' }, 4.55);
-            logoTl.to(assemblyCanvas, { opacity: 0, duration: 0.8, ease: 'power1.out' }, 4.55);
-            logoTl.to(glowCore, { opacity: 0.85, scale: 0.9, duration: 1.4, ease: 'sine.inOut' }, 4.6);
-            logoTl.to(glowShape, { opacity: 0.85, duration: 1.2, ease: 'sine.inOut' }, 4.7);
-            logoTl.set(sweepOverlay, { opacity: 1, backgroundPositionX: '-130%' }, 5.5);
-            logoTl.to(sweepOverlay, { backgroundPositionX: '230%', duration: 4.2, ease: 'sine.inOut' }, 5.5);
-            logoTl.to(sweepOverlay, { opacity: 0, duration: 0.45 }, 9.3);
-            logoTl.to(flashLayer, { opacity: 0.55, duration: 0.16, ease: 'power1.out' }, 7.55);
-            logoTl.to(flashLayer, { opacity: 0, duration: 0.7, ease: 'power1.out' }, 7.71);
-            logoTl.to(glowCore, { opacity: 0.6, scale: 1, duration: 0.45, ease: 'sine.inOut' }, 9.3);
-            // Quét sáng xong (~9.75s) là kết thúc timeline luôn — không giữ thêm hold dài,
+            }, 0.15);
+            logoTl.to(glowShape, { opacity: 0.55, duration: 2.0, ease: 'sine.out' }, 0.75);
+            logoTl.to(finalImg, { opacity: 1, duration: 0.8, ease: 'power1.out' }, 2.7);
+            logoTl.to(assemblyCanvas, { opacity: 0, duration: 0.8, ease: 'power1.out' }, 2.7);
+            logoTl.to(glowCore, { opacity: 0.85, scale: 0.9, duration: 1.4, ease: 'sine.inOut' }, 2.75);
+            logoTl.to(glowShape, { opacity: 0.85, duration: 1.2, ease: 'sine.inOut' }, 2.85);
+            logoTl.set(sweepOverlay, { opacity: 1, backgroundPositionX: '-130%' }, 3.65);
+            logoTl.to(sweepOverlay, { backgroundPositionX: '230%', duration: 4.2, ease: 'sine.inOut' }, 3.65);
+            logoTl.to(sweepOverlay, { opacity: 0, duration: 0.45 }, 7.45);
+            logoTl.to(flashLayer, { opacity: 0.55, duration: 0.16, ease: 'power1.out' }, 5.7);
+            logoTl.to(flashLayer, { opacity: 0, duration: 0.7, ease: 'power1.out' }, 5.86);
+            logoTl.to(glowCore, { opacity: 0.6, scale: 1, duration: 0.45, ease: 'sine.inOut' }, 7.45);
+            // Quét sáng xong (~7.9s) là kết thúc timeline luôn — không giữ thêm hold dài,
             // chuyển cảnh liền sang phần intro/thiệp tiếp theo.
         }
 
