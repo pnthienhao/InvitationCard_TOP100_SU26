@@ -2913,26 +2913,31 @@
                     // không xử lý/chờ lại nữa.
                     if (el.classList.contains('in-view')) return;
 
-                    // Có 2 loại khoảng nghỉ riêng có thể gắn cho từng khối:
-                    // - data-reveal-gap: LUÔN áp dụng, dù tự cuộn hay người
-                    //   dùng tự lướt tay (dùng cho chỗ bắt buộc phải chờ,
-                    //   như "ABOUT ME" chờ "Đến tham dự..." hiện xong).
-                    // - data-reveal-gap-auto: CHỈ áp dụng khi thiệp đang tự
-                    //   cuộn; nếu người dùng đang tự lướt tay thì bỏ qua,
-                    //   hiện ngay như các khối bình thường khác (dùng cho
-                    //   chỗ chỉ cần từ từ lúc tự chạy, như "Khoảnh Khắc
-                    //   Đáng Nhớ").
+                    // Có 2 loại khoảng nghỉ riêng có thể gắn cho từng khối, nhưng
+                    // CẢ HAI chỉ thật sự áp dụng nguyên giá trị lúc thiệp TỰ CUỘN
+                    // (cho cảm giác chậm rãi, điện ảnh). Lúc người dùng CHỦ ĐỘNG
+                    // lướt tay, ta không bắt họ chờ nhiều giây như vậy nữa - chỉ
+                    // giữ lại một khoảng nghỉ CỰC NHỎ (REVEAL_MIN_GAP) đủ để đảm
+                    // bảo đúng THỨ TỰ xuất hiện (khối trên phải hiện trước khối
+                    // dưới), không làm người dùng cảm thấy bị khựng/delay trong
+                    // lúc họ đang tự lướt.
+                    // - data-reveal-gap: bắt buộc chờ, CHỈ áp dụng nguyên giá trị
+                    //   khi tự cuộn (vd "ABOUT ME" chờ "Đến tham dự..." hiện xong).
+                    // - data-reveal-gap-auto: cũng CHỈ áp dụng khi tự cuộn (vd
+                    //   "Khoảnh Khắc Đáng Nhớ" chờ lâu hơn một chút).
                     const forcedGap = parseFloat(el.dataset.revealGap);
                     const autoOnlyGap = parseFloat(el.dataset.revealGapAuto);
                     const manualScrolling = typeof isUserTouching !== 'undefined' && isUserTouching;
 
                     let gap;
-                    if (Number.isFinite(forcedGap)) {
+                    if (manualScrolling) {
+                        gap = REVEAL_MIN_GAP;
+                    } else if (Number.isFinite(forcedGap)) {
                         gap = forcedGap;
-                    } else if (!manualScrolling && Number.isFinite(autoOnlyGap)) {
+                    } else if (Number.isFinite(autoOnlyGap)) {
                         gap = autoOnlyGap;
                     } else {
-                        gap = manualScrolling ? 0 : REVEAL_MIN_GAP;
+                        gap = REVEAL_MIN_GAP;
                     }
 
                     // Hiện khối này, và nếu nó có gắn data-reveal-group thì
@@ -2954,8 +2959,20 @@
                     };
 
                     if (gap <= 0) {
-                        revealLastStartTime = performance.now() / 1000;
-                        revealNow(el);
+                        // Gap = 0 KHÔNG có nghĩa là "hiện ngay bất chấp" - nếu phía
+                        // trên vẫn còn khối đang chờ tới lượt (revealLastStartTime
+                        // nằm ở tương lai), khối này vẫn phải xếp hàng chờ tới đúng
+                        // mốc đó, chỉ là "không cộng thêm khoảng nghỉ nào cả" so với
+                        // khối trước.
+                        const now0 = performance.now() / 1000;
+                        const startAt0 = Math.max(now0, revealLastStartTime);
+                        revealLastStartTime = startAt0;
+                        const waitMs0 = Math.max(0, (startAt0 - now0) * 1000);
+                        if (waitMs0 <= 0) {
+                            revealNow(el);
+                        } else {
+                            setTimeout(() => revealNow(el), waitMs0);
+                        }
                         return;
                     }
 
