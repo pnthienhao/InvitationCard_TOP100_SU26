@@ -84,6 +84,20 @@
             font-family: 'Montserrat', sans-serif;
             overflow-x: hidden;
             user-select: none;
+            /* Chặn menu "Copy/Save Image/..." khi nhấn giữ lâu trên iOS Safari */
+            -webkit-touch-callout: none;
+        }
+
+        /* Chặn riêng cho tất cả hình ảnh trong trang: không cho kéo-thả lưu
+           ảnh (drag), không cho nổi menu ngữ cảnh khi nhấn giữ lâu, không
+           cho bôi đen/chọn ảnh. */
+        img {
+            -webkit-user-drag: none;
+            user-drag: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            pointer-events: auto;
         }
 
         /* Gold Gradient Text */
@@ -1958,6 +1972,30 @@
             if (document.hidden) {
                 location.reload();
             }
+        });
+
+        /*
+            ====================================================================================
+            CHẶN BÔI ĐEN / SAO CHÉP / LƯU ẢNH
+            - Chặn menu chuột phải & menu "nhấn giữ" (Save Image/Copy/...) trên
+              toàn trang, kể cả khi nhấn giữ ngay trên ảnh.
+            - Chặn kéo-thả ảnh ra ngoài (drag) - một cách khác để lưu ảnh mà
+              CSS "-webkit-user-drag" đôi khi không chặn hết trên mọi trình duyệt.
+            - Chặn tổ hợp phím sao chép/lưu trang thường dùng (Ctrl/Cmd+S,
+              Ctrl/Cmd+C khi không có input đang được focus, PrintScreen không
+              chặn được vì đó là chức năng hệ điều hành).
+            ====================================================================================
+        */
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        document.addEventListener('dragstart', (e) => {
+            if (e.target && e.target.tagName === 'IMG') e.preventDefault();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key ? e.key.toLowerCase() : '';
+            const isSaveOrCopy = (e.ctrlKey || e.metaKey) && (key === 's' || key === 'c' || key === 'u');
+            if (isSaveOrCopy) e.preventDefault();
         });
 
         // Auto-Scroll State Engine variables
