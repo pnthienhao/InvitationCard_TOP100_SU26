@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invitation Card</title>
+    <title>Thiệp mời - Thiện Hảo</title>
 
     <!-- Favicon (icon nhỏ hiện trên tab trình duyệt) - đặt 1 file ảnh
          VUÔNG tên "favicon.png" (khuyên dùng tối thiểu 512x512px, PNG,
@@ -1087,13 +1087,21 @@
             }
         }
 
-        /* Trạng thái "tách rời" - JS gắn thẳng quả cầu vào <body> bằng
-           position:fixed (toạ độ left/top/width/height được set inline
-           khớp với vị trí đang hiển thị) để nó không bị cuốn theo hiệu
-           ứng mờ/nhoè (ci-exit) của #video-intro, và có thể bay tự do đè
-           lên mọi lớp phía trên trong lúc chuyển cảnh. */
+        /* Trạng thái "tách rời" - JS gắn thẳng quả cầu vào <body> để nó
+           không bị cuốn theo hiệu ứng mờ/nhoè (ci-exit) của #video-intro,
+           và có thể bay tự do đè lên mọi lớp phía trên trong lúc chuyển
+           cảnh.
+           Cố tình dùng position:ABSOLUTE (không phải fixed): trên di
+           động, "fixed" bám theo khung nhìn ĐÃ ZOOM (visual viewport),
+           còn toạ độ JS đo bằng getBoundingClientRect() lại tính theo
+           khung nhìn GỐC chưa zoom (layout viewport) - 2 hệ toạ độ này
+           lệch nhau ngay khi người dùng pinch-zoom trang, khiến quả cầu
+           bị dịch lệch khỏi vị trí thật và bay sai hướng/lệch tâm.
+           "absolute" luôn bám theo toạ độ tài liệu (document), CÙNG hệ
+           toạ độ với getBoundingClientRect(), nên không bị lệch dù màn
+           hình có đang zoom hay không. */
         #chapter-orb-wrap.orb-detached {
-            position: fixed;
+            position: absolute;
             margin: 0;
             z-index: 200;
             animation: none;
@@ -1778,23 +1786,19 @@
                                 HẢO</h4>
                         </div>
 
-                        <p data-reveal-gap="0.15"
-                            class="reveal-text txt-student-major text-gold-300/90 font-medium mt-1">Major: Software
+                        <p data-reveal-gap="0.15" class="reveal-text txt-student-major text-gold-300/90 font-medium mt-1">Major: Software
                             Engineering</p>
                         <div class="mt-3 text-center space-y-1.5">
                             <p class="text-fpt-orange">
-                                <span data-reveal-gap="0.15" class="reveal-text inline txt-badge font-semibold">Top 100
-                                    Students With
+                                <span data-reveal-gap="0.15" class="reveal-text inline txt-badge font-semibold">Top 100 Students With
                                     Outstanding Academic Achievement Summer 2026</span>
                             </p>
                             <p class="text-fpt-orange">
-                                <span data-reveal-gap="0.15" class="reveal-text inline txt-badge font-semibold">Top 100
-                                    Students With
+                                <span data-reveal-gap="0.15" class="reveal-text inline txt-badge font-semibold">Top 100 Students With
                                     Outstanding Academic Achievement Spring 2026</span>
                             </p>
                             <p class="text-fpt-orange">
-                                <span data-reveal-gap="0.15"
-                                    class="reveal-text inline txt-badge font-semibold">Excellent Student Fall
+                                <span data-reveal-gap="0.15" class="reveal-text inline txt-badge font-semibold">Excellent Student Fall
                                     2025</span>
                             </p>
                         </div>
@@ -2338,13 +2342,19 @@
             const orbRect = orb.getBoundingClientRect();
 
             // Tách quả cầu ra khỏi #video-intro, gắn thẳng vào <body> bằng
-            // position:fixed (giữ nguyên đúng vị trí/kích thước hiện tại
+            // position:absolute (giữ nguyên đúng vị trí/kích thước hiện tại
             // qua toạ độ đo được ở trên) - để nó KHÔNG bị cuốn theo hiệu
             // ứng mờ/nhoè (ci-exit) của #video-intro và có thể bay tự do
             // đè lên mọi lớp phía trên.
+            // Cộng thêm scrollX/scrollY vì "absolute" định vị theo TÀI
+            // LIỆU (document), còn getBoundingClientRect() trả toạ độ
+            // theo KHUNG NHÌN (viewport) - phải cộng lại độ cuộn trang để
+            // quy đổi đúng 2 hệ toạ độ này, tránh lệch quả cầu khi trang
+            // đang bị cuộn dở hoặc đang zoom (không dùng "fixed" nữa nên
+            // không còn bị lệch bởi visual-viewport khi zoom).
             orb.classList.add('orb-detached');
-            orb.style.left = orbRect.left + 'px';
-            orb.style.top = orbRect.top + 'px';
+            orb.style.left = (orbRect.left + window.scrollX) + 'px';
+            orb.style.top = (orbRect.top + window.scrollY) + 'px';
             orb.style.width = orbRect.width + 'px';
             orb.style.height = orbRect.height + 'px';
             document.body.appendChild(orb);
