@@ -3,48 +3,54 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
     <!-- KHOÁ HẲN ZOOM (cả phóng to lẫn thu nhỏ) để khung hình không bị lệch -->
     <style>
-        html, body { touch-action: pan-x pan-y; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+        html,
+        body {
+            touch-action: pan-x pan-y;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
     </style>
     <script>
-    (function () {
-        var opts = { passive: false };
-        var stop = function (e) { e.preventDefault(); };
+        (function () {
+            var opts = { passive: false };
+            var stop = function (e) { e.preventDefault(); };
 
-        // Điện thoại: chặn pinch 2 ngón (mọi hướng) + gesture của iOS Safari
-        ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (t) {
-            document.addEventListener(t, stop, opts);
-        });
-        document.addEventListener('touchmove', function (e) {
-            if (e.touches.length > 1) e.preventDefault();
-        }, opts);
+            // Điện thoại: chặn pinch 2 ngón (mọi hướng) + gesture của iOS Safari
+            ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (t) {
+                document.addEventListener(t, stop, opts);
+            });
+            document.addEventListener('touchmove', function (e) {
+                if (e.touches.length > 1) e.preventDefault();
+            }, opts);
 
-        // Chặn double-tap zoom
-        var lastTap = 0;
-        document.addEventListener('touchend', function (e) {
-            var now = Date.now();
-            if (now - lastTap < 300) e.preventDefault();
-            lastTap = now;
-        }, opts);
+            // Chặn double-tap zoom
+            var lastTap = 0;
+            document.addEventListener('touchend', function (e) {
+                var now = Date.now();
+                if (now - lastTap < 300) e.preventDefault();
+                lastTap = now;
+            }, opts);
 
-        // Laptop: Ctrl/Cmd + lăn chuột, pinch touchpad (cả vào lẫn ra)
-        window.addEventListener('wheel', function (e) {
-            if (e.ctrlKey || e.metaKey) e.preventDefault();
-        }, opts);
+            // Laptop: Ctrl/Cmd + lăn chuột, pinch touchpad (cả vào lẫn ra)
+            window.addEventListener('wheel', function (e) {
+                if (e.ctrlKey || e.metaKey) e.preventDefault();
+            }, opts);
 
-        // Laptop: Ctrl/Cmd + '+', '-', '=', '0'
-        window.addEventListener('keydown', function (e) {
-            if (!(e.ctrlKey || e.metaKey)) return;
-            var k = e.key, c = e.code;
-            if (k === '+' || k === '-' || k === '=' || k === '0' ||
-                c === 'NumpadAdd' || c === 'NumpadSubtract' || c === 'Equal' || c === 'Minus' || c === 'Digit0' || c === 'Numpad0') {
-                e.preventDefault();
-            }
-        }, true);
-    })();
+            // Laptop: Ctrl/Cmd + '+', '-', '=', '0'
+            window.addEventListener('keydown', function (e) {
+                if (!(e.ctrlKey || e.metaKey)) return;
+                var k = e.key, c = e.code;
+                if (k === '+' || k === '-' || k === '=' || k === '0' ||
+                    c === 'NumpadAdd' || c === 'NumpadSubtract' || c === 'Equal' || c === 'Minus' || c === 'Digit0' || c === 'Numpad0') {
+                    e.preventDefault();
+                }
+            }, true);
+        })();
     </script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -3478,7 +3484,8 @@
             "26": "Nhật Đăng",
             "27": "Tuấn Kiệt",
             "28": "Quang Vinh",
-            "29": "Huỳnh Ty"
+            "29": "Huỳnh Ty",
+            "30": "Cô Thương Thương"
         };
 
         // URL Guest Parameter Handling (?id=01)
