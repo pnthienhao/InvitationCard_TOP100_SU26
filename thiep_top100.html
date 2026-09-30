@@ -3,7 +3,55 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+
+    <!-- CHO PHÓNG TO, KHÔNG CHO THU NHỎ DƯỚI 100% (thu nhỏ làm khung hình lệch khỏi giữa) -->
+    <script>
+        (function () {
+            var vv = window.visualViewport;
+            var baseDpr = window.devicePixelRatio || 1;
+            var opts = { passive: false };
+
+            // Điện thoại: đang ở 100% mà chụm 2 ngón lại (thu nhỏ) thì chặn
+            var startDist = 0;
+            function dist(t) {
+                var dx = t[0].clientX - t[1].clientX, dy = t[0].clientY - t[1].clientY;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+            document.addEventListener('touchstart', function (e) {
+                startDist = e.touches.length === 2 ? dist(e.touches) : 0;
+            }, opts);
+            document.addEventListener('touchmove', function (e) {
+                if (e.touches.length !== 2 || !startDist) return;
+                var d = dist(e.touches);
+                var atBase = !vv || vv.scale <= 1.01;
+                if (atBase && d < startDist - 1) e.preventDefault();
+                else startDist = d;
+            }, opts);
+            // iOS Safari
+            document.addEventListener('gesturechange', function (e) {
+                if (e.scale < 1 && (!vv || vv.scale <= 1.01)) e.preventDefault();
+            }, opts);
+
+            // Máy tính: Ctrl/Cmd + lăn chuột / Ctrl + '-' khi đang ở 100%
+            function atBaseZoom() { return (window.devicePixelRatio || 1) <= baseDpr + 0.001; }
+            window.addEventListener('wheel', function (e) {
+                if ((e.ctrlKey || e.metaKey) && e.deltaY > 0 && atBaseZoom()) e.preventDefault();
+            }, opts);
+            window.addEventListener('keydown', function (e) {
+                if ((e.ctrlKey || e.metaKey) && (e.key === '-' || e.code === 'NumpadSubtract' || e.code === 'Minus') && atBaseZoom()) e.preventDefault();
+            }, true);
+
+            // Lỡ bị thu nhỏ (scale < 1) thì ép về 100%
+            if (vv) vv.addEventListener('resize', function () {
+                if (vv.scale >= 0.99) return;
+                var m = document.querySelector('meta[name="viewport"]');
+                var orig = m.getAttribute('content');
+                m.setAttribute('content', 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0');
+                setTimeout(function () { m.setAttribute('content', orig); }, 120);
+            });
+        })();
+    </script>
     <title>Invitation Card</title>
 
     <!-- Favicon (icon nhỏ hiện trên tab trình duyệt) - đặt 1 file ảnh
@@ -3414,7 +3462,8 @@
             "26": "Nhật Đăng",
             "27": "Tuấn Kiệt",
             "28": "Quang Vinh",
-            "29": "Huỳnh Ty"
+            "29": "Huỳnh Ty",
+            "30": "Cô Thương Thương"
         };
 
         // URL Guest Parameter Handling (?id=01)
