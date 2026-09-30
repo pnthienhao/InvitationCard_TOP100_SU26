@@ -52,6 +52,9 @@
             }, true);
         })();
     </script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Invitation Card</title>
 
     <!-- Favicon (icon nhỏ hiện trên tab trình duyệt) - đặt 1 file ảnh
@@ -2233,8 +2236,15 @@
             ban đầu như lúc mới vào.
             ====================================================================================
         */
+        // LƯU Ý: KHÔNG reload lúc trang bị ẩn. Khi người dùng sửa URL (?id=01 -> ?id=02)
+        // rồi Enter, trang cũ cũng bị "ẩn" và lệnh reload() chạy đè lên lượt điều
+        // hướng sang URL mới => trang load lại đúng URL cũ (vẫn hiện id 01).
+        // Nên chỉ đánh dấu lúc ẩn, và reload khi người dùng QUAY LẠI tab.
+        let pageWasHidden = false;
         document.addEventListener('visibilitychange', function () {
             if (document.hidden) {
+                pageWasHidden = true;
+            } else if (pageWasHidden) {
                 location.reload();
             }
         });
@@ -3469,7 +3479,8 @@
         // URL Guest Parameter Handling (?id=01)
         function initGuestNameFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
-            const guestId = urlParams.get('id');
+            let guestId = (urlParams.get('id') || '').trim();
+            if (/^\d$/.test(guestId)) guestId = '0' + guestId; // ?id=1 -> 01
             if (guestId && GUEST_LIST[guestId]) {
                 document.querySelectorAll('.guest-name-text').forEach(el => el.innerText = GUEST_LIST[guestId]);
             }
@@ -3677,6 +3688,12 @@
                 el.classList.remove('in-view');
             });
         }
+
+        // Trang được khôi phục từ bộ nhớ đệm back/forward (bfcache) thì tải lại
+        // để đọc đúng ?id= hiện tại, không hiện tên khách cũ.
+        window.addEventListener('pageshow', (e) => {
+            if (e.persisted) location.reload();
+        });
 
         // Initialize Page
         document.addEventListener('DOMContentLoaded', () => {
