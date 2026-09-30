@@ -3,54 +3,48 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
     <!-- KHOÁ HẲN ZOOM (cả phóng to lẫn thu nhỏ) để khung hình không bị lệch -->
     <style>
-        html,
-        body {
-            touch-action: pan-x pan-y;
-            -webkit-text-size-adjust: 100%;
-            text-size-adjust: 100%;
-        }
+        html, body { touch-action: pan-x pan-y; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
     </style>
     <script>
-        (function () {
-            var opts = { passive: false };
-            var stop = function (e) { e.preventDefault(); };
+    (function () {
+        var opts = { passive: false };
+        var stop = function (e) { e.preventDefault(); };
 
-            // Điện thoại: chặn pinch 2 ngón (mọi hướng) + gesture của iOS Safari
-            ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (t) {
-                document.addEventListener(t, stop, opts);
-            });
-            document.addEventListener('touchmove', function (e) {
-                if (e.touches.length > 1) e.preventDefault();
-            }, opts);
+        // Điện thoại: chặn pinch 2 ngón (mọi hướng) + gesture của iOS Safari
+        ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (t) {
+            document.addEventListener(t, stop, opts);
+        });
+        document.addEventListener('touchmove', function (e) {
+            if (e.touches.length > 1) e.preventDefault();
+        }, opts);
 
-            // Chặn double-tap zoom
-            var lastTap = 0;
-            document.addEventListener('touchend', function (e) {
-                var now = Date.now();
-                if (now - lastTap < 300) e.preventDefault();
-                lastTap = now;
-            }, opts);
+        // Chặn double-tap zoom
+        var lastTap = 0;
+        document.addEventListener('touchend', function (e) {
+            var now = Date.now();
+            if (now - lastTap < 300) e.preventDefault();
+            lastTap = now;
+        }, opts);
 
-            // Laptop: Ctrl/Cmd + lăn chuột, pinch touchpad (cả vào lẫn ra)
-            window.addEventListener('wheel', function (e) {
-                if (e.ctrlKey || e.metaKey) e.preventDefault();
-            }, opts);
+        // Laptop: Ctrl/Cmd + lăn chuột, pinch touchpad (cả vào lẫn ra)
+        window.addEventListener('wheel', function (e) {
+            if (e.ctrlKey || e.metaKey) e.preventDefault();
+        }, opts);
 
-            // Laptop: Ctrl/Cmd + '+', '-', '=', '0'
-            window.addEventListener('keydown', function (e) {
-                if (!(e.ctrlKey || e.metaKey)) return;
-                var k = e.key, c = e.code;
-                if (k === '+' || k === '-' || k === '=' || k === '0' ||
-                    c === 'NumpadAdd' || c === 'NumpadSubtract' || c === 'Equal' || c === 'Minus' || c === 'Digit0' || c === 'Numpad0') {
-                    e.preventDefault();
-                }
-            }, true);
-        })();
+        // Laptop: Ctrl/Cmd + '+', '-', '=', '0'
+        window.addEventListener('keydown', function (e) {
+            if (!(e.ctrlKey || e.metaKey)) return;
+            var k = e.key, c = e.code;
+            if (k === '+' || k === '-' || k === '=' || k === '0' ||
+                c === 'NumpadAdd' || c === 'NumpadSubtract' || c === 'Equal' || c === 'Minus' || c === 'Digit0' || c === 'Numpad0') {
+                e.preventDefault();
+            }
+        }, true);
+    })();
     </script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -2236,17 +2230,29 @@
             ban đầu như lúc mới vào.
             ====================================================================================
         */
-        // LƯU Ý: KHÔNG reload lúc trang bị ẩn. Khi người dùng sửa URL (?id=01 -> ?id=02)
-        // rồi Enter, trang cũ cũng bị "ẩn" và lệnh reload() chạy đè lên lượt điều
-        // hướng sang URL mới => trang load lại đúng URL cũ (vẫn hiện id 01).
-        // Nên chỉ đánh dấu lúc ẩn, và reload khi người dùng QUAY LẠI tab.
-        let pageWasHidden = false;
+        // Rời tab => dừng NGAY (tắt nhạc) rồi reload để về màn hình PRESS TO START.
+        // Nhưng nếu đang ĐIỀU HƯỚNG sang URL khác (sửa ?id=01 -> ?id=02 rồi Enter) thì
+        // KHÔNG được reload, nếu không lệnh reload() sẽ đè lên lượt điều hướng và trang
+        // load lại đúng URL cũ. beforeunload/pagehide báo hiệu đang điều hướng.
+        let pageNavigating = false;
+        const markNavigating = () => {
+            pageNavigating = true;
+            // lỡ điều hướng bị huỷ (vd: tải file) thì gỡ cờ sau 3s
+            setTimeout(() => { pageNavigating = false; }, 3000);
+        };
+        window.addEventListener('beforeunload', markNavigating);
+        window.addEventListener('pagehide', markNavigating);
+
         document.addEventListener('visibilitychange', function () {
-            if (document.hidden) {
-                pageWasHidden = true;
-            } else if (pageWasHidden) {
-                location.reload();
-            }
+            if (!document.hidden || pageNavigating) return;
+            // 1) Dừng nhạc ngay lập tức, không chờ reload
+            document.querySelectorAll('audio, video').forEach(function (m) {
+                try { m.pause(); } catch (err) { }
+            });
+            // 2) Reload (trễ chút để cờ điều hướng kịp được đặt)
+            setTimeout(function () {
+                if (document.hidden && !pageNavigating) location.reload();
+            }, 60);
         });
 
         /*
@@ -3472,8 +3478,7 @@
             "26": "Nhật Đăng",
             "27": "Tuấn Kiệt",
             "28": "Quang Vinh",
-            "29": "Huỳnh Ty",
-            "30": "Cô Thương Thương"
+            "29": "Huỳnh Ty"
         };
 
         // URL Guest Parameter Handling (?id=01)
