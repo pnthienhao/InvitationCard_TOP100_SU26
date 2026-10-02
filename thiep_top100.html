@@ -2341,12 +2341,36 @@
         function startIntroAudio() {
             const introAudio = document.getElementById('intro-bg-audio');
             if (!introAudio) return;
+            if (!introAudioAllowed) return;
             if (!introAudio.paused) return;
             introAudio.play().catch(() => { });
         }
 
         // Giảm dần âm lượng nhạc intro rồi dừng hẳn (dùng khi cắt cảnh sang thiệp)
+        // Cờ: nhạc intro còn được phép phát hay không. Hết intro thì đặt
+        // false + gỡ listener "retry" để không có cú click nào (vd bấm con
+        // dấu) làm nhạc intro bật lại đè lên nhạc thiệp.
+        let introAudioAllowed = false;
+        let introRetryHandler = null;
+
+        function cancelIntroAudioRetry() {
+            if (introRetryHandler) {
+                document.removeEventListener('click', introRetryHandler);
+                document.removeEventListener('touchstart', introRetryHandler);
+                introRetryHandler = null;
+            }
+        }
+
+        function stopIntroAudioNow() {
+            introAudioAllowed = false;
+            cancelIntroAudioRetry();
+            const a = document.getElementById('intro-bg-audio');
+            if (a) { try { a.pause(); a.currentTime = 0; } catch (e) { } }
+        }
+
         function fadeOutIntroAudio(durationMs) {
+            introAudioAllowed = false;
+            cancelIntroAudioRetry();
             const introAudio = document.getElementById('intro-bg-audio');
             if (!introAudio || introAudio.paused) return;
             const steps = 20;
@@ -2398,18 +2422,22 @@
         function startLogoAudio() {
             const audio = document.getElementById('intro-bg-audio');
             if (!audio) return;
+            introAudioAllowed = true;
             audio.volume = 1;
             audio.currentTime = 0;
             const playPromise = audio.play();
             if (playPromise && typeof playPromise.catch === 'function') {
                 playPromise.catch(() => {
-                    const retryOnce = () => {
+                    cancelIntroAudioRetry();
+                    introRetryHandler = () => {
+                        const h = introRetryHandler;
+                        cancelIntroAudioRetry();
+                        // Intro đã xong rồi thì tuyệt đối không phát lại
+                        if (!introAudioAllowed || !h) return;
                         audio.play().catch(() => { });
-                        document.removeEventListener('click', retryOnce);
-                        document.removeEventListener('touchstart', retryOnce);
                     };
-                    document.addEventListener('click', retryOnce, { once: true });
-                    document.addEventListener('touchstart', retryOnce, { once: true });
+                    document.addEventListener('click', introRetryHandler);
+                    document.addEventListener('touchstart', introRetryHandler);
                 });
             }
         }
@@ -3155,6 +3183,9 @@
             // chuột/chạm tay) trong lúc đoạn quả cầu-biến-thành-con-dấu
             // vẫn đang chạy dở, chưa tới lúc cho phép mở thiệp.
             if (!introFinished) return;
+
+            // Chốt chặn: tắt hẳn nhạc intro trước khi bật nhạc thiệp
+            stopIntroAudioNow();
 
             // Step 1: Open envelope flap
             container.classList.add('open');
